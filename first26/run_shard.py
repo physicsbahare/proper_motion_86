@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from first26.recenter_measurement import install as install_recenter_patch
 from pm86.pipeline import run_candidate
 
 
@@ -32,6 +33,13 @@ def main():
     parser.add_argument("--n-shards", type=int, required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
+
+    # The base pipeline first measured only at the catalog coordinate.  A real
+    # mover can therefore be several pixels away and be rejected before PM is
+    # even estimated.  Install a first26-only local recentering layer that
+    # searches up to 12 pixels around the catalog prediction and preserves the
+    # search offset in the exposure evidence.
+    install_recenter_patch()
 
     catalog = pd.read_csv(args.catalog).sort_values("source_row").reset_index(drop=True)
     selected = catalog.iloc[args.shard :: args.n_shards].copy()
@@ -53,8 +61,6 @@ def main():
 
         summary = run_candidate(candidate, root)
 
-        # Preserve every input column in the candidate evidence directory and
-        # final summary, without letting those values influence astrometry.
         cdir = root / f"candidate_{cid}"
         input_payload = {k: json_safe(v) for k, v in candidate.items()}
         (cdir / "source_input.json").write_text(
