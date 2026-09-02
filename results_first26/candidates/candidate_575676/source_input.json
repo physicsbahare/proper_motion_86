@@ -1,0 +1,19 @@
+{
+  "aic_atmo2020": 39.8839132919532,
+  "aic_exp_sfh": 103505.296147811,
+  "aic_lognormal_sfh": 12.498763134267309,
+  "aic_sonora_elf_owl": 64.1581881471445,
+  "candidate_id": 575676,
+  "chi2_atmo2020": 37.8839132919532,
+  "chi2_exp_sfh": 103493.296147811,
+  "chi2_lognormal_sfh": 0.498763134267306,
+  "chi2_sonora_elf_owl": 62.1581881471445,
+  "dec_deg": 2.29974660374655,
+  "k_atmo2020": 1,
+  "k_exp_sfh": 6,
+  "k_lognormal_sfh": 6,
+  "k_sonora_elf_owl": 1,
+  "ra_deg": 149.855762756878,
+  "source_classification_3sigma": "Galaxy (3\u03c3)",
+  "source_row": 3
+}

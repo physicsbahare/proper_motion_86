@@ -1,0 +1,19 @@
+{
+  "aic_atmo2020": 3.12487087793292,
+  "aic_exp_sfh": 20.587613021539468,
+  "aic_lognormal_sfh": 12.49913702748626,
+  "aic_sonora_elf_owl": 2.967433065056046,
+  "candidate_id": 72625,
+  "chi2_atmo2020": 1.12487087793292,
+  "chi2_exp_sfh": 8.58761302153947,
+  "chi2_lognormal_sfh": 0.499137027486259,
+  "chi2_sonora_elf_owl": 0.967433065056046,
+  "dec_deg": 2.19275487865041,
+  "k_atmo2020": 1,
+  "k_exp_sfh": 6,
+  "k_lognormal_sfh": 6,
+  "k_sonora_elf_owl": 1,
+  "ra_deg": 149.901873435684,
+  "source_classification_3sigma": "Brown Dwarf (3\u03c3)",
+  "source_row": 19
+}

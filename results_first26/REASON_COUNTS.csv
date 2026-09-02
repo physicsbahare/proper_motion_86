@@ -1,0 +1,4 @@
+reason,n_candidates
+target is not securely centroidable in both independent epochs,16
+NO_INDEPENDENT_JWST_EPOCH_PAIR,7
+selected archive epochs do not both have covering CAL exposures,3
