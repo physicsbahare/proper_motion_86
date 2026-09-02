@@ -6,5 +6,5 @@
   "input_f444w_mag_ab": 24.2297405419362,
   "pm_status": "ERROR",
   "ra_deg": 150.24599898078,
-  "reason": "RuntimeError: MAST product query failed after 3 attempts: ObservationsClass.get_product_list_async() got an unexpected keyword argument 'batch_size'"
+  "reason": "RuntimeError: MAST product query failed after 3 attempts: sequence item 0: expected str instance, numpy.int64 found"
 }
