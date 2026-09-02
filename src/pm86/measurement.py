@@ -89,8 +89,13 @@ def dq_diagnostics(dq, x, y, radius=4.0):
 
 def centroid_stamp(data_sub, err, bad, x_expected, y_expected, n_mc=0, seed=1):
     out = {
-        "x_2dg": np.nan, "y_2dg": np.nan, "x_com": np.nan, "y_com": np.nan,
-        "sigma_x_pix": np.nan, "sigma_y_pix": np.nan, "n_mc_good": 0,
+        "x_2dg": np.nan,
+        "y_2dg": np.nan,
+        "x_com": np.nan,
+        "y_com": np.nan,
+        "sigma_x_pix": np.nan,
+        "sigma_y_pix": np.nan,
+        "n_mc_good": 0,
     }
     h = CONFIG.centroid_half_size
     ny, nx = data_sub.shape
@@ -119,7 +124,8 @@ def centroid_stamp(data_sub, err, bad, x_expected, y_expected, n_mc=0, seed=1):
         p = np.clip(p, 0.0, None)
         if p.sum() > 0:
             x, y = centroid_com(p)
-            out["x_com"], out["y_com"] = xa + float(x), ya + float(y)
+            x, y = xa + float(x), ya + float(y)
+            out["x_com"], out["y_com"] = x, y
     except Exception:
         pass
 
@@ -146,6 +152,25 @@ def centroid_stamp(data_sub, err, bad, x_expected, y_expected, n_mc=0, seed=1):
 def local_pixel_to_sky(exposure: ExposureCutout, x_local, y_local):
     result = exposure.gwcs(float(x_local + exposure.x0), float(y_local + exposure.y0))
     return float(np.asarray(result[0]).squeeze()), float(np.asarray(result[1]).squeeze())
+
+
+def local_pixel_scale_mas(exposure: ExposureCutout, x_local, y_local):
+    """Measure local angular pixel scale directly from this exposure's gWCS."""
+    try:
+        ra0, dec0 = local_pixel_to_sky(exposure, x_local, y_local)
+        rax, decx = local_pixel_to_sky(exposure, x_local + 1.0, y_local)
+        ray, decy = local_pixel_to_sky(exposure, x_local, y_local + 1.0)
+        c0 = SkyCoord(ra0 * u.deg, dec0 * u.deg)
+        cx = SkyCoord(rax * u.deg, decx * u.deg)
+        cy = SkyCoord(ray * u.deg, decy * u.deg)
+        values = np.array([
+            c0.separation(cx).to_value(u.mas),
+            c0.separation(cy).to_value(u.mas),
+        ], dtype=float)
+        values = values[np.isfinite(values) & (values > 0)]
+        return float(np.nanmedian(values)) if len(values) else np.nan
+    except Exception:
+        return np.nan
 
 
 def sky_to_tangent(ra, dec, origin_ra, origin_dec):
@@ -182,18 +207,24 @@ def empirical_blank_noise(sci, err, bad, source_mask, tx, ty, seed):
     return float(sig), len(values)
 
 
-def detect_controls(exposure, data_sub, err, bad, target_x, target_y):
+def detect_controls(exposure: ExposureCutout, data_sub, err, bad, target_x, target_y):
     _, _, std = sigma_clipped_stats(data_sub, mask=bad, sigma=3.0, maxiters=5)
     if not np.isfinite(std) or std <= 0:
         return pd.DataFrame(), np.zeros_like(data_sub, dtype=bool)
 
-    seg = detect_sources(data_sub, CONFIG.control_detect_sigma * std, npixels=CONFIG.control_min_pixels, mask=bad)
+    seg = detect_sources(
+        data_sub,
+        CONFIG.control_detect_sigma * std,
+        npixels=CONFIG.control_min_pixels,
+        mask=bad,
+    )
     if seg is None:
         return pd.DataFrame(), np.zeros_like(data_sub, dtype=bool)
 
     source_mask = ndimage.binary_dilation(seg.data > 0, iterations=4)
     rows = []
     ny, nx = data_sub.shape
+
     for label in np.unique(seg.data):
         if label <= 0:
             continue
@@ -208,16 +239,20 @@ def detect_controls(exposure, data_sub, err, bad, target_x, target_y):
         x0 = float(np.sum(xx * pos) / pos.sum())
         y0 = float(np.sum(yy * pos) / pos.sum())
         if (
-            x0 < CONFIG.control_edge_pix or y0 < CONFIG.control_edge_pix
-            or x0 > nx - 1 - CONFIG.control_edge_pix or y0 > ny - 1 - CONFIG.control_edge_pix
+            x0 < CONFIG.control_edge_pix
+            or y0 < CONFIG.control_edge_pix
+            or x0 > nx - 1 - CONFIG.control_edge_pix
+            or y0 > ny - 1 - CONFIG.control_edge_pix
             or np.hypot(x0 - target_x, y0 - target_y) < CONFIG.control_target_exclusion_pix
         ):
             continue
+
         flux = float(np.sum(vals))
         ferr = float(np.sqrt(np.sum(err[sm] ** 2)))
         snr = flux / ferr if ferr > 0 else np.nan
         if not np.isfinite(snr) or snr < CONFIG.control_min_snr:
             continue
+
         cen = centroid_stamp(data_sub, err, bad, x0, y0, n_mc=0)
         x = cen["x_2dg"] if np.isfinite(cen["x_2dg"]) else x0
         y = cen["y_2dg"] if np.isfinite(cen["y_2dg"]) else y0
@@ -225,7 +260,17 @@ def detect_controls(exposure, data_sub, err, bad, target_x, target_y):
             ra, dec = local_pixel_to_sky(exposure, x, y)
         except Exception:
             continue
-        rows.append({"x_local": x, "y_local": y, "ra_deg": ra, "dec_deg": dec, "flux": flux, "fluxerr": ferr, "snr": snr})
+
+        rows.append({
+            "x_local": x,
+            "y_local": y,
+            "ra_deg": ra,
+            "dec_deg": dec,
+            "flux": flux,
+            "fluxerr": ferr,
+            "snr": snr,
+        })
+
     return pd.DataFrame(rows), source_mask
 
 
@@ -243,13 +288,18 @@ def measure_exposure(exposure: ExposureCutout) -> tuple[dict, pd.DataFrame]:
     controls, source_mask = detect_controls(exposure, data_sub, err, astrom_bad, tx, ty)
     raw_flux, raw_ferr, raw_snr, _ = aperture_measure(sci, err, phot_bad, tx, ty)
     clean_flux, clean_ferr, clean_snr, _ = aperture_measure(sci, err, astrom_bad, tx, ty)
-    emp_noise, n_blank = empirical_blank_noise(sci, err, phot_bad, source_mask, tx, ty, stable_seed(f"{exposure.candidate_id}|{exposure.filename}"))
+    emp_noise, n_blank = empirical_blank_noise(
+        sci, err, phot_bad, source_mask, tx, ty,
+        stable_seed(f"{exposure.candidate_id}|{exposure.filename}")
+    )
     raw_snr_emp = raw_flux / emp_noise if np.isfinite(emp_noise) and emp_noise > 0 else np.nan
 
     clean_cen = centroid_stamp(
-        data_sub, err, astrom_bad, tx, ty, n_mc=CONFIG.centroid_mc_draws,
+        data_sub, err, astrom_bad, tx, ty,
+        n_mc=CONFIG.centroid_mc_draws,
         seed=stable_seed(f"centroid|{exposure.candidate_id}|{exposure.filename}"),
     )
+    pixel_scale_mas = local_pixel_scale_mas(exposure, tx, ty)
 
     def centroid_sky(x, y):
         if not (np.isfinite(x) and np.isfinite(y)):
@@ -283,12 +333,18 @@ def measure_exposure(exposure: ExposureCutout) -> tuple[dict, pd.DataFrame]:
         "clean_flux": clean_flux,
         "clean_fluxerr": clean_ferr,
         "clean_snr_err": clean_snr,
-        "x_2dg": clean_cen["x_2dg"], "y_2dg": clean_cen["y_2dg"],
-        "x_com": clean_cen["x_com"], "y_com": clean_cen["y_com"],
-        "sigma_x_pix": clean_cen["sigma_x_pix"], "sigma_y_pix": clean_cen["sigma_y_pix"],
+        "x_2dg": clean_cen["x_2dg"],
+        "y_2dg": clean_cen["y_2dg"],
+        "x_com": clean_cen["x_com"],
+        "y_com": clean_cen["y_com"],
+        "sigma_x_pix": clean_cen["sigma_x_pix"],
+        "sigma_y_pix": clean_cen["sigma_y_pix"],
         "n_mc_good": clean_cen["n_mc_good"],
-        "east_2dg_arcsec_raw_wcs": e2, "north_2dg_arcsec_raw_wcs": n2,
-        "east_com_arcsec_raw_wcs": ec, "north_com_arcsec_raw_wcs": nc,
+        "pixel_scale_mas": pixel_scale_mas,
+        "east_2dg_arcsec_raw_wcs": e2,
+        "north_2dg_arcsec_raw_wcs": n2,
+        "east_com_arcsec_raw_wcs": ec,
+        "north_com_arcsec_raw_wcs": nc,
         **dq_diagnostics(dq, tx, ty),
     }
 
@@ -298,7 +354,12 @@ def measure_exposure(exposure: ExposureCutout) -> tuple[dict, pd.DataFrame]:
         controls["epoch_label"] = exposure.epoch_label
         controls["filter"] = exposure.filter_name
         controls["filename"] = exposure.filename
-        east, north = sky_to_tangent(controls["ra_deg"].values, controls["dec_deg"].values, exposure.ra_deg, exposure.dec_deg)
+        east, north = sky_to_tangent(
+            controls["ra_deg"].values,
+            controls["dec_deg"].values,
+            exposure.ra_deg,
+            exposure.dec_deg,
+        )
         controls["east_arcsec_raw_wcs"] = east
         controls["north_arcsec_raw_wcs"] = north
 
