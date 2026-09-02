@@ -68,10 +68,27 @@ def _to_dataframe(table) -> pd.DataFrame:
     return table.to_pandas()
 
 
+def _query_region_with_retry(coord: SkyCoord, attempts: int = 5):
+    """Query MAST with exponential backoff for transient connection failures."""
+    last = None
+    for attempt in range(attempts):
+        try:
+            return Observations.query_region(
+                coord, radius=CONFIG.query_radius_arcsec * u.arcsec
+            )
+        except Exception as exc:
+            last = exc
+            if attempt + 1 < attempts:
+                time.sleep(min(30, 2 ** attempt * 3))
+    raise RuntimeError(
+        f"MAST inventory query failed after {attempts} attempts: {last}"
+    )
+
+
 def query_candidate_inventory(candidate_id: int, ra_deg: float, dec_deg: float) -> pd.DataFrame:
     """Return all public JWST/HST imaging observations around one candidate."""
     coord = SkyCoord(ra_deg * u.deg, dec_deg * u.deg)
-    table = Observations.query_region(coord, radius=CONFIG.query_radius_arcsec * u.arcsec)
+    table = _query_region_with_retry(coord)
     df = _to_dataframe(table)
 
     if df.empty:
@@ -206,9 +223,6 @@ def _get_products_with_retry(obs_rows: pd.DataFrame, attempts: int = 3) -> pd.Da
     last = None
     for attempt in range(attempts):
         try:
-            # astroquery 0.4.11 internally joins the obsid list as strings.
-            # Converting explicitly avoids numpy.int64 join/type errors on
-            # GitHub-hosted runners.
             obsids = (
                 pd.to_numeric(obs_rows["obsid"], errors="coerce")
                 .dropna()
