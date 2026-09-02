@@ -1,0 +1,4 @@
+filename,filter,mjd,reference_file,method,n_match,n_used,scatter_east_mas,scatter_north_mas,color_corr_east_r,color_corr_east_p,color_corr_north_r,color_corr_north_p
+jw01837003016_08201_00002_nrcblong_cal.fits,F444W,60082.496726655096,jw01837003016_08201_00002_nrcblong_cal.fits,REFERENCE_IDENTITY,13,13,0.0,0.0,,,,
+jw05398275001_05201_00002_nrcblong_cal.fits,F444W,60799.813245972226,jw01837003016_08201_00002_nrcblong_cal.fits,LOCAL_AFFINE,12,11,6.874050277730872,4.990983839842098,,,,
+jw05398275001_05201_00003_nrcblong_cal.fits,F444W,60799.824926712965,jw01837003016_08201_00002_nrcblong_cal.fits,LOCAL_AFFINE,12,12,8.85517369667288,4.988236923298885,,,,

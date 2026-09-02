@@ -1,9 +1,0 @@
-{
-  "filter_early": "F115W",
-  "filter_late": "F115W",
-  "inventory_baseline_days": 747.5696113888844,
-  "inventory_early_mjd": 60048.019985833336,
-  "inventory_late_mjd": 60795.58959722222,
-  "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
-}
