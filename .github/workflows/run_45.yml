@@ -1,0 +1,136 @@
+name: Independent PM audit of 45 candidates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run_45.yml'
+      - 'src/**'
+      - 'scripts/**'
+      - 'data/candidates_45.csv'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - 'tests/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pm86-main
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Run tests
+        run: pytest -q
+
+  audit:
+    name: Audit shard ${{ matrix.shard }}
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4]
+    env:
+      MPLBACKEND: Agg
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Run independent archive audit
+        run: |
+          python scripts/run_shard.py \
+            --catalog data/candidates_45.csv \
+            --shard ${{ matrix.shard }} \
+            --n-shards 5 \
+            --output shard_${{ matrix.shard }}
+      - name: Upload shard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pm86-shard-${{ matrix.shard }}
+          path: shard_${{ matrix.shard }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    name: Aggregate and save results
+    needs: audit
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download all available shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pm86-shard-*
+          path: downloaded_shards
+          merge-multiple: false
+      - name: Aggregate scientific results
+        run: |
+          pip install pandas
+          python scripts/aggregate_results.py \
+            --input downloaded_shards \
+            --output results
+      - name: Verify candidate coverage
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          expected = set(pd.read_csv('data/candidates_45.csv').candidate_id.astype(int))
+          result_file = Path('results/ALL45_PM_AUDIT.csv')
+          if not result_file.exists():
+              raise SystemExit('Missing results/ALL45_PM_AUDIT.csv')
+          got = set(pd.read_csv(result_file).candidate_id.astype(int))
+          missing = sorted(expected - got)
+          print(f'Completed {len(got)}/{len(expected)} candidate summaries')
+          print('Missing:', missing)
+          # Preserve partial results if a shard infrastructure job failed, but
+          # make the incompleteness explicit in the workflow log and SUMMARY.
+          if missing:
+              with open('results/SUMMARY.md', 'a') as f:
+                  f.write('\n## Missing candidates\n')
+                  f.write('One or more shard jobs failed before producing a summary. Missing IDs: ' + ', '.join(map(str, missing)) + '\n')
+          PY
+      - name: Commit compact results to repository
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results
+          if git diff --cached --quiet; then
+            echo 'No result changes to commit.'
+          else
+            git commit -m 'Save independent PM audit results for 45 candidates'
+            git push origin HEAD:main
+          fi
