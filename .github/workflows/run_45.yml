@@ -128,6 +128,7 @@ jobs:
           if not result_file.exists():
               got = set()
               errors = pd.DataFrame()
+              df = pd.DataFrame()
               problems.append('Missing results/ALL45_PM_AUDIT.csv')
           else:
               df = pd.read_csv(result_file)
@@ -140,16 +141,49 @@ jobs:
           if len(errors):
               problems.append('Candidate-level execution errors: ' + ', '.join(errors.candidate_id.astype(int).astype(str)))
 
+          coverage_error_candidates = []
+          for path in Path('results/candidates').glob('candidate_*/product_coverage_audit.csv'):
+              try:
+                  audit = pd.read_csv(path)
+              except Exception:
+                  continue
+              if 'status' not in audit.columns or audit.empty:
+                  continue
+              statuses = audit['status'].astype(str)
+              if statuses.str.startswith('ERROR:').any() and not statuses.eq('COVERED').any():
+                  try:
+                      coverage_error_candidates.append(int(path.parent.name.split('_', 1)[1]))
+                  except Exception:
+                      pass
+          coverage_error_candidates = sorted(set(coverage_error_candidates))
+          if coverage_error_candidates:
+              problems.append(
+                  'Exposure-access failures with no successfully opened covering product: '
+                  + ', '.join(map(str, coverage_error_candidates))
+              )
+
+          suspicious_no_cover = []
+          if len(df):
+              pair_found = df.get('pair_status', pd.Series(index=df.index, dtype=object)).astype(str).eq('PAIR_FOUND')
+              n_early = pd.to_numeric(df.get('n_covering_early', pd.Series(index=df.index)), errors='coerce').fillna(0)
+              n_late = pd.to_numeric(df.get('n_covering_late', pd.Series(index=df.index)), errors='coerce').fillna(0)
+              bad = df[pair_found & ((n_early == 0) | (n_late == 0))]
+              suspicious_no_cover = sorted(pd.to_numeric(bad['candidate_id'], errors='coerce').dropna().astype(int).tolist())
+
           lines = [
               '# Run quality control\n\n',
               f'Candidate summaries present: **{len(got)}/{len(expected)}**\n\n',
               f'Candidate-level `pm_status == ERROR` rows: **{len(errors)}**\n\n',
+              f'Candidates with product-access errors and no COVERED product: **{len(coverage_error_candidates)}**\n\n',
+              f'PAIR_FOUND candidates with zero covering exposures in at least one epoch: **{len(suspicious_no_cover)}**\n\n',
           ]
+          if suspicious_no_cover:
+              lines.append('PAIR_FOUND but zero-cover IDs: ' + ', '.join(map(str, suspicious_no_cover)) + '\n\n')
           if problems:
               lines.append('## Problems\n\n')
               lines.extend(f'- {p}\n' for p in problems)
           else:
-              lines.append('No missing candidate summaries or candidate-level execution errors were found.\n')
+              lines.append('No missing summaries, candidate-level errors, or hidden exposure-access failures were found.\n')
           Path('results/RUN_QC.md').write_text(''.join(lines), encoding='utf-8')
 
           ok = not problems
