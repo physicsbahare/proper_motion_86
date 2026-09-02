@@ -1,0 +1,7 @@
+source,candidate_id,epoch_label,filter,filename,mjd,detector,clean_snr_err,raw_snr_err,raw_snr_emp,pixel_scale_mas,method_sep_2dg_com_mas,registration_shift_2dg_mas,registration_shift_com_mas,catalog_offset_2dg_mas,catalog_offset_com_mas,registration_scatter_east_mas,registration_scatter_north_mas,eligible_snr3,method_sensitive_at_tolerance,registration_sensitive_at_tolerance
+REFERENCE_282040,282040,reference,F444W,jw01727139001_04101_00001_nrcblong_cal.fits,60046.16372912037,NRCBLONG,9.136403689519335,9.136403689519335,,,14.606414737751576,,,,,,,True,False,False
+REFERENCE_282040,282040,reference,F444W,jw01727139001_04101_00002_nrcblong_cal.fits,60046.16782986111,NRCBLONG,9.246301660830344,9.246301660830344,,,50.147610586553235,,,,,,,True,False,False
+REFERENCE_282040,282040,reference,F444W,jw01727139001_04101_00003_nrcblong_cal.fits,60046.17441652778,NRCBLONG,10.825280308589743,10.825280308589743,,,15.830709781977271,,,,,,,True,False,False
+REFERENCE_282040,282040,reference,F444W,jw01727139001_04101_00004_nrcblong_cal.fits,60046.17851725694,NRCBLONG,10.206546163276608,10.206546163276608,,,7.7774251021521845,,,,,,,True,False,False
+REFERENCE_282040,282040,reference,F410M,jw06434296001_06201_00001_nrcalong_cal.fits,60773.6100974537,NRCALONG,8.327997128765993,8.327997128765993,,,50.44274257279721,,,,,,,True,False,False
+REFERENCE_282040,282040,reference,F410M,jw06434296001_06201_00002_nrcalong_cal.fits,60773.61718040509,NRCALONG,11.62563809425533,11.62563809425533,,,83.0286278131476,,,,,,,True,True,False

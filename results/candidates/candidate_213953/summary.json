@@ -2,9 +2,20 @@
   "candidate_id": 213953,
   "classification": "INSUFFICIENT_DATA",
   "dec_deg": 1.94000041364651,
+  "filter_early": "F115W",
+  "filter_late": "F115W",
   "input_f444w_flux_njy": 14588.8865946588,
   "input_f444w_mag_ab": 20.9899446291161,
-  "pm_status": "ERROR",
+  "inventory_baseline_days": 747.6838254398099,
+  "inventory_early_mjd": 60045.97998263889,
+  "inventory_late_mjd": 60793.6638080787,
+  "n_covering_early": 0,
+  "n_covering_late": 0,
+  "n_hst_inventory_rows": 42,
+  "n_jwst_inventory_rows": 7,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "SAME_FILTER_JWST",
+  "pm_status": "INSUFFICIENT_DATA",
   "ra_deg": 150.026819652774,
-  "reason": "RuntimeError: MAST product query failed after 3 attempts: sequence item 0: expected str instance, numpy.int64 found"
+  "reason": "selected archive epochs do not both have covering CAL exposures"
 }
