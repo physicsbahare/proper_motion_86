@@ -1,0 +1,139 @@
+name: PM audit - first 26 090630 candidates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run_first26.yml'
+      - 'first26/**'
+      - 'data/candidates_first26_090630.csv'
+      - 'src/**'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pm86-first26
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests and remote-I/O preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Unit tests
+        run: pytest -q
+      - name: Verify fsspec HTTP backend
+        run: |
+          python - <<'PY'
+          import fsspec
+          fs = fsspec.filesystem('https')
+          print('HTTPS filesystem:', type(fs).__name__)
+          import aiohttp, requests
+          print('aiohttp:', aiohttp.__version__)
+          print('requests:', requests.__version__)
+          PY
+
+  audit:
+    name: First26 shard ${{ matrix.shard }}
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      MPLBACKEND: Agg
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Run independent PM audit
+        run: |
+          python first26/run_shard.py \
+            --catalog data/candidates_first26_090630.csv \
+            --shard ${{ matrix.shard }} \
+            --n-shards 9 \
+            --output first26_shard_${{ matrix.shard }}
+      - name: Upload complete shard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first26-pm-shard-${{ matrix.shard }}
+          path: first26_shard_${{ matrix.shard }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    name: Aggregate, tolerance audit, and QC
+    needs: audit
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: first26-pm-shard-*
+          path: downloaded_first26
+          merge-multiple: false
+      - name: Install aggregation dependencies
+        run: |
+          pip install pandas numpy
+          pip install -e .
+      - name: Aggregate with fail-visible science QC
+        run: |
+          python first26/aggregate.py \
+            --input downloaded_first26 \
+            --catalog data/candidates_first26_090630.csv \
+            --output results_first26 \
+            --expected-count 26
+      - name: Audit 60 mas centroid-method sensitivity
+        run: |
+          python scripts/audit_centroid_tolerance.py \
+            --results results_first26 \
+            --output results_first26/centroid_tolerance \
+            --tolerance-mas 60 \
+            --reference-centroids data/reference_282040_centroids.csv
+      - name: Commit first-26 results
+        if: always()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results_first26
+          if git diff --cached --quiet; then
+            echo 'No first-26 result changes to commit.'
+          else
+            git commit -m 'Save independent PM audit for first 26 090630 candidates'
+            git push origin HEAD:main
+          fi
