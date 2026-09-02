@@ -135,13 +135,40 @@ def _group_epochs(obs: pd.DataFrame) -> list[dict]:
     return groups
 
 
-def choose_epoch_pair(inventory: pd.DataFrame) -> dict:
-    """Choose the scientifically strongest JWST epoch pair.
+def _pair_filter_cost(f1: str, f2: str) -> float:
+    """Rank pair detectability for an F444W-selected candidate sample.
 
-    Priority:
-      1. same-filter JWST/NIRCam baseline, F444W first;
-      2. cross-filter JWST baseline, favouring filters nearest F444W;
-      3. otherwise no PM pair.
+    A fixed preference for *any* same-filter pair can be scientifically wrong for
+    very red/dropout sources: a repeated F115W epoch is methodologically neat but
+    useless if the target is not detected there, while an F444W/F356W pair can
+    provide real astrometry.  We therefore rank all legal pairs jointly.
+
+    Cost is distance from F444W in wavelength for both epochs.  Same-filter pairs
+    receive a modest bonus (1000 nm-equivalent), enough to prefer a nearby red
+    same-filter pair but not enough for a blue nondetection pair to beat a much
+    redder cross-filter alternative.  Cross-filter systematics remain explicitly
+    handled downstream by the PM classifier.
+    """
+    w1 = FILTER_WAVELENGTH_NM.get(f1, 0)
+    w2 = FILTER_WAVELENGTH_NM.get(f2, 0)
+    cost = abs(w1 - 4440) + abs(w2 - 4440)
+    if f1 == f2:
+        cost -= 1000.0
+    return float(cost)
+
+
+def choose_epoch_pair(inventory: pd.DataFrame) -> dict:
+    """Choose the strongest usable JWST/NIRCam epoch pair.
+
+    All independent epoch pairs are ranked together rather than unconditionally
+    preferring any same-filter pair.  This matters for the present F444W-selected
+    red/dropout sample, where a blue same-filter pair can contain no measurable
+    target while a red cross-filter pair does.
+
+    Ranking:
+      1. filters nearest F444W (proxy for target detectability in this sample);
+      2. modest same-filter bonus to reduce chromatic/PSF systematics;
+      3. longer temporal baseline as tie-breaker.
 
     HST rows are preserved in the inventory but are not silently mixed into the
     primary PM fit. Cross-instrument astrometry requires its own explicit test.
@@ -162,23 +189,6 @@ def choose_epoch_pair(inventory: pd.DataFrame) -> dict:
     for filt, grp in jwst.groupby("filter_norm"):
         by_filter[str(filt)] = _group_epochs(grp)
 
-    for filt in FILTER_PRIORITY:
-        epochs = by_filter.get(filt, [])
-        if len(epochs) < 2:
-            continue
-        early, late = epochs[0], epochs[-1]
-        baseline = late["mjd"] - early["mjd"]
-        if baseline >= CONFIG.min_pm_baseline_days:
-            return {
-                "status": "PAIR_FOUND",
-                "pair_type": "SAME_FILTER_JWST",
-                "filter_early": filt,
-                "filter_late": filt,
-                "early": early,
-                "late": late,
-                "baseline_days_inventory": float(baseline),
-            }
-
     all_epochs: list[tuple[str, dict]] = []
     for filt, epochs in by_filter.items():
         for epoch in epochs:
@@ -187,22 +197,23 @@ def choose_epoch_pair(inventory: pd.DataFrame) -> dict:
     candidates = []
     for i, (f1, e1) in enumerate(all_epochs):
         for f2, e2 in all_epochs[i + 1:]:
-            if f1 == f2:
-                continue
             dt = abs(e2["mjd"] - e1["mjd"])
             if dt < CONFIG.min_pm_baseline_days:
                 continue
-            dfilter = (
-                abs(FILTER_WAVELENGTH_NM.get(f1, 0) - 4440)
-                + abs(FILTER_WAVELENGTH_NM.get(f2, 0) - 4440)
-            )
-            candidates.append((dfilter, -dt, f1, e1, f2, e2))
+            cost = _pair_filter_cost(f1, f2)
+            # Prefer same-filter only after detectability; then prefer longer
+            # baseline. FILTER_PRIORITY provides a deterministic final tie-break.
+            same_penalty = 0 if f1 == f2 else 1
+            p1 = FILTER_PRIORITY.index(f1) if f1 in FILTER_PRIORITY else 999
+            p2 = FILTER_PRIORITY.index(f2) if f2 in FILTER_PRIORITY else 999
+            candidates.append((cost, same_penalty, -dt, min(p1, p2), max(p1, p2), f1, e1, f2, e2))
 
     if not candidates:
         return {"status": "NO_INDEPENDENT_JWST_EPOCH_PAIR"}
 
-    candidates.sort(key=lambda x: (x[0], x[1]))
-    _, _, f1, e1, f2, e2 = candidates[0]
+    candidates.sort(key=lambda x: x[:5])
+    cost, _, _, _, _, f1, e1, f2, e2 = candidates[0]
+
     if e1["mjd"] <= e2["mjd"]:
         early_f, early, late_f, late = f1, e1, f2, e2
     else:
@@ -210,12 +221,13 @@ def choose_epoch_pair(inventory: pd.DataFrame) -> dict:
 
     return {
         "status": "PAIR_FOUND",
-        "pair_type": "CROSS_FILTER_JWST",
+        "pair_type": "SAME_FILTER_JWST" if early_f == late_f else "CROSS_FILTER_JWST",
         "filter_early": early_f,
         "filter_late": late_f,
         "early": early,
         "late": late,
         "baseline_days_inventory": float(late["mjd"] - early["mjd"]),
+        "pair_filter_cost": float(cost),
     }
 
 
