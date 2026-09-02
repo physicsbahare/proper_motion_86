@@ -1,6 +1,6 @@
 # Proper-motion audit: first 26 rows of `galaxy and brown dwarf candidates_new_090630`
 
-This is a separate run inside the same repository. It does **not** overwrite the existing 45-candidate audit.
+This is a separate run inside the same repository. It does **not** overwrite the existing 45-candidate audit. The dedicated workflow is `.github/workflows/run_first26.yml` and writes to `results_first26/`.
 
 ## Input
 
