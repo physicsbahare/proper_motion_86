@@ -206,16 +206,19 @@ def _get_products_with_retry(obs_rows: pd.DataFrame, attempts: int = 3) -> pd.Da
     last = None
     for attempt in range(attempts):
         try:
+            # astroquery 0.4.11 internally joins the obsid list as strings.
+            # Converting explicitly avoids numpy.int64 join/type errors on
+            # GitHub-hosted runners.
             obsids = (
                 pd.to_numeric(obs_rows["obsid"], errors="coerce")
                 .dropna()
                 .astype("int64")
+                .astype(str)
                 .drop_duplicates()
                 .tolist()
             )
             if not obsids:
                 return pd.DataFrame()
-            # astroquery 0.4.11 does not expose a batch_size keyword here.
             table = Observations.get_product_list(obsids)
             df = _to_dataframe(table)
             if df.empty:
