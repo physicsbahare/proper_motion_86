@@ -76,23 +76,30 @@ def main():
     df.to_csv(out / "ALL26_PM_AUDIT.csv", index=False)
 
     if len(df):
+        classification_series = df.get(
+            "classification", pd.Series("UNKNOWN", index=df.index, dtype=object)
+        ).fillna("UNKNOWN")
         counts = (
-            df["classification"].fillna("UNKNOWN")
-            .value_counts()
+            classification_series.value_counts()
             .rename_axis("classification")
             .reset_index(name="n_candidates")
         )
         counts.to_csv(out / "CLASSIFICATION_COUNTS.csv", index=False)
 
+        reason_series = df.get(
+            "reason", pd.Series("NONE", index=df.index, dtype=object)
+        ).fillna("NONE")
         reasons = (
-            df["reason"].fillna("NONE")
-            .value_counts()
+            reason_series.value_counts()
             .rename_axis("reason")
             .reset_index(name="n_candidates")
         )
         reasons.to_csv(out / "REASON_COUNTS.csv", index=False)
     else:
         counts = pd.DataFrame(columns=["classification", "n_candidates"])
+        pd.DataFrame(columns=["reason", "n_candidates"]).to_csv(
+            out / "REASON_COUNTS.csv", index=False
+        )
 
     # Deep QC: do not allow a hidden remote-data failure to masquerade as a
     # scientifically valid INSUFFICIENT_DATA classification.
@@ -133,7 +140,10 @@ def main():
             if bool(infra_mask.all()):
                 hidden_infra_candidates.add(cid)
 
-    coverage_df = pd.DataFrame(coverage_rows)
+    coverage_df = pd.DataFrame(
+        coverage_rows,
+        columns=["candidate_id", "status", "is_infrastructure_error"],
+    )
     coverage_df.to_csv(out / "PRODUCT_ACCESS_QC.csv", index=False)
 
     got_ids = (
