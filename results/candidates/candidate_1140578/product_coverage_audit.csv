@@ -1,13 +1,11 @@
-candidate_id,epoch_label,requested_filter,productFilename,dataURI,status
-1140578,early,F277W,jw01727071001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727071001_02101_00001_nrcblong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,early,F277W,jw01727071001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727071001_02101_00002_nrcalong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,early,F277W,jw01727071001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727071001_02101_00002_nrcblong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,early,F277W,jw01727071001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727071001_02101_00001_nrcalong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00003_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00003_nrcblong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00004_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00004_nrcblong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727165001_02101_00002_nrcalong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727165001_02101_00001_nrcalong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00002_nrcblong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00001_nrcblong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00004_nrcalong_cal.fits,mast:JWST/product/jw01727165001_02101_00004_nrcalong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-1140578,late,F277W,jw01727165001_02101_00003_nrcalong_cal.fits,mast:JWST/product/jw01727165001_02101_00003_nrcalong_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
+candidate_id,epoch_label,requested_filter,productFilename,dataURI,status,x_full,y_full,mjd,detector,actual_filter
+1140578,early,F277W,jw01727071001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727071001_02101_00001_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1140578,early,F277W,jw01727071001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727071001_02101_00002_nrcalong_cal.fits,COVERED,870.5970909009878,396.9909918456115,60308.55925399306,NRCALONG,F277W
+1140578,early,F277W,jw01727071001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727071001_02101_00002_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1140578,early,F277W,jw01727071001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727071001_02101_00001_nrcalong_cal.fits,COVERED,874.1486453076031,302.8865134723491,60308.55527621528,NRCALONG,F277W
+1140578,late,F277W,jw01727165001_02101_00003_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00003_nrcblong_cal.fits,COVERED,1102.6031835664876,1853.8849476149505,60407.635654502315,NRCBLONG,F277W
+1140578,late,F277W,jw01727165001_02101_00004_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00004_nrcblong_cal.fits,COVERED,1105.829670990324,1758.0974563598386,60407.63975524306,NRCBLONG,F277W
+1140578,late,F277W,jw01727165001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727165001_02101_00002_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1140578,late,F277W,jw01727165001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727165001_02101_00001_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1140578,late,F277W,jw01727165001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00002_nrcblong_cal.fits,COVERED,311.3738891579746,1847.4807195811707,60407.629068587965,NRCBLONG,F277W
+1140578,late,F277W,jw01727165001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727165001_02101_00001_nrcblong_cal.fits,COVERED,315.2210208779821,1752.132205465621,60407.62509155092,NRCBLONG,F277W

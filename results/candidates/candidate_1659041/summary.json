@@ -4,10 +4,7 @@
   "dec_deg": 2.38383559400873,
   "input_f444w_flux_njy": 4315.67852923776,
   "input_f444w_mag_ab": 22.3123772824113,
-  "n_hst_inventory_rows": 23,
-  "n_jwst_inventory_rows": 6,
-  "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
-  "pm_status": "INSUFFICIENT_DATA",
+  "pm_status": "ERROR",
   "ra_deg": 150.465447160905,
-  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR"
+  "reason": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
 }

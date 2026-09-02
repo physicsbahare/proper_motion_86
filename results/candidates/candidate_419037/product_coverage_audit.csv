@@ -1,81 +1,81 @@
-candidate_id,epoch_label,requested_filter,productFilename,dataURI,status
-419037,early,F150W,jw01727096001_04101_00001_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00004_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00002_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00003_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,early,F150W,jw01727096001_04101_00001_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00001_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00003_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00004_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434311001_02201_00002_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrca2_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrcb1_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrcb3_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrca3_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrcb4_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrca2_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrcb2_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrca3_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrcb3_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb3_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrca1_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrca4_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrca1_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrca4_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00002_nrcb4_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb4_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrcb2_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb2_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
-419037,late,F150W,jw06434314001_02201_00001_nrcb1_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb1_cal.fits,"ERROR:ImportError:HTTPFileSystem requires ""requests"" and ""aiohttp"" to be installed"
+candidate_id,epoch_label,requested_filter,productFilename,dataURI,status,x_full,y_full,mjd,detector,actual_filter
+419037,early,F150W,jw01727096001_04101_00001_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00001_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca1_cal.fits,COVERED,578.9438756037468,1523.3035590037475,60043.53702164352,NRCA1,F150W
+419037,early,F150W,jw01727096001_04101_00001_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00001_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrca1_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca1_cal.fits,COVERED,570.5501788206468,1715.9032515390506,60043.53304534722,NRCA1,F150W
+419037,early,F150W,jw01727096001_04101_00004_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrcb2_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00001_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrca3_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrcb1_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00001_nrcb4_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00004_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00004_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00001_nrca2_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00002_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00002_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00003_nrcb3_cal.fits,mast:JWST/product/jw01727096001_04101_00003_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,early,F150W,jw01727096001_04101_00001_nrca4_cal.fits,mast:JWST/product/jw01727096001_04101_00001_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrcb3_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrca2_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrca3_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00001_nrca1_cal.fits,mast:JWST/product/jw06434311001_02201_00001_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00003_nrca4_cal.fits,mast:JWST/product/jw06434311001_02201_00003_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00004_nrcb1_cal.fits,mast:JWST/product/jw06434311001_02201_00004_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrcb2_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434311001_02201_00002_nrcb4_cal.fits,mast:JWST/product/jw06434311001_02201_00002_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00001_nrca2_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrcb1_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrcb3_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrca3_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00001_nrcb4_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrca2_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca2_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrcb2_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb2_cal.fits,COVERED,518.9481297799512,737.7486780470502,60774.082415509256,NRCB2,F150W
+419037,late,F150W,jw06434314001_02201_00001_nrca3_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00001_nrcb3_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb3_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00001_nrca1_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00001_nrca4_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrca1_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca1_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrca4_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrca4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00002_nrcb4_cal.fits,mast:JWST/product/jw06434314001_02201_00002_nrcb4_cal.fits,OUTSIDE_DETECTOR,,,,,
+419037,late,F150W,jw06434314001_02201_00001_nrcb2_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb2_cal.fits,COVERED,1154.9554278685612,595.4554029084396,60774.066508854165,NRCB2,F150W
+419037,late,F150W,jw06434314001_02201_00001_nrcb1_cal.fits,mast:JWST/product/jw06434314001_02201_00001_nrcb1_cal.fits,OUTSIDE_DETECTOR,,,,,

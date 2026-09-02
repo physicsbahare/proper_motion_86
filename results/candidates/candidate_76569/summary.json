@@ -9,13 +9,15 @@
   "inventory_baseline_days": 747.4213733912038,
   "inventory_early_mjd": 60048.16822383102,
   "inventory_late_mjd": 60795.58959722222,
-  "n_covering_early": 0,
-  "n_covering_late": 0,
+  "n_astrometric_early": 0,
+  "n_astrometric_late": 0,
+  "n_covering_early": 4,
+  "n_covering_late": 3,
   "n_hst_inventory_rows": 31,
   "n_jwst_inventory_rows": 15,
   "pair_status": "PAIR_FOUND",
   "pair_type": "SAME_FILTER_JWST",
   "pm_status": "INSUFFICIENT_DATA",
   "ra_deg": 150.24599898078,
-  "reason": "selected archive epochs do not both have covering CAL exposures"
+  "reason": "target is not securely centroidable in both independent epochs"
 }
