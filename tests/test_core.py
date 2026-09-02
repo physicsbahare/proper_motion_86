@@ -19,7 +19,7 @@ def test_filter_normalisation():
     assert normalise_filter("CLEAR;F410M") == "F410M"
 
 
-def test_same_filter_preferred_over_cross_filter():
+def test_same_filter_preferred_over_nearby_cross_filter():
     df = inventory([
         {"filters": "F444W", "t_min": 60000.0},
         {"filters": "F444W", "t_min": 60700.0},
@@ -30,6 +30,19 @@ def test_same_filter_preferred_over_cross_filter():
     assert pair["pair_type"] == "SAME_FILTER_JWST"
     assert pair["filter_early"] == "F444W"
     assert pair["filter_late"] == "F444W"
+
+
+def test_red_cross_filter_beats_blue_same_filter_for_f444_selected_sample():
+    df = inventory([
+        {"filters": "F115W", "t_min": 60000.0},
+        {"filters": "F115W", "t_min": 60700.0},
+        {"filters": "F444W", "t_min": 60020.0},
+        {"filters": "F356W", "t_min": 60720.0},
+    ])
+    pair = choose_epoch_pair(df)
+    assert pair["status"] == "PAIR_FOUND"
+    assert pair["pair_type"] == "CROSS_FILTER_JWST"
+    assert {pair["filter_early"], pair["filter_late"]} == {"F444W", "F356W"}
 
 
 def test_same_night_is_not_independent_epoch():
