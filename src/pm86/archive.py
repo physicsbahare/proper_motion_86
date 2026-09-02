@@ -206,8 +206,6 @@ def _get_products_with_retry(obs_rows: pd.DataFrame, attempts: int = 3) -> pd.Da
     last = None
     for attempt in range(attempts):
         try:
-            # get_product_list accepts an Astropy query table/row or MAST
-            # Product Group IDs (obsid), not a pandas DataFrame.
             obsids = (
                 pd.to_numeric(obs_rows["obsid"], errors="coerce")
                 .dropna()
@@ -217,7 +215,8 @@ def _get_products_with_retry(obs_rows: pd.DataFrame, attempts: int = 3) -> pd.Da
             )
             if not obsids:
                 return pd.DataFrame()
-            table = Observations.get_product_list(obsids, batch_size=100)
+            # astroquery 0.4.11 does not expose a batch_size keyword here.
+            table = Observations.get_product_list(obsids)
             df = _to_dataframe(table)
             if df.empty:
                 return df
@@ -284,9 +283,6 @@ def load_covering_cutouts(candidate_id, ra_deg, dec_deg, epoch_label, filter_nam
                 primary = hdul[0].header
                 sci_header = hdul["SCI"].header
                 with asdf_in_fits.open(hdul) as af:
-                    # Deep-copy while FITS/ASDF handles are open so later
-                    # centroid/control calculations do not depend on a closed
-                    # remote file handle.
                     w = copy.deepcopy(af.tree["meta"]["wcs"])
                     result = w.invert(float(ra_deg), float(dec_deg))
                     x = float(np.asarray(result[0]).squeeze())
