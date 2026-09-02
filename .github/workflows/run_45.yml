@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: pm86-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   tests:
@@ -79,7 +79,7 @@ jobs:
           retention-days: 30
 
   aggregate:
-    name: Aggregate and save results
+    name: Aggregate, QC, and save results
     needs: audit
     if: always() && !cancelled()
     runs-on: ubuntu-latest
@@ -97,33 +97,68 @@ jobs:
           pattern: pm86-shard-*
           path: downloaded_shards
           merge-multiple: false
+      - name: Install aggregation dependencies
+        run: |
+          pip install pandas numpy
+          pip install -e .
       - name: Aggregate scientific results
         run: |
-          pip install pandas
           python scripts/aggregate_results.py \
             --input downloaded_shards \
             --output results
-      - name: Verify candidate coverage
+      - name: Audit 60 mas centroid tolerance
+        run: |
+          python scripts/audit_centroid_tolerance.py \
+            --results results \
+            --output results/centroid_tolerance \
+            --tolerance-mas 60
+      - name: Verify coverage and candidate-level execution
+        id: qc
         run: |
           python - <<'PY'
-          import pandas as pd
+          import os
           from pathlib import Path
+          import pandas as pd
+
           expected = set(pd.read_csv('data/candidates_45.csv').candidate_id.astype(int))
           result_file = Path('results/ALL45_PM_AUDIT.csv')
+          problems = []
           if not result_file.exists():
-              raise SystemExit('Missing results/ALL45_PM_AUDIT.csv')
-          got = set(pd.read_csv(result_file).candidate_id.astype(int))
+              got = set()
+              errors = pd.DataFrame()
+              problems.append('Missing results/ALL45_PM_AUDIT.csv')
+          else:
+              df = pd.read_csv(result_file)
+              got = set(pd.to_numeric(df['candidate_id'], errors='coerce').dropna().astype(int))
+              errors = df[df.get('pm_status', pd.Series(index=df.index, dtype=object)).astype(str).eq('ERROR')]
+
           missing = sorted(expected - got)
-          print(f'Completed {len(got)}/{len(expected)} candidate summaries')
-          print('Missing:', missing)
-          # Preserve partial results if a shard infrastructure job failed, but
-          # make the incompleteness explicit in the workflow log and SUMMARY.
           if missing:
-              with open('results/SUMMARY.md', 'a') as f:
-                  f.write('\n## Missing candidates\n')
-                  f.write('One or more shard jobs failed before producing a summary. Missing IDs: ' + ', '.join(map(str, missing)) + '\n')
+              problems.append('Missing candidate summaries: ' + ', '.join(map(str, missing)))
+          if len(errors):
+              problems.append('Candidate-level execution errors: ' + ', '.join(errors.candidate_id.astype(int).astype(str)))
+
+          lines = [
+              '# Run quality control\n\n',
+              f'Candidate summaries present: **{len(got)}/{len(expected)}**\n\n',
+              f'Candidate-level `pm_status == ERROR` rows: **{len(errors)}**\n\n',
+          ]
+          if problems:
+              lines.append('## Problems\n\n')
+              lines.extend(f'- {p}\n' for p in problems)
+          else:
+              lines.append('No missing candidate summaries or candidate-level execution errors were found.\n')
+          Path('results/RUN_QC.md').write_text(''.join(lines), encoding='utf-8')
+
+          ok = not problems
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'ok={str(ok).lower()}\n')
+          print('QC OK:', ok)
+          for p in problems:
+              print('QC:', p)
           PY
-      - name: Commit compact results to repository
+      - name: Commit compact results and QC to repository
+        if: always()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -131,6 +166,11 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No result changes to commit.'
           else
-            git commit -m 'Save independent PM audit results for 45 candidates'
+            git commit -m 'Save independent PM audit results, QC, and centroid tolerance audit'
             git push origin HEAD:main
           fi
+      - name: Fail visibly if candidate-level execution errors remain
+        if: steps.qc.outputs.ok != 'true'
+        run: |
+          echo 'Scientific run QC failed; see results/RUN_QC.md.'
+          exit 1
