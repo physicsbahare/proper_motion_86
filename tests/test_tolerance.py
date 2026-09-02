@@ -1,7 +1,14 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
-from pm86.tolerance import add_tolerance_flags, summarize_tolerance, tolerance_sweep
+from pm86.tolerance import (
+    add_tolerance_flags,
+    collect_tolerance_rows,
+    summarize_tolerance,
+    tolerance_sweep,
+)
 
 
 def sample_detail():
@@ -34,3 +41,24 @@ def test_tolerance_sweep_is_monotonic():
     r = sweep["registration_fraction_within"].to_numpy(float)
     assert np.all(np.diff(m) >= 0)
     assert np.all(np.diff(r) >= 0)
+
+
+def test_reference_centroids_are_included(tmp_path: Path):
+    ref = tmp_path / "ref.csv"
+    pd.DataFrame({
+        "candidate_id": [282040],
+        "productFilename": ["x.fits"],
+        "filter": ["F444W"],
+        "detector": ["NRCBLONG"],
+        "mjd": [60000.0],
+        "snr_err": [10.0],
+        "ra_gauss": [150.0],
+        "dec_gauss": [2.0],
+        "ra_com": [150.0 + 70.0 / (3.6e6 * np.cos(np.deg2rad(2.0)))],
+        "dec_com": [2.0],
+    }).to_csv(ref, index=False)
+    (tmp_path / "candidates").mkdir()
+    detail = collect_tolerance_rows(tmp_path, ref)
+    assert len(detail) == 1
+    assert detail.iloc[0]["source"] == "REFERENCE_282040"
+    assert 69.5 < detail.iloc[0]["method_sep_2dg_com_mas"] < 70.5

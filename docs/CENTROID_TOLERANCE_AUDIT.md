@@ -2,30 +2,40 @@
 
 The question is not whether 60 mas sounds reasonable. The useful question is whether a submission can pass or fail only because it used a different defensible astrometric method.
 
-The remote pipeline therefore performs a method-sensitivity audit after the candidate analysis finishes.
+The remote pipeline therefore performs a method-sensitivity audit after the candidate analysis finishes. For every clean target measurement with S/N >= 3 it measures:
 
-For every clean target measurement with S/N >= 3 it measures:
+1. **2DG vs COM centroid separation** on the same original detector exposure.
+2. **Raw gWCS vs locally registered position**, to quantify astrometric-frame sensitivity.
 
-1. **2DG vs COM centroid separation.** This directly asks how far two independently retained centroid algorithms place the same source on the same original detector exposure.
-2. **Raw gWCS vs locally registered position.** This asks how much a valid local affine registration changes the target's astrometric coordinate relative to the unregistered gWCS solution.
+The independent six-exposure 282040 measurement is also stored in `data/reference_282040_centroids.csv` and is included as a calibration/reference sample.
 
-The audit writes a row-level table, filter-level summaries, and a tolerance sweep at 20, 30, 40, 50, 60, 80, and 100 mas. A source with `method_sensitive_at_tolerance=True` is a concrete case where a 60 mas verifier could depend on the centroid algorithm. A source with `registration_sensitive_at_tolerance=True` shows analogous frame/registration sensitivity.
+## What the 282040 pre-check already shows
 
-The headline report is saved as:
+For 282040, the six 2DG-vs-COM same-exposure separations are approximately:
+
+```text
+14.6, 50.1, 15.8, 7.8, 50.4, 83.0 mas
+```
+
+All six exposures have S/N > 8. At a hard 60 mas threshold, 5/6 pass but one legitimate centroid-method comparison differs by about 83 mas. The 95th percentile is about 74.9 mas. Therefore 60 mas is **not demonstrably method-neutral** even in the already-validated reference mover; there is direct evidence that method choice can matter.
+
+This does not mean that 60 mas must be discarded. It means the threshold should either be calibrated across methods, allow a method-aware uncertainty/tolerance, or be supported by an additional PSF/ePSF comparison.
+
+## Remote outputs
+
+The audit writes:
 
 ```text
 results/centroid_tolerance/CENTROID_TOLERANCE_REPORT.md
+results/centroid_tolerance/CENTROID_TOLERANCE_DETAIL.csv
+results/centroid_tolerance/CENTROID_TOLERANCE_SUMMARY.csv
+results/centroid_tolerance/CENTROID_TOLERANCE_BY_FILTER.csv
+results/centroid_tolerance/CENTROID_TOLERANCE_BY_SOURCE.csv
+results/centroid_tolerance/CENTROID_TOLERANCE_SWEEP.csv
 ```
 
-with detailed evidence in:
+The tolerance sweep evaluates 20, 30, 40, 50, 60, 80, and 100 mas rather than tuning the answer to one pre-selected value.
 
-```text
-CENTROID_TOLERANCE_DETAIL.csv
-CENTROID_TOLERANCE_SUMMARY.csv
-CENTROID_TOLERANCE_BY_FILTER.csv
-CENTROID_TOLERANCE_SWEEP.csv
-```
+## Limitation
 
-## Important limitation
-
-This is a direct comparison of the two centroid chains already retained by the pipeline (2-D Gaussian and center of mass), plus local-registration frame effects. It is not a substitute for a dedicated empirical/ePSF fit. If the observed method spread is comfortably below 60 mas, that is evidence against strong method dependence in this sample. If it approaches or exceeds 60 mas, a true PSF/ePSF comparison should be added before approving a hard threshold.
+This directly compares the two centroid chains already retained by the analysis (2-D Gaussian and center of mass), plus local-registration frame effects. It is not a dedicated empirical/ePSF fit. Because the 282040 pre-check already reaches and exceeds 60 mas, a true PSF/ePSF comparison is the strongest remaining test before calling 60 mas method-independent.

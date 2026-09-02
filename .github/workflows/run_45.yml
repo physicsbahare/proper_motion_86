@@ -9,6 +9,7 @@ on:
       - 'src/**'
       - 'scripts/**'
       - 'data/candidates_45.csv'
+      - 'data/reference_282040_centroids.csv'
       - 'requirements.txt'
       - 'pyproject.toml'
       - 'tests/**'
@@ -111,7 +112,8 @@ jobs:
           python scripts/audit_centroid_tolerance.py \
             --results results \
             --output results/centroid_tolerance \
-            --tolerance-mas 60
+            --tolerance-mas 60 \
+            --reference-centroids data/reference_282040_centroids.csv
       - name: Verify coverage and candidate-level execution
         id: qc
         run: |

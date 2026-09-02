@@ -1,17 +1,15 @@
 """Empirical audit of whether a fixed centroid tolerance is method-specific.
 
-The verifier currently discusses a 60 mas position-recovery tolerance.  This
-module does not assume that 60 mas is correct.  It measures two things directly
-from the candidate outputs:
+The verifier currently discusses a 60 mas position-recovery tolerance. This
+module does not assume that 60 mas is correct. It measures two things directly:
 
 1. centroid-method separation: 2-D Gaussian versus center-of-mass centroids;
 2. coordinate-frame sensitivity: raw gWCS position versus the same centroid
    after local affine registration.
 
-A row whose two legitimate centroid methods differ by more than the proposed
-tolerance is a direct example in which the verifier outcome can depend on the
-centroid algorithm.  A local-registration correction larger than the tolerance
-is a related example in which the outcome can depend on the astrometric frame.
+The independent 282040 centroid measurements can be injected as a reference
+calibration so the audit remains informative even before the 45-candidate run
+has produced exposure-level astrometry.
 """
 
 from __future__ import annotations
@@ -45,6 +43,17 @@ def _catalog_radius(df: pd.DataFrame, east: str, north: str, scale: float = 1000
     return np.hypot(_num(df[east]) * scale, _num(df[north]) * scale)
 
 
+def _small_angle_sep_mas(ra1_deg, dec1_deg, ra2_deg, dec2_deg):
+    ra1 = pd.to_numeric(ra1_deg, errors="coerce").to_numpy(float)
+    dec1 = pd.to_numeric(dec1_deg, errors="coerce").to_numpy(float)
+    ra2 = pd.to_numeric(ra2_deg, errors="coerce").to_numpy(float)
+    dec2 = pd.to_numeric(dec2_deg, errors="coerce").to_numpy(float)
+    mean_dec = np.deg2rad((dec1 + dec2) / 2.0)
+    east = (ra1 - ra2) * np.cos(mean_dec) * 3.6e6
+    north = (dec1 - dec2) * 3.6e6
+    return np.hypot(east, north)
+
+
 def _load_registered(candidate_dir: Path) -> pd.DataFrame:
     path = candidate_dir / "registered_positions.csv"
     if not path.exists():
@@ -70,8 +79,46 @@ def _load_registered(candidate_dir: Path) -> pd.DataFrame:
     return reg[keep].drop_duplicates("filename", keep="first")
 
 
-def collect_tolerance_rows(results_root: str | Path) -> pd.DataFrame:
-    """Collect one tolerance-audit row per measured exposure."""
+def _reference_rows(reference_centroids: str | Path | None) -> pd.DataFrame:
+    if reference_centroids is None:
+        return pd.DataFrame()
+    path = Path(reference_centroids)
+    if not path.exists():
+        return pd.DataFrame()
+    ref = pd.read_csv(path)
+    needed = {"ra_gauss", "dec_gauss", "ra_com", "dec_com", "snr_err", "productFilename"}
+    if not needed.issubset(ref.columns):
+        raise ValueError(f"Reference centroid file is missing columns: {sorted(needed - set(ref.columns))}")
+
+    out = pd.DataFrame(index=ref.index)
+    out["source"] = "REFERENCE_282040"
+    out["candidate_id"] = pd.to_numeric(ref.get("candidate_id", 282040), errors="coerce").fillna(282040).astype("Int64")
+    out["epoch_label"] = "reference"
+    out["filter"] = ref.get("filter", "")
+    out["filename"] = ref["productFilename"].astype(str)
+    out["mjd"] = pd.to_numeric(ref.get("mjd"), errors="coerce")
+    out["detector"] = ref.get("detector", "")
+    out["clean_snr_err"] = pd.to_numeric(ref["snr_err"], errors="coerce")
+    out["raw_snr_err"] = out["clean_snr_err"]
+    out["raw_snr_emp"] = np.nan
+    out["pixel_scale_mas"] = np.nan
+    out["method_sep_2dg_com_mas"] = _small_angle_sep_mas(
+        ref["ra_gauss"], ref["dec_gauss"], ref["ra_com"], ref["dec_com"]
+    )
+    out["registration_shift_2dg_mas"] = np.nan
+    out["registration_shift_com_mas"] = np.nan
+    out["catalog_offset_2dg_mas"] = np.nan
+    out["catalog_offset_com_mas"] = np.nan
+    out["registration_scatter_east_mas"] = np.nan
+    out["registration_scatter_north_mas"] = np.nan
+    return out
+
+
+def collect_tolerance_rows(
+    results_root: str | Path,
+    reference_centroids: str | Path | None = None,
+) -> pd.DataFrame:
+    """Collect one tolerance-audit row per measured exposure plus reference rows."""
     root = Path(results_root)
     rows = []
 
@@ -93,7 +140,7 @@ def collect_tolerance_rows(results_root: str | Path) -> pd.DataFrame:
         cid_from_dir = candidate_dir.name.replace("candidate_", "")
         if "candidate_id" not in m.columns:
             m["candidate_id"] = cid_from_dir
-
+        m["source"] = "REMAINING_45"
         m["clean_snr_err"] = _num(m.get("clean_snr_err", pd.Series(np.nan, index=m.index)))
         m["method_sep_2dg_com_mas"] = _hypot_cols(
             m,
@@ -132,6 +179,7 @@ def collect_tolerance_rows(results_root: str | Path) -> pd.DataFrame:
 
         keep = [
             c for c in [
+                "source",
                 "candidate_id",
                 "epoch_label",
                 "filter",
@@ -154,9 +202,13 @@ def collect_tolerance_rows(results_root: str | Path) -> pd.DataFrame:
         ]
         rows.append(m[keep].copy())
 
+    reference = _reference_rows(reference_centroids)
+    if len(reference):
+        rows.append(reference)
+
     if not rows:
         return pd.DataFrame()
-    out = pd.concat(rows, ignore_index=True)
+    out = pd.concat(rows, ignore_index=True, sort=False)
     out["candidate_id"] = pd.to_numeric(out["candidate_id"], errors="coerce").astype("Int64")
     return out
 
@@ -252,14 +304,14 @@ def tolerance_sweep(detail: pd.DataFrame, thresholds=SWEEP_MAS) -> pd.DataFrame:
     ])
 
 
-def summarize_by_filter(detail: pd.DataFrame, tolerance_mas: float = DEFAULT_TOLERANCE_MAS) -> pd.DataFrame:
-    if detail.empty or "filter" not in detail.columns:
+def summarize_by_group(detail: pd.DataFrame, group_col: str, tolerance_mas: float = DEFAULT_TOLERANCE_MAS) -> pd.DataFrame:
+    if detail.empty or group_col not in detail.columns:
         return pd.DataFrame()
     rows = []
     eligible = detail[_num(detail["clean_snr_err"]) >= 3.0]
-    for filt, grp in eligible.groupby("filter", dropna=False):
+    for value, grp in eligible.groupby(group_col, dropna=False):
         s = summarize_tolerance(grp, tolerance_mas)
-        s["filter"] = filt
+        s[group_col] = value
         rows.append(s)
     return pd.DataFrame(rows)
 
