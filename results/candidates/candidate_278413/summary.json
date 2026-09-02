@@ -1,0 +1,10 @@
+{
+  "candidate_id": 278413,
+  "classification": "INSUFFICIENT_DATA",
+  "dec_deg": 1.97038650103515,
+  "input_f444w_flux_njy": 279.654004894606,
+  "input_f444w_mag_ab": 25.2834473920178,
+  "pm_status": "ERROR",
+  "ra_deg": 150.081710217363,
+  "reason": "RuntimeError: MAST product query failed after 3 attempts: ObservationsClass.get_product_list_async() got an unexpected keyword argument 'batch_size'"
+}

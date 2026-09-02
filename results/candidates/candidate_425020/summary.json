@@ -1,0 +1,13 @@
+{
+  "candidate_id": 425020,
+  "classification": "INSUFFICIENT_DATA",
+  "dec_deg": 2.03436610473549,
+  "input_f444w_flux_njy": 284.88829836038,
+  "input_f444w_mag_ab": 25.2633134720389,
+  "n_hst_inventory_rows": 49,
+  "n_jwst_inventory_rows": 7,
+  "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
+  "pm_status": "INSUFFICIENT_DATA",
+  "ra_deg": 150.330229722672,
+  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR"
+}

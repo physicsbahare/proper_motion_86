@@ -1,0 +1,13 @@
+{
+  "candidate_id": 855379,
+  "classification": "INSUFFICIENT_DATA",
+  "dec_deg": 2.20126856448975,
+  "input_f444w_flux_njy": 10771.4398131041,
+  "input_f444w_mag_ab": 21.3193156022257,
+  "n_hst_inventory_rows": 34,
+  "n_jwst_inventory_rows": 7,
+  "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
+  "pm_status": "INSUFFICIENT_DATA",
+  "ra_deg": 150.386636800734,
+  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR"
+}

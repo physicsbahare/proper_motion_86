@@ -1,0 +1,13 @@
+{
+  "candidate_id": 195921,
+  "classification": "INSUFFICIENT_DATA",
+  "dec_deg": 1.93105794871385,
+  "input_f444w_flux_njy": 268.33789596967,
+  "input_f444w_mag_ab": 25.3282949745974,
+  "n_hst_inventory_rows": 19,
+  "n_jwst_inventory_rows": 4,
+  "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
+  "pm_status": "INSUFFICIENT_DATA",
+  "ra_deg": 150.342592477884,
+  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR"
+}

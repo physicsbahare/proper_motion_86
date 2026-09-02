@@ -1,0 +1,13 @@
+{
+  "candidate_id": 149438,
+  "classification": "INSUFFICIENT_DATA",
+  "dec_deg": 1.9043546546897,
+  "input_f444w_flux_njy": 211.294548502764,
+  "input_f444w_mag_ab": 25.5877792695049,
+  "n_hst_inventory_rows": 11,
+  "n_jwst_inventory_rows": 5,
+  "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
+  "pm_status": "INSUFFICIENT_DATA",
+  "ra_deg": 150.355663665834,
+  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR"
+}
