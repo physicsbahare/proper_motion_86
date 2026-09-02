@@ -1,9 +1,9 @@
 {
-  "filter_early": "F356W",
-  "filter_late": "F356W",
-  "inventory_baseline_days": 393.6939148379679,
-  "inventory_early_mjd": 60791.68710052083,
-  "inventory_late_mjd": 61185.3810153588,
+  "filter_early": "F444W",
+  "filter_late": "F410M",
+  "inventory_baseline_days": 730.0303509953737,
+  "inventory_early_mjd": 60041.174357372685,
+  "inventory_late_mjd": 60771.20470836806,
   "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
+  "pair_type": "CROSS_FILTER_JWST"
 }

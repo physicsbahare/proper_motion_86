@@ -2,7 +2,7 @@
 
 Candidate summaries: **26/26**
 
-Archive-selected NIRCam epoch pair found: **16**
+Archive-selected NIRCam epoch pair found: **19**
 
 Candidates reaching a non-INSUFFICIENT PM classification: **1**
 

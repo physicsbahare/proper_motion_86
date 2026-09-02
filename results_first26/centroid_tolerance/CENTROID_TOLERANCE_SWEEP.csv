@@ -1,0 +1,8 @@
+tolerance_mas,method_fraction_within,registration_fraction_within,method_comparable_rows,registration_comparable_rows
+20.0,0.3,0.3333333333333333,10,3
+30.0,0.3,0.6666666666666666,10,3
+40.0,0.3,1.0,10,3
+50.0,0.4,1.0,10,3
+60.0,0.6,1.0,10,3
+80.0,0.6,1.0,10,3
+100.0,0.9,1.0,10,3

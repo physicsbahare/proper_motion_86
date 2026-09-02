@@ -1,6 +1,5 @@
 reason,n_candidates
-target is not securely centroidable in both independent epochs,12
+target is not securely centroidable in both independent epochs,13
 NO_INDEPENDENT_JWST_EPOCH_PAIR,7
-selected archive epochs do not both have covering CAL exposures,3
-"ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",3
+selected archive epochs do not both have covering CAL exposures,5
 NONE,1

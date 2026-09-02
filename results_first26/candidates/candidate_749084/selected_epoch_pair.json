@@ -1,9 +1,9 @@
 {
-  "filter_early": "F115W",
-  "filter_late": "F115W",
-  "inventory_baseline_days": 705.7701256365763,
-  "inventory_early_mjd": 60306.07546997685,
+  "filter_early": "F444W",
+  "filter_late": "F356W",
+  "inventory_baseline_days": 705.7460167708341,
+  "inventory_early_mjd": 60306.09957884259,
   "inventory_late_mjd": 61011.84559561343,
   "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
+  "pair_type": "CROSS_FILTER_JWST"
 }

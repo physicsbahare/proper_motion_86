@@ -2,10 +2,8 @@
 
 Candidate summaries present: **26/26**
 
-Candidate-level `pm_status == ERROR`: **3**
+Candidate-level `pm_status == ERROR`: **0**
 
 Hidden all-product infrastructure failures: **0**
 
-## Problems
-
-- Candidate-level pm_status=ERROR: 130146, 323596, 500409
+No missing summaries, explicit candidate errors, or hidden all-product remote-access failures were found.
