@@ -10,13 +10,13 @@ The previously completed 282040 run contributes 6 S/N>=3 exposures. At 60 mas, 1
 
 ## Headline numbers including available reference/calibration rows
 
-- `eligible_snr3_rows`: 8
-- `eligible_candidates`: 3
-- `method_comparable_rows`: 7
+- `eligible_snr3_rows`: 6
+- `eligible_candidates`: 1
+- `method_comparable_rows`: 6
 - `method_rows_over_tolerance`: 1
-- `method_fraction_within_tolerance`: 0.857
-- `method_sep_p95_mas`: 73.253
-- `method_sep_p99_mas`: 81.073
+- `method_fraction_within_tolerance`: 0.833
+- `method_sep_p95_mas`: 74.882
+- `method_sep_p99_mas`: 81.399
 - `method_sep_max_mas`: 83.029
 - `registration_comparable_rows`: 0
 - `registration_rows_over_tolerance`: 0

@@ -1,9 +1,0 @@
-{
-  "filter_early": "F150W",
-  "filter_late": "F150W",
-  "inventory_baseline_days": 730.2915511053216,
-  "inventory_early_mjd": 60041.011059756944,
-  "inventory_late_mjd": 60771.302610862265,
-  "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
-}

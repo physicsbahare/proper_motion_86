@@ -1,9 +1,0 @@
-{
-  "filter_early": "F277W",
-  "filter_late": "F277W",
-  "inventory_baseline_days": 99.06981533564249,
-  "inventory_early_mjd": 60308.55527621528,
-  "inventory_late_mjd": 60407.62509155092,
-  "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
-}
