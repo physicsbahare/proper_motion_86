@@ -18,7 +18,13 @@ from recenter_measurement import install as install_recenter_patch
 import pm86.pipeline as pipeline
 
 
-DEEP_PAIR_ATTEMPTS = 24
+# Sixteen ranked pairs is a deliberate deep-rescue compromise: it doubles the
+# production search depth (8) while keeping one difficult candidate inside the
+# GitHub-hosted runner lifetime.  Prior 24-pair runs repeatedly hit the hard job
+# timeout before producing a summary, which is an infrastructure failure rather
+# than scientific evidence.  Pair ranking and all science acceptance criteria are
+# unchanged.
+DEEP_PAIR_ATTEMPTS = 16
 
 
 def json_safe(value):
@@ -30,13 +36,7 @@ def json_safe(value):
 
 
 def install_deep_pair_search():
-    """First26-only expansion of the ranked epoch-pair search.
-
-    The production pipeline defaults to eight pairs.  These candidates are a
-    deliberately difficult rescue sample, so inspect more legitimate pairs before
-    declaring a target coverage/centroid limited.  This does not alter pair ranking
-    or scientific acceptance criteria.
-    """
+    """First26-only expansion of the ranked epoch-pair search."""
     original = pipeline._rank_epoch_pairs
 
     def deep_rank(inventory):
@@ -53,9 +53,6 @@ def main():
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
-    # A real mover can be several pixels away from the catalog coordinate.  The
-    # first26 measurement layer also adds a conservative uncertainty-aware forced
-    # Gaussian fit for faint targets.
     install_recenter_patch()
     install_deep_pair_search()
 
