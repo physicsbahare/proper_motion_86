@@ -1,21 +1,20 @@
-"""Motion-aware target recentering for the first26 audit.
+"""Motion-aware target recentering and faint-source forced astrometry.
 
-The base pipeline forced target photometry exactly at the catalog coordinate before
-accepting a centroid. That can reject the very sources whose proper motion moves
-them several NIRCam pixels between the catalog reference position and an archive
-exposure. This patch searches a small local region for a compact source, recenters
-photometry on the nearest plausible detection, and records the search offset. Field
-controls and the downstream local-registration/PM inference remain unchanged.
+The base pipeline measures at the catalog coordinate.  For first26 we first preserve
+any secure measurement, then search locally for a plausible compact source, and
+finally apply an uncertainty-aware forced Gaussian fit when ordinary aperture/
+segmentation centroiding is inadequate.  The forced fit is accepted only under the
+strict quality cuts in ``forced_astrometry.py``.
 """
 from __future__ import annotations
 
 import numpy as np
-from scipy import ndimage
 from astropy.stats import sigma_clipped_stats
 from photutils.segmentation import detect_sources
 
 import pm86.measurement as m
 import pm86.pipeline as pipeline
+from forced_astrometry import fit_forced_gaussian
 
 SEARCH_RADIUS_PIX = 12.0
 SEARCH_SIGMA = 2.5
@@ -45,7 +44,6 @@ def _nearest_seed(data_sub, bad, tx, ty):
         d = float(np.hypot(x - tx, y - ty))
         if d > SEARCH_RADIUS_PIX:
             continue
-        # Prefer proximity first, then integrated positive signal.
         score = (d, -float(vals.sum()))
         if best is None or score < best[0]:
             best = (score, x, y, d)
@@ -56,10 +54,17 @@ def _nearest_seed(data_sub, bad, tx, ty):
 
 def measure_exposure_recentered(exposure):
     row, controls = m.measure_exposure(exposure)
+    base_snr = float(row.get("clean_snr_err", np.nan))
+    row["astrometric_snr"] = base_snr
+    row["forced_fit_attempted"] = False
+    row["forced_fit_accepted"] = False
+    row["forced_snr"] = np.nan
+
     # Keep an already secure forced-position measurement unchanged.
-    if np.isfinite(row.get("clean_snr_err", np.nan)) and row["clean_snr_err"] >= 3:
+    if np.isfinite(base_snr) and base_snr >= 3 and np.isfinite(row.get("x_2dg", np.nan)):
         row["target_seed_recentered"] = False
         row["target_seed_offset_pix"] = 0.0
+        row["astrometry_source"] = "catalog_position_2dg"
         return row, controls
 
     sci = np.asarray(exposure.sci, dtype=float)
@@ -70,10 +75,66 @@ def measure_exposure_recentered(exposure):
     ty = exposure.y_full - exposure.y0
     _, bkg, _ = sigma_clipped_stats(sci, mask=phot_bad, sigma=3.0, maxiters=5)
     data_sub = sci - float(bkg)
+
     sx, sy, offset, found = _nearest_seed(data_sub, astrom_bad, tx, ty)
     row["target_seed_recentered"] = bool(found)
     row["target_seed_offset_pix"] = float(offset)
+
+    # The local detection is only a seed.  The forced fit provides its own
+    # uncertainty/significance test and can also operate directly at the catalog
+    # prediction if segmentation finds nothing.
+    seed_x, seed_y = (sx, sy) if found else (tx, ty)
+    forced = fit_forced_gaussian(data_sub, err, astrom_bad, seed_x, seed_y)
+    row.update(forced)
+
+    if forced.get("forced_fit_accepted", False):
+        fx = float(forced["forced_x"])
+        fy = float(forced["forced_y"])
+        total_offset = float(np.hypot(fx - tx, fy - ty))
+        row["target_seed_offset_pix"] = total_offset
+        # Never accept a fitted solution outside the motion-search envelope.
+        if total_offset <= SEARCH_RADIUS_PIX:
+            raw_flux, raw_ferr, raw_snr, _ = m.aperture_measure(sci, err, phot_bad, fx, fy)
+            clean_flux, clean_ferr, clean_snr, _ = m.aperture_measure(sci, err, astrom_bad, fx, fy)
+            cen = m.centroid_stamp(
+                data_sub, err, astrom_bad, fx, fy,
+                n_mc=0,
+                seed=m.stable_seed(f"forced-com|{exposure.candidate_id}|{exposure.filename}"),
+            )
+
+            def sky(x, y):
+                if not (np.isfinite(x) and np.isfinite(y)):
+                    return np.nan, np.nan
+                try:
+                    ra, dec = m.local_pixel_to_sky(exposure, x, y)
+                    east, north = m.sky_to_tangent(ra, dec, exposure.ra_deg, exposure.dec_deg)
+                    return float(east), float(north)
+                except Exception:
+                    return np.nan, np.nan
+
+            e2, n2 = sky(fx, fy)
+            ec, nc = sky(cen["x_com"], cen["y_com"])
+            row.update({
+                "raw_flux": raw_flux, "raw_fluxerr": raw_ferr, "raw_snr_err": raw_snr,
+                "clean_flux": clean_flux, "clean_fluxerr": clean_ferr, "clean_snr_err": clean_snr,
+                "astrometric_snr": float(forced["forced_snr"]),
+                "astrometry_source": "forced_gaussian",
+                "x_2dg": fx, "y_2dg": fy,
+                "x_com": cen["x_com"], "y_com": cen["y_com"],
+                "sigma_x_pix": float(forced["forced_x_err_pix"]),
+                "sigma_y_pix": float(forced["forced_y_err_pix"]),
+                "n_mc_good": 0,
+                "east_2dg_arcsec_raw_wcs": e2, "north_2dg_arcsec_raw_wcs": n2,
+                "east_com_arcsec_raw_wcs": ec, "north_com_arcsec_raw_wcs": nc,
+            })
+            return row, controls
+        row["forced_fit_accepted"] = False
+
+    # If forced fitting fails but segmentation found a real local source, retain the
+    # original recentering fallback.  It must still satisfy the ordinary aperture
+    # S/N >= 3 gate downstream.
     if not found:
+        row["astrometry_source"] = "unusable_catalog_position"
         return row, controls
 
     raw_flux, raw_ferr, raw_snr, _ = m.aperture_measure(sci, err, phot_bad, sx, sy)
@@ -99,6 +160,8 @@ def measure_exposure_recentered(exposure):
     row.update({
         "raw_flux": raw_flux, "raw_fluxerr": raw_ferr, "raw_snr_err": raw_snr,
         "clean_flux": clean_flux, "clean_fluxerr": clean_ferr, "clean_snr_err": clean_snr,
+        "astrometric_snr": clean_snr,
+        "astrometry_source": "segmentation_recenter_2dg",
         "x_2dg": cen["x_2dg"], "y_2dg": cen["y_2dg"],
         "x_com": cen["x_com"], "y_com": cen["y_com"],
         "sigma_x_pix": cen["sigma_x_pix"], "sigma_y_pix": cen["sigma_y_pix"],
