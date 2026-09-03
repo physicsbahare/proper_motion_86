@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import sys
 import time
 from pathlib import Path
 
@@ -43,6 +44,13 @@ def _install_inventory_retry(attempts: int = 5) -> None:
 def _install_motion_aware_recenter() -> None:
     """Install the tested motion-aware recentering helper used by first26."""
     helper = Path(__file__).resolve().parents[1] / "first26" / "recenter_measurement.py"
+    # recenter_measurement.py intentionally imports sibling forced_astrometry.py.
+    # When loaded dynamically from scripts/, first26 is not automatically on
+    # sys.path, so make that sibling import resolvable without changing the
+    # first26 helper's behavior.
+    helper_dir = str(helper.parent)
+    if helper_dir not in sys.path:
+        sys.path.insert(0, helper_dir)
     spec = importlib.util.spec_from_file_location("pm86_run45_recenter", helper)
     if spec is None or spec.loader is None:
         raise ImportError(f"Could not load recenter helper: {helper}")
