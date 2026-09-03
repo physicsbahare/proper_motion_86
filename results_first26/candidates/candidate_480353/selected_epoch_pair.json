@@ -1,9 +1,12 @@
 {
+  "attempt_rank": 7,
   "filter_early": "F444W",
-  "filter_late": "F444W",
-  "inventory_baseline_days": 103.56138327546068,
-  "inventory_early_mjd": 60314.03929752315,
+  "filter_late": "F150W",
+  "inventory_baseline_days": 102.53171982638742,
+  "inventory_early_mjd": 60315.068960972225,
   "inventory_late_mjd": 60417.60068079861,
+  "pair_filter_cost": 2975.0,
   "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
+  "pair_type": "CROSS_FILTER_JWST",
+  "selection_note": "best failed pair after alternate-pair search"
 }

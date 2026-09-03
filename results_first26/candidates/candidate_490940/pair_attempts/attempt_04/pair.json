@@ -1,0 +1,10 @@
+{
+  "filter_early": "F410M",
+  "filter_late": "F444W",
+  "inventory_baseline_days": 143.81245372685225,
+  "inventory_early_mjd": 60273.841701087964,
+  "inventory_late_mjd": 60417.654154814816,
+  "pair_filter_cost": 394.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

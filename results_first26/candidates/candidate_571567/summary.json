@@ -23,6 +23,7 @@
   "input_f444w_mag_ab": null,
   "n_hst_inventory_rows": 7,
   "n_jwst_inventory_rows": 5,
+  "n_pair_attempts": 0,
   "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
   "pm_status": "INSUFFICIENT_DATA",
   "ra_deg": 150.46520826254,

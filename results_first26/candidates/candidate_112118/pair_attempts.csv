@@ -1,0 +1,9 @@
+pair_status,pair_type,filter_early,filter_late,inventory_early_mjd,inventory_late_mjd,inventory_baseline_days,pair_filter_cost,attempt_rank,stage,reason,n_covering_early,n_covering_late,n_astrometric_early,n_astrometric_late
+PAIR_FOUND,SAME_FILTER_JWST,F444W,F444W,60049.41518872685,60315.914301006946,266.49911228009296,-928.0,1,2,target is not securely centroidable in both independent epochs,1,3,0.0,0.0
+PAIR_FOUND,SAME_FILTER_JWST,F444W,F444W,60049.41518872685,60290.55334731482,241.13815858796443,-928.0,2,1,selected archive epochs do not both have covering CAL exposures,1,0,,
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F410M,60049.41518872685,60803.997110462966,754.5819217361131,394.0,3,2,target is not securely centroidable in both independent epochs,1,1,0.0,0.0
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F410M,60290.55334731482,60803.997110462966,513.4437631481487,394.0,4,1,selected archive epochs do not both have covering CAL exposures,0,1,,
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F410M,60315.914301006946,60803.997110462966,488.0828094560202,394.0,5,2,target is not securely centroidable in both independent epochs,3,1,0.0,0.0
+PAIR_FOUND,SAME_FILTER_JWST,F356W,F356W,60315.9703460706,60806.366567199075,490.3962211284743,744.0,6,2,target is not securely centroidable in both independent epochs,2,3,0.0,0.0
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F356W,60049.41518872685,60806.366567199075,756.9513784722221,908.0,7,2,target is not securely centroidable in both independent epochs,1,3,0.0,0.0
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F356W,60290.55334731482,60806.366567199075,515.8132198842577,908.0,8,1,selected archive epochs do not both have covering CAL exposures,0,3,,

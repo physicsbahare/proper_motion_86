@@ -1,0 +1,10 @@
+{
+  "filter_early": "F356W",
+  "filter_late": "F356W",
+  "inventory_baseline_days": 490.3962211284743,
+  "inventory_early_mjd": 60315.9703460706,
+  "inventory_late_mjd": 60806.366567199075,
+  "pair_filter_cost": 744.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "SAME_FILTER_JWST"
+}

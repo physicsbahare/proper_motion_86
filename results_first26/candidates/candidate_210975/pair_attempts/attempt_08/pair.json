@@ -1,0 +1,10 @@
+{
+  "filter_early": "F410M",
+  "filter_late": "F356W",
+  "inventory_baseline_days": 414.17630699073925,
+  "inventory_early_mjd": 60771.20470836806,
+  "inventory_late_mjd": 61185.3810153588,
+  "pair_filter_cost": 1230.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

@@ -1,0 +1,10 @@
+{
+  "filter_early": "F277W",
+  "filter_late": "F444W",
+  "inventory_baseline_days": 102.53172056713083,
+  "inventory_early_mjd": 60315.06896023148,
+  "inventory_late_mjd": 60417.60068079861,
+  "pair_filter_cost": 1714.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

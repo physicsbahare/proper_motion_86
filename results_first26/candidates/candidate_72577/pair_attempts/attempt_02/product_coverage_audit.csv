@@ -1,0 +1,9 @@
+candidate_id,epoch_label,requested_filter,productFilename,dataURI,status,x_full,y_full,mjd,detector,actual_filter
+72577,early,F444W,jw01727155001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00001_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72577,early,F444W,jw01727155001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00001_nrcblong_cal.fits,COVERED,1652.9169647583265,1.0369781862875351,60294.63528074074,NRCBLONG,F444W
+72577,early,F444W,jw01727155001_02101_00004_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00004_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72577,early,F444W,jw01727155001_02101_00004_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00004_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72577,early,F444W,jw01727155001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00002_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72577,early,F444W,jw01727155001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00002_nrcblong_cal.fits,COVERED,1651.1237958033253,94.47176609340315,60294.639257766205,NRCBLONG,F444W
+72577,early,F444W,jw01727155001_02101_00003_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00003_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72577,early,F444W,jw01727155001_02101_00003_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00003_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
