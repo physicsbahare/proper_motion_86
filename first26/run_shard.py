@@ -15,7 +15,10 @@ from pathlib import Path
 import pandas as pd
 
 from recenter_measurement import install as install_recenter_patch
-from pm86.pipeline import run_candidate
+import pm86.pipeline as pipeline
+
+
+DEEP_PAIR_ATTEMPTS = 24
 
 
 def json_safe(value):
@@ -26,6 +29,22 @@ def json_safe(value):
     return value
 
 
+def install_deep_pair_search():
+    """First26-only expansion of the ranked epoch-pair search.
+
+    The production pipeline defaults to eight pairs.  These candidates are a
+    deliberately difficult rescue sample, so inspect more legitimate pairs before
+    declaring a target coverage/centroid limited.  This does not alter pair ranking
+    or scientific acceptance criteria.
+    """
+    original = pipeline._rank_epoch_pairs
+
+    def deep_rank(inventory):
+        return original(inventory, max_pairs=DEEP_PAIR_ATTEMPTS)
+
+    pipeline._rank_epoch_pairs = deep_rank
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--catalog", required=True)
@@ -34,10 +53,11 @@ def main():
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
-    # A real mover can be several pixels away from the catalog coordinate.
-    # Install a first26-only local recentering layer that searches up to 12
-    # pixels around the catalog prediction and preserves the offset in evidence.
+    # A real mover can be several pixels away from the catalog coordinate.  The
+    # first26 measurement layer also adds a conservative uncertainty-aware forced
+    # Gaussian fit for faint targets.
     install_recenter_patch()
+    install_deep_pair_search()
 
     catalog = pd.read_csv(args.catalog).sort_values("source_row").reset_index(drop=True)
     selected = catalog.iloc[args.shard :: args.n_shards].copy()
@@ -48,7 +68,8 @@ def main():
 
     print(
         f"first26 shard={args.shard}/{args.n_shards} "
-        f"n_candidates={len(selected)} ids={selected.candidate_id.astype(int).tolist()}"
+        f"n_candidates={len(selected)} ids={selected.candidate_id.astype(int).tolist()} "
+        f"max_pair_attempts={DEEP_PAIR_ATTEMPTS}"
     )
 
     for _, row in selected.iterrows():
@@ -57,7 +78,7 @@ def main():
         t0 = time.time()
         print(f"\n=== candidate {cid} ===", flush=True)
 
-        summary = run_candidate(candidate, root)
+        summary = pipeline.run_candidate(candidate, root)
 
         cdir = root / f"candidate_{cid}"
         input_payload = {k: json_safe(v) for k, v in candidate.items()}
@@ -69,6 +90,8 @@ def main():
         saved = json.loads(summary_path.read_text(encoding="utf-8"))
         for key, value in input_payload.items():
             saved[f"catalog_{key}"] = value
+        saved["first26_deep_pair_attempt_limit"] = DEEP_PAIR_ATTEMPTS
+        saved["first26_faint_astrometry_fallback"] = "bounded_forced_gaussian_v1"
         summary_path.write_text(
             json.dumps(saved, indent=2, sort_keys=True), encoding="utf-8"
         )
