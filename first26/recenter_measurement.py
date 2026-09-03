@@ -16,7 +16,12 @@ import pm86.measurement as m
 import pm86.pipeline as pipeline
 from forced_astrometry import fit_forced_gaussian
 
-SEARCH_RADIUS_PIX = 12.0
+# Association radius, not a generic motion search radius.  A much larger radius
+# can latch onto an unrelated stationary neighbour in every epoch and produce a
+# formally precise but scientifically invalid PM.  Four LW pixels (~0.25 arcsec)
+# is deliberately conservative for autonomous rescue; larger motions require a
+# trajectory/linking analysis rather than independent nearest-source recentering.
+SEARCH_RADIUS_PIX = 4.0
 SEARCH_SIGMA = 2.5
 SEARCH_MIN_PIXELS = 4
 
@@ -93,7 +98,8 @@ def measure_exposure_recentered(exposure):
         fy = float(forced["forced_y"])
         total_offset = float(np.hypot(fx - tx, fy - ty))
         row["target_seed_offset_pix"] = total_offset
-        # Never accept a fitted solution outside the motion-search envelope.
+        # Never accept a fitted solution outside the conservative association
+        # envelope.  Larger offsets need explicit cross-epoch trajectory linking.
         if total_offset <= SEARCH_RADIUS_PIX:
             raw_flux, raw_ferr, raw_snr, _ = m.aperture_measure(sci, err, phot_bad, fx, fy)
             clean_flux, clean_ferr, clean_snr, _ = m.aperture_measure(sci, err, astrom_bad, fx, fy)
