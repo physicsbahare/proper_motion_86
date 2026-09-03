@@ -18,13 +18,14 @@ from recenter_measurement import install as install_recenter_patch
 import pm86.pipeline as pipeline
 
 
-# Sixteen ranked pairs is a deliberate deep-rescue compromise: it doubles the
-# production search depth (8) while keeping one difficult candidate inside the
-# GitHub-hosted runner lifetime.  Prior 24-pair runs repeatedly hit the hard job
-# timeout before producing a summary, which is an infrastructure failure rather
-# than scientific evidence.  Pair ranking and all science acceptance criteria are
-# unchanged.
-DEEP_PAIR_ATTEMPTS = 16
+# Fourteen ranked pairs is the deepest search that completes for the slowest
+# candidates inside GitHub's hosted-runner hard lifetime.  Empirically candidate
+# 748914 completed attempts 1--14 but was killed while entering attempt 15 in a
+# 16-pair run.  A killed shard produces no summary and is an infrastructure
+# failure, not extra scientific information.  Fourteen still substantially
+# deepens the original production search (8), spans same/cross-filter alternatives,
+# and preserves all measurement/QC acceptance criteria.
+DEEP_PAIR_ATTEMPTS = 14
 
 
 def json_safe(value):
