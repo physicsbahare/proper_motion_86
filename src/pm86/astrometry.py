@@ -69,14 +69,26 @@ def _match_controls(current, reference):
 
 
 def register_exposures(measurements: pd.DataFrame, controls: pd.DataFrame):
-    """Register every usable exposure into an early-epoch reference frame."""
+    """Register every usable exposure into an early-epoch reference frame.
+
+    ``astrometric_snr`` is the authoritative first26 target-significance column
+    when present.  It can represent a quality-controlled forced Gaussian fit for
+    a faint source whose aperture ``clean_snr_err`` is below the nominal gate.
+    Other workflows that do not provide this column retain the original aperture
+    S/N behaviour.
+    """
     if measurements.empty:
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    if "astrometric_snr" in measurements.columns:
+        target_snr = pd.to_numeric(measurements["astrometric_snr"], errors="coerce")
+    else:
+        target_snr = pd.to_numeric(measurements["clean_snr_err"], errors="coerce")
 
     usable = measurements[
         np.isfinite(measurements["east_2dg_arcsec_raw_wcs"])
         & np.isfinite(measurements["north_2dg_arcsec_raw_wcs"])
-        & (measurements["clean_snr_err"] >= CONFIG.target_min_snr_astrometry)
+        & (target_snr >= CONFIG.target_min_snr_astrometry)
     ].copy()
     if usable.empty:
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
