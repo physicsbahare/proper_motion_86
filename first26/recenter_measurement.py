@@ -55,6 +55,7 @@ def _nearest_seed(data_sub, bad, tx, ty):
 def measure_exposure_recentered(exposure):
     row, controls = m.measure_exposure(exposure)
     base_snr = float(row.get("clean_snr_err", np.nan))
+    row["aperture_clean_snr_err"] = base_snr
     row["astrometric_snr"] = base_snr
     row["forced_fit_attempted"] = False
     row["forced_fit_accepted"] = False
@@ -114,10 +115,16 @@ def measure_exposure_recentered(exposure):
 
             e2, n2 = sky(fx, fy)
             ec, nc = sky(cen["x_com"], cen["y_com"])
+            forced_snr = float(forced["forced_snr"])
             row.update({
                 "raw_flux": raw_flux, "raw_fluxerr": raw_ferr, "raw_snr_err": raw_snr,
-                "clean_flux": clean_flux, "clean_fluxerr": clean_ferr, "clean_snr_err": clean_snr,
-                "astrometric_snr": float(forced["forced_snr"]),
+                "clean_flux": clean_flux, "clean_fluxerr": clean_ferr,
+                "aperture_clean_snr_err": clean_snr,
+                # first26's existing registration gate consumes clean_snr_err.
+                # For an accepted forced fit, expose its stricter model-fit S/N
+                # there while preserving the literal aperture value separately.
+                "clean_snr_err": forced_snr,
+                "astrometric_snr": forced_snr,
                 "astrometry_source": "forced_gaussian",
                 "x_2dg": fx, "y_2dg": fy,
                 "x_com": cen["x_com"], "y_com": cen["y_com"],
@@ -159,7 +166,8 @@ def measure_exposure_recentered(exposure):
     ec, nc = sky(cen["x_com"], cen["y_com"])
     row.update({
         "raw_flux": raw_flux, "raw_fluxerr": raw_ferr, "raw_snr_err": raw_snr,
-        "clean_flux": clean_flux, "clean_fluxerr": clean_ferr, "clean_snr_err": clean_snr,
+        "clean_flux": clean_flux, "clean_fluxerr": clean_ferr,
+        "aperture_clean_snr_err": clean_snr, "clean_snr_err": clean_snr,
         "astrometric_snr": clean_snr,
         "astrometry_source": "segmentation_recenter_2dg",
         "x_2dg": cen["x_2dg"], "y_2dg": cen["y_2dg"],
