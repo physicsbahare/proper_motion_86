@@ -1,0 +1,10 @@
+{
+  "filter_early": "F277W",
+  "filter_late": "F360M",
+  "inventory_baseline_days": 735.7785149421325,
+  "inventory_early_mjd": 60043.498249826385,
+  "inventory_late_mjd": 60779.27676476852,
+  "pair_filter_cost": 2494.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

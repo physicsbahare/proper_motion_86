@@ -1,0 +1,17 @@
+{
+  "candidate_id": 330904,
+  "catalog_f444w_fluxerr_njy": 4.64499691695941,
+  "catalog_f444w_magerr": 0.0146373574569453,
+  "catalog_flux_ratio": 61.4048140997526,
+  "classification": "INSUFFICIENT_DATA",
+  "dec_deg": 1.99368672051341,
+  "input_f444w_flux_njy": 344.545888051652,
+  "input_f444w_mag_ab": 25.0568823219057,
+  "n_hst_inventory_rows": 16,
+  "n_jwst_inventory_rows": 4,
+  "n_pair_attempts": 0,
+  "pair_status": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
+  "pm_status": "INSUFFICIENT_DATA",
+  "ra_deg": 150.397512077673,
+  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR"
+}

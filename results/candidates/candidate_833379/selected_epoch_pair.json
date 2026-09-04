@@ -1,0 +1,12 @@
+{
+  "attempt_rank": 1,
+  "filter_early": "F444W",
+  "filter_late": "F356W",
+  "inventory_baseline_days": 734.6025509953688,
+  "inventory_early_mjd": 60049.284974780094,
+  "inventory_late_mjd": 60783.88752577546,
+  "pair_filter_cost": 908.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST",
+  "selection_note": "best failed pair after alternate-pair search"
+}

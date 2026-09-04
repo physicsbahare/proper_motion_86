@@ -1,0 +1,10 @@
+{
+  "filter_early": "F150W",
+  "filter_late": "F356W",
+  "inventory_baseline_days": 734.6025509953688,
+  "inventory_early_mjd": 60049.284974780094,
+  "inventory_late_mjd": 60783.88752577546,
+  "pair_filter_cost": 3811.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}
