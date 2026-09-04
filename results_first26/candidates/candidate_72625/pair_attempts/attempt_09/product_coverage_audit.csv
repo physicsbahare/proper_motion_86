@@ -1,0 +1,17 @@
+candidate_id,epoch_label,requested_filter,productFilename,dataURI,status,x_full,y_full,mjd,detector,actual_filter
+72625,early,F444W,jw01727155001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00001_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00001_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00004_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00004_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00004_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00004_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00002_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00002_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00003_nrcblong_cal.fits,mast:JWST/product/jw01727155001_02101_00003_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,early,F444W,jw01727155001_02101_00003_nrcalong_cal.fits,mast:JWST/product/jw01727155001_02101_00003_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00004_nrcblong_cal.fits,mast:JWST/product/jw01727157001_02101_00004_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727157001_02101_00002_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727157001_02101_00001_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00004_nrcalong_cal.fits,mast:JWST/product/jw01727157001_02101_00004_nrcalong_cal.fits,COVERED,393.3796734373799,1972.175602275769,60423.56019354166,NRCALONG,F277W
+72625,late,F277W,jw01727157001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727157001_02101_00001_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00003_nrcblong_cal.fits,mast:JWST/product/jw01727157001_02101_00003_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00003_nrcalong_cal.fits,mast:JWST/product/jw01727157001_02101_00003_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+72625,late,F277W,jw01727157001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727157001_02101_00002_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,

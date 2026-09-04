@@ -1,0 +1,10 @@
+{
+  "filter_early": "F150W",
+  "filter_late": "F200W",
+  "inventory_baseline_days": 405.8743248842584,
+  "inventory_early_mjd": 60406.657703055556,
+  "inventory_late_mjd": 60812.532027939815,
+  "pair_filter_cost": 5390.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

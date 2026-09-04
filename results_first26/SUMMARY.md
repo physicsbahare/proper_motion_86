@@ -9,7 +9,7 @@ Candidates reaching a non-INSUFFICIENT PM classification: **1**
 ## Classification counts
 
 - `INSUFFICIENT_DATA`: 25
-- `CONSISTENT_WITH_ZERO`: 1
+- `AMBIGUOUS_SYSTEMATICS`: 1
 
 The source Galaxy/Brown-Dwarf classification is preserved only as metadata and is not used by the astrometric decision chain.
 

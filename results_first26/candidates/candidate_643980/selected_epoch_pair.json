@@ -7,5 +7,6 @@
   "inventory_late_mjd": 60799.80156451389,
   "pair_filter_cost": -928.0,
   "pair_status": "PAIR_FOUND",
-  "pair_type": "SAME_FILTER_JWST"
+  "pair_type": "SAME_FILTER_JWST",
+  "selection_note": "best failed pair after alternate-pair search"
 }
