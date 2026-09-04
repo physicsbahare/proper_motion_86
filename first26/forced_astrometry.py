@@ -4,10 +4,10 @@ This module provides a conservative fallback when aperture S/N or segmentation-b
 recentering is insufficient.  It fits a compact 2-D Gaussian plus constant background
 in a local stamp, using the CAL ERR array as pixel weights.  A fit is considered
 astrometrically usable only if it satisfies explicit significance, width, positional
-uncertainty, reduced-chi2, and displacement bounds.
+uncertainty, reduced-chi2, displacement, and compactness bounds.
 
-The intent is to recover real faint sources, not to turn arbitrary noise peaks into
-proper-motion detections.
+The intent is to recover real faint point sources, not to turn arbitrary noise peaks
+or extended residuals into proper-motion detections.
 """
 from __future__ import annotations
 
@@ -18,7 +18,13 @@ from scipy.optimize import least_squares
 MIN_FORCED_SNR = 4.0
 MAX_POSITION_SIGMA_PIX = 1.2
 MIN_SIGMA_PIX = 0.55
-MAX_SIGMA_PIX = 3.0
+# NIRCam point sources in the red filters used here have Gaussian-equivalent
+# sigmas of order ~1 pixel.  A 3-pixel sigma (the previous bound) corresponds
+# to FWHM ~7 pixels and can admit extended/noise residuals as astrometric
+# targets.  1.8 pixels is deliberately generous while still enforcing a
+# point-source-like rescue measurement.
+MAX_SIGMA_PIX = 1.8
+MAX_AXIS_RATIO = 2.0
 MAX_REDUCED_CHI2 = 3.0
 FIT_HALF_SIZE = 7
 FIT_CENTER_FREEDOM_PIX = 4.0
@@ -47,6 +53,7 @@ def fit_forced_gaussian(data_sub, err, bad, x_seed, y_seed):
         "forced_snr": np.nan,
         "forced_sigma_x_pix": np.nan,
         "forced_sigma_y_pix": np.nan,
+        "forced_axis_ratio": np.nan,
         "forced_x_err_pix": np.nan,
         "forced_y_err_pix": np.nan,
         "forced_reduced_chi2": np.nan,
@@ -79,7 +86,7 @@ def fit_forced_gaussian(data_sub, err, bad, x_seed, y_seed):
     if not np.isfinite(positive_peak) or positive_peak <= 0:
         return out
 
-    p0 = np.array([positive_peak, x_seed, y_seed, 1.2, 1.2, med], dtype=float)
+    p0 = np.array([positive_peak, x_seed, y_seed, 1.0, 1.0, med], dtype=float)
     lo = np.array([
         0.0,
         x_seed - FIT_CENTER_FREEDOM_PIX,
@@ -123,6 +130,7 @@ def fit_forced_gaussian(data_sub, err, bad, x_seed, y_seed):
 
     amp_err, xerr, yerr = perr[0], perr[1], perr[2]
     snr = float(amp / amp_err) if np.isfinite(amp_err) and amp_err > 0 else np.nan
+    axis_ratio = float(max(sx, sy) / min(sx, sy)) if min(sx, sy) > 0 else np.inf
     accepted = bool(
         np.isfinite(snr)
         and snr >= MIN_FORCED_SNR
@@ -130,6 +138,7 @@ def fit_forced_gaussian(data_sub, err, bad, x_seed, y_seed):
         and np.isfinite(yerr) and yerr <= MAX_POSITION_SIGMA_PIX
         and MIN_SIGMA_PIX < sx < MAX_SIGMA_PIX
         and MIN_SIGMA_PIX < sy < MAX_SIGMA_PIX
+        and np.isfinite(axis_ratio) and axis_ratio <= MAX_AXIS_RATIO
         and np.isfinite(rchi2) and rchi2 <= MAX_REDUCED_CHI2
     )
 
@@ -142,6 +151,7 @@ def fit_forced_gaussian(data_sub, err, bad, x_seed, y_seed):
         "forced_snr": snr,
         "forced_sigma_x_pix": float(sx),
         "forced_sigma_y_pix": float(sy),
+        "forced_axis_ratio": axis_ratio,
         "forced_x_err_pix": float(xerr) if np.isfinite(xerr) else np.nan,
         "forced_y_err_pix": float(yerr) if np.isfinite(yerr) else np.nan,
         "forced_reduced_chi2": float(rchi2),
