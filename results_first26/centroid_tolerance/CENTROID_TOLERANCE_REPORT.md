@@ -10,20 +10,20 @@ The previously completed 282040 run contributes 6 S/N>=3 exposures. At 60 mas, 1
 
 ## Headline numbers including available reference/calibration rows
 
-- `eligible_snr3_rows`: 10
+- `eligible_snr3_rows`: 9
 - `eligible_candidates`: 3
-- `method_comparable_rows`: 8
+- `method_comparable_rows`: 7
 - `method_rows_over_tolerance`: 2
-- `method_fraction_within_tolerance`: 0.750
-- `method_sep_p95_mas`: 104.106
-- `method_sep_p99_mas`: 113.186
+- `method_fraction_within_tolerance`: 0.714
+- `method_sep_p95_mas`: 105.728
+- `method_sep_p99_mas`: 113.510
 - `method_sep_max_mas`: 115.456
-- `registration_comparable_rows`: 2
+- `registration_comparable_rows`: 0
 - `registration_rows_over_tolerance`: 0
-- `registration_fraction_within_tolerance`: 1.000
-- `registration_shift_p95_mas`: 6.958
-- `registration_shift_p99_mas`: 7.251
-- `registration_shift_max_mas`: 7.324
+- `registration_fraction_within_tolerance`: n/a
+- `registration_shift_p95_mas`: n/a
+- `registration_shift_p99_mas`: n/a
+- `registration_shift_max_mas`: n/a
 - `assessment`: 60MAS_METHOD_OR_FRAME_SENSITIVITY_DETECTED
 
 ## Interpretation
