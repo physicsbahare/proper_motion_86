@@ -2,10 +2,10 @@
 """Exhaustively audit public JWST/NIRCam detections for candidates 210975/575676.
 
 Unlike the ranked-pair PM search, this script does not stop after a fixed number
-of epoch pairs.  It visits every public NIRCam observation in the MAST inventory,
+of epoch pairs. It visits every public NIRCam observation in the MAST inventory,
 resolves CAL products, verifies detector coverage with gWCS, and runs the same
 quality-controlled forced photometry/centroid measurement used by the PM
-pipeline.  The purpose is to answer a narrower sanity-check question: is the
+pipeline. The purpose is to answer a narrower sanity-check question: is the
 source actually detected/centroidable in more than one independent epoch, and
 if so in which filters/exposures?
 """
@@ -13,13 +13,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from first26.recenter_measurement import install as install_recenter_patch
-from first26.remote_io_patch import install as install_remote_io_patch
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "first26"))
+from recenter_measurement import install as install_recenter_patch
+from remote_io_patch import install as install_remote_io_patch
+
 from pm86.archive import (
     _get_products_with_retry,
     load_covering_cutouts,
@@ -92,9 +96,7 @@ def main():
                 label = f"epoch_{epoch_index:03d}"
                 products = _get_products_with_retry(epoch["rows"])
                 products.to_csv(cdir / f"{label}_{filt}_products.csv", index=False)
-                cutouts, audit = load_covering_cutouts(
-                    cid, ra, dec, label, str(filt), products
-                )
+                cutouts, audit = load_covering_cutouts(cid, ra, dec, label, str(filt), products)
                 for a in audit:
                     a["epoch_mjd_inventory"] = float(epoch["mjd"])
                     a["filter_inventory"] = str(filt)
@@ -112,10 +114,9 @@ def main():
                 mdf = pd.DataFrame(local)
                 if len(mdf):
                     snrs = mdf.apply(_snr, axis=1).to_numpy(float)
-                    centroid_ok = (
-                        (pd.to_numeric(mdf.get("clean_snr_err"), errors="coerce") >= 3)
-                        & np.isfinite(pd.to_numeric(mdf.get("east_2dg_arcsec_raw_wcs"), errors="coerce"))
-                    )
+                    clean = pd.to_numeric(mdf.get("clean_snr_err"), errors="coerce")
+                    east = pd.to_numeric(mdf.get("east_2dg_arcsec_raw_wcs"), errors="coerce")
+                    centroid_ok = (clean >= 3) & np.isfinite(east)
                     n_centroid = int(centroid_ok.sum())
                     max_snr = float(np.nanmax(snrs)) if np.isfinite(snrs).any() else np.nan
                 else:
