@@ -8,7 +8,6 @@ on:
       - '.github/workflows/run_45.yml'
       - 'src/**'
       - 'scripts/**'
-      - 'first26/**'
       - 'data/candidates_45.csv'
       - 'data/reference_282040_centroids.csv'
       - 'requirements.txt'
