@@ -1,0 +1,68 @@
+name: Exhaustive PM rescue - secure two
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/rescue_secure_two_pm.py'
+      - '.github/workflows/rescue_secure_two.yml'
+      - 'src/pm86/**'
+      - 'first26/**'
+      - 'data/candidates_45.csv'
+
+concurrency:
+  group: rescue-secure-two-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  rescue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run exhaustive rescue
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python scripts/rescue_secure_two_pm.py \
+            --catalog data/candidates_45.csv \
+            --ids 835615 1140578 \
+            --output results_secure_two_rescue
+
+      - name: Upload full diagnostic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secure-two-exhaustive-pm-rescue
+          path: results_secure_two_rescue
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Commit compact results
+        if: success()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results_secure_two_rescue
+          if git diff --cached --quiet; then
+            echo 'No result changes to commit.'
+          else
+            git commit -m 'Save exhaustive PM rescue for secure two candidates'
+            git push
+          fi
