@@ -1,0 +1,51 @@
+name: First26 final robustness audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_first26_robustness.py'
+      - '.github/workflows/audit_first26_robustness.yml'
+      - 'results_first26/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: first26-final-robustness
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas numpy
+      - name: Run final robustness audit
+        run: |
+          python scripts/audit_first26_robustness.py \
+            --results results_first26 \
+            --output results_first26/final_robustness_audit
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: first26-final-robustness-audit
+          path: results_first26/final_robustness_audit/
+          retention-days: 30
+      - name: Commit audit results
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results_first26/final_robustness_audit
+          if git diff --cached --quiet; then
+            echo 'No robustness result changes to commit.'
+          else
+            git commit -m 'Save first26 final robustness audit'
+            git push origin HEAD:main
+          fi
