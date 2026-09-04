@@ -1,0 +1,11 @@
+{
+  "candidate_id": 575676,
+  "ra_deg": 149.855762756878,
+  "dec_deg": 2.29974660374655,
+  "n_jwst_nircam_inventory_rows": 7,
+  "n_distinct_filter_epochs": 7,
+  "n_secure_detection_epochs": 0,
+  "secure_detection_baseline_days": null,
+  "status": "NO_SECURE_CENTROID_EPOCH",
+  "secure_epochs": []
+}

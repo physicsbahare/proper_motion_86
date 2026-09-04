@@ -1,0 +1,3 @@
+candidate_id,ra_deg,dec_deg,n_jwst_nircam_inventory_rows,n_distinct_filter_epochs,n_secure_detection_epochs,secure_detection_baseline_days,status,secure_epochs
+210975,149.819087823901,2.0735606215358,22,18,0,,NO_SECURE_CENTROID_EPOCH,[]
+575676,149.855762756878,2.29974660374655,7,7,0,,NO_SECURE_CENTROID_EPOCH,[]
