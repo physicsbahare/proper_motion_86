@@ -7,13 +7,14 @@ on:
     paths:
       - 'scripts/rescue_secure_two_pm.py'
       - '.github/workflows/rescue_secure_two.yml'
-      - 'src/pm86/**'
-      - 'first26/**'
       - 'data/candidates_45.csv'
 
+# This rescue is expensive and must not be cancelled by unrelated pushes.
+# Keep at most one queued/running copy, but allow an in-progress scientific run
+# to finish so we do not lose hours of MAST/gWCS work.
 concurrency:
   group: rescue-secure-two-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
