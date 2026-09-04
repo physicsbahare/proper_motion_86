@@ -1,0 +1,3 @@
+candidate_id,ra_deg,dec_deg,catalog_f444w_mag_ab,n_independent_pairs_tested,n_successful_pm_solutions,classification,pm_status,reason,attempt_stage_counts,cross_pair_consistency
+835615,150.271491894735,2.19579742195885,24.8992134766123,12,0,INSUFFICIENT_DATA,INSUFFICIENT_DATA,exhaustive all-pair rescue found no defensible two-epoch PM solution,{'CENTROID_FAIL': 12},"{'n_successful_pairs': 0, 'status': 'NO_PM_SOLUTION'}"
+1140578,150.426837946364,2.27168871315818,26.3449166022065,8,0,INSUFFICIENT_DATA,INSUFFICIENT_DATA,exhaustive all-pair rescue found no defensible two-epoch PM solution,{'CENTROID_FAIL': 8},"{'n_successful_pairs': 0, 'status': 'NO_PM_SOLUTION'}"

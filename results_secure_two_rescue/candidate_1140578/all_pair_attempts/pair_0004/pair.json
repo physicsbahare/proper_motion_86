@@ -1,0 +1,11 @@
+{
+  "attempt_rank": 4,
+  "filter_early": "F277W",
+  "filter_late": "F150W",
+  "inventory_baseline_days": 99.09392346064851,
+  "inventory_early_mjd": 60308.55527621528,
+  "inventory_late_mjd": 60407.64919967593,
+  "pair_filter_cost": 4617.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

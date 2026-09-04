@@ -1,0 +1,11 @@
+{
+  "attempt_rank": 7,
+  "filter_early": "F115W",
+  "filter_late": "F356W",
+  "inventory_baseline_days": 497.44215124421316,
+  "inventory_early_mjd": 60315.23301025463,
+  "inventory_late_mjd": 60812.675161498846,
+  "pair_filter_cost": 4158.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

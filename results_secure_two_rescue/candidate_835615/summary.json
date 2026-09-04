@@ -1,0 +1,18 @@
+{
+  "attempt_stage_counts": {
+    "CENTROID_FAIL": 12
+  },
+  "candidate_id": 835615,
+  "catalog_f444w_mag_ab": 24.8992134766123,
+  "classification": "INSUFFICIENT_DATA",
+  "cross_pair_consistency": {
+    "n_successful_pairs": 0,
+    "status": "NO_PM_SOLUTION"
+  },
+  "dec_deg": 2.19579742195885,
+  "n_independent_pairs_tested": 12,
+  "n_successful_pm_solutions": 0,
+  "pm_status": "INSUFFICIENT_DATA",
+  "ra_deg": 150.271491894735,
+  "reason": "exhaustive all-pair rescue found no defensible two-epoch PM solution"
+}

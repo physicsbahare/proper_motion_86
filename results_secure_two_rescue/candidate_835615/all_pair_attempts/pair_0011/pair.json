@@ -1,0 +1,11 @@
+{
+  "attempt_rank": 11,
+  "filter_early": "F115W",
+  "filter_late": "F200W",
+  "inventory_baseline_days": 497.4115186863419,
+  "inventory_early_mjd": 60315.23301025463,
+  "inventory_late_mjd": 60812.644528940975,
+  "pair_filter_cost": 5737.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}
