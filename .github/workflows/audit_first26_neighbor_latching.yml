@@ -1,0 +1,56 @@
+name: First26 historical neighbor-latching audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_first26_neighbor_latching.py'
+      - '.github/workflows/audit_first26_neighbor_latching.yml'
+      - 'data/candidates_first26_090630.csv'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: first26-neighbor-latching
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install audit dependencies
+        run: pip install pandas numpy
+      - name: Audit all 26 historical recenter associations
+        run: |
+          python scripts/audit_first26_neighbor_latching.py \
+            --catalog data/candidates_first26_090630.csv \
+            --current-results results_first26 \
+            --old-ref 5426f33b0f4e92b36e4278bb0943035dd902a518 \
+            --output results_first26/neighbor_latching_audit
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: first26-neighbor-latching-audit
+          path: results_first26/neighbor_latching_audit/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Commit audit results
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results_first26/neighbor_latching_audit
+          if git diff --cached --quiet; then
+            echo 'No audit result changes to commit.'
+          else
+            git commit -m 'Save first26 historical neighbor-latching audit'
+            git push origin HEAD:main
+          fi
