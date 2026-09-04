@@ -15,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 from recenter_measurement import install as install_recenter_patch
+from remote_io_patch import install as install_remote_io_patch
 import pm86.pipeline as pipeline
 
 
@@ -24,9 +25,8 @@ import pm86.pipeline as pipeline
 # the attempt-10 remote product path and hit GitHub's six-hour hosted-runner hard
 # limit.  That is an infrastructure/remote-I/O failure, not useful science.
 # The first nine already span the high-priority F444W/F356W/F277W alternatives
-# plus multiple shorter-wave cross-filter combinations.  Capping at nine keeps
-# the deep rescue stricter than the original 8-pair production search while
-# ensuring every candidate reaches a summary and QC instead of being killed.
+# plus multiple shorter-wave cross-filter combinations.  Per-request HTTP bounds
+# are installed separately so a single bad CAL product cannot consume a shard.
 DEEP_PAIR_ATTEMPTS = 9
 
 
@@ -56,6 +56,7 @@ def main():
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
+    install_remote_io_patch()
     install_recenter_patch()
     install_deep_pair_search()
 
@@ -92,6 +93,7 @@ def main():
             saved[f"catalog_{key}"] = value
         saved["first26_deep_pair_attempt_limit"] = DEEP_PAIR_ATTEMPTS
         saved["first26_faint_astrometry_fallback"] = "bounded_forced_gaussian_v1"
+        saved["first26_remote_cal_io"] = "aiohttp_bounded_v1"
         summary_path.write_text(
             json.dumps(saved, indent=2, sort_keys=True), encoding="utf-8"
         )
