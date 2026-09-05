@@ -37,8 +37,10 @@ jobs:
           pip install -e .
 
       - name: Run exhaustive DQ-aware PM audit
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          python defensible/run_catalog.py \
+          python -m defensible.run_catalog \
             --catalog data/candidates_unique_new_F444W.csv \
             --output-root results_unique_f444w_exhaustive \
             --index ${{ matrix.idx }}
