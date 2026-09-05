@@ -2,6 +2,12 @@ name: Defensible PM search - unique F444W candidates
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run_unique_f444w_exhaustive.yml'
+      - 'defensible/**'
+      - 'data/candidates_unique_new_F444W.csv'
 
 permissions:
   contents: write
@@ -62,7 +68,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import pandas as pd
-          import json
 
           root = Path('downloaded')
           files = sorted(root.rglob('summary_*.csv'))
@@ -81,7 +86,6 @@ jobs:
           counts = out['classification'].fillna('UNKNOWN').value_counts().rename_axis('classification').reset_index(name='n_candidates')
           counts.to_csv(dest / 'CLASSIFICATION_COUNTS.csv', index=False)
 
-          # Preserve all candidate-level audit directories from artifacts.
           for cdir in root.rglob('candidate_*'):
               if not cdir.is_dir():
                   continue
@@ -113,5 +117,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Save exhaustive PM audit for unique F444W candidates"
+            git pull --rebase origin main
             git push
           fi
