@@ -1,0 +1,117 @@
+name: Defensible PM search - unique F444W candidates
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        idx: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run exhaustive DQ-aware PM audit
+        run: |
+          python defensible/run_catalog.py \
+            --catalog data/candidates_unique_new_F444W.csv \
+            --output-root results_unique_f444w_exhaustive \
+            --index ${{ matrix.idx }}
+
+      - name: Upload shard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unique-f444w-pm-${{ matrix.idx }}
+          path: results_unique_f444w_exhaustive/
+          retention-days: 14
+
+  aggregate:
+    needs: pm
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: unique-f444w-pm-*
+          path: downloaded
+          merge-multiple: true
+
+      - name: Aggregate shard summaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          import json
+
+          root = Path('downloaded')
+          files = sorted(root.rglob('summary_*.csv'))
+          if len(files) != 23:
+              raise SystemExit(f'Expected 23 shard summaries, found {len(files)}')
+
+          frames = [pd.read_csv(p) for p in files]
+          out = pd.concat(frames, ignore_index=True)
+          if out['candidate_id'].nunique() != 23:
+              raise SystemExit('Candidate IDs are not 23 unique values')
+
+          dest = Path('results_unique_f444w_exhaustive')
+          dest.mkdir(exist_ok=True)
+          out.to_csv(dest / 'ALL23_PM_SUMMARY.csv', index=False)
+
+          counts = out['classification'].fillna('UNKNOWN').value_counts().rename_axis('classification').reset_index(name='n_candidates')
+          counts.to_csv(dest / 'CLASSIFICATION_COUNTS.csv', index=False)
+
+          # Preserve all candidate-level audit directories from artifacts.
+          for cdir in root.rglob('candidate_*'):
+              if not cdir.is_dir():
+                  continue
+              target = dest / cdir.name
+              if target.exists():
+                  continue
+              import shutil
+              shutil.copytree(cdir, target)
+
+          lines = [
+              '# Unique F444W candidate proper-motion audit',
+              '',
+              f'Candidates: **{len(out)}**',
+              '',
+              '## Classification counts',
+              '',
+          ]
+          for _, r in counts.iterrows():
+              lines.append(f'- `{r.classification}`: {int(r.n_candidates)}')
+          (dest / 'SUMMARY.md').write_text('\n'.join(lines) + '\n')
+          PY
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results_unique_f444w_exhaustive
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Save exhaustive PM audit for unique F444W candidates"
+            git push
+          fi
