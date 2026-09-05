@@ -1,0 +1,26 @@
+{
+  "candidate_id": 474672,
+  "ra_deg": 150.201510426313,
+  "dec_deg": 2.47961793201337,
+  "n_jwst_nircam_inventory_rows": 12,
+  "n_distinct_filter_epochs": 10,
+  "n_secure_detection_epochs": 2,
+  "secure_detection_baseline_days": 501.15607023148186,
+  "status": "MULTI_EPOCH_SECURE_DETECTION",
+  "secure_epochs": [
+    {
+      "epoch_label": "epoch_009",
+      "filter": "F444W",
+      "epoch_mjd_inventory": 60315.7884415625,
+      "n_secure_centroids_snr3": 1,
+      "max_measurement_snr": 3.3506990489177197
+    },
+    {
+      "epoch_label": "epoch_010",
+      "filter": "F480M",
+      "epoch_mjd_inventory": 60816.94451179398,
+      "n_secure_centroids_snr3": 1,
+      "max_measurement_snr": 4.132373680090335
+    }
+  ]
+}
