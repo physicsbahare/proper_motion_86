@@ -1,0 +1,10 @@
+{
+  "filter_early": "F444W",
+  "filter_late": "F444W",
+  "inventory_baseline_days": 492.3659967361091,
+  "inventory_early_mjd": 60307.43556777778,
+  "inventory_late_mjd": 60799.80156451389,
+  "pair_filter_cost": -928.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "SAME_FILTER_JWST"
+}

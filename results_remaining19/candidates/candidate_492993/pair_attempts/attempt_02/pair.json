@@ -1,0 +1,10 @@
+{
+  "filter_early": "F480M",
+  "filter_late": "F480M",
+  "inventory_baseline_days": 36.340289976855274,
+  "inventory_early_mjd": 60780.60422181713,
+  "inventory_late_mjd": 60816.94451179398,
+  "pair_filter_cost": -246.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "SAME_FILTER_JWST"
+}

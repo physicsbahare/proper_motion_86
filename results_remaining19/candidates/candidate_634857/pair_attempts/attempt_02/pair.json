@@ -1,0 +1,10 @@
+{
+  "filter_early": "F444W",
+  "filter_late": "F200W",
+  "inventory_baseline_days": 869.7607435358805,
+  "inventory_early_mjd": 59949.8876276331,
+  "inventory_late_mjd": 60819.64837116898,
+  "pair_filter_cost": 2487.0,
+  "pair_status": "PAIR_FOUND",
+  "pair_type": "CROSS_FILTER_JWST"
+}

@@ -1,0 +1,9 @@
+pair_status,pair_type,filter_early,filter_late,inventory_early_mjd,inventory_late_mjd,inventory_baseline_days,pair_filter_cost,attempt_rank,stage,reason,n_covering_early,n_covering_late,n_astrometric_early,n_astrometric_late
+PAIR_FOUND,SAME_FILTER_JWST,F444W,F444W,60070.14928853009,60315.84454372685,245.69525519676245,-928.0,1,2,target is not securely centroidable in both independent epochs,4,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F277W,60070.14928853009,60315.820311157404,245.6710226273135,1714.0,2,2,target is not securely centroidable in both independent epochs,4,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F200W,F444W,60070.149287789354,60315.84454372685,245.6952559374986,2487.0,3,2,target is not securely centroidable in both independent epochs,2,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F150W,60070.14928853009,60315.84454298611,245.69525445601903,2975.0,4,2,target is not securely centroidable in both independent epochs,4,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F115W,60070.14928853009,60315.820311157404,245.6710226273135,3322.0,5,2,target is not securely centroidable in both independent epochs,4,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F200W,F277W,60070.149287789354,60315.820311157404,245.67102336804965,4129.0,6,2,target is not securely centroidable in both independent epochs,2,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F200W,F150W,60070.149287789354,60315.84454298611,245.69525519675517,5390.0,7,2,target is not securely centroidable in both independent epochs,2,1,0,0
+PAIR_FOUND,CROSS_FILTER_JWST,F200W,F115W,60070.149287789354,60315.820311157404,245.67102336804965,5737.0,8,2,target is not securely centroidable in both independent epochs,2,1,0,0

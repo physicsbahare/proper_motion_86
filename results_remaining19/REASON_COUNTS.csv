@@ -1,0 +1,5 @@
+reason,n_candidates
+all 9 ranked NIRCam pairs exhausted; best failure: target is not securely centroidable in both independent epochs,9
+NO_INDEPENDENT_JWST_EPOCH_PAIR,8
+NONE,1
+all 8 ranked NIRCam pairs exhausted; best failure: target is not securely centroidable in both independent epochs,1

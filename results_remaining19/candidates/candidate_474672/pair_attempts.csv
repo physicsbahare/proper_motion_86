@@ -1,0 +1,2 @@
+pair_status,pair_type,filter_early,filter_late,inventory_early_mjd,inventory_late_mjd,inventory_baseline_days,pair_filter_cost,attempt_rank,stage,reason,n_covering_early,n_covering_late,n_astrometric_early,n_astrometric_late
+PAIR_FOUND,CROSS_FILTER_JWST,F444W,F480M,60315.7884415625,60816.94451179398,501.15607023148186,413.0,1,4,PM_MEASURED,1,4,1,1
