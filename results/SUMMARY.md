@@ -1,7 +1,7 @@
 # Remote audit result
-Candidates completed: **45/45**
+Candidates completed: **44/45**
 ## Classification counts
-- `INSUFFICIENT_DATA`: 45
+- `INSUFFICIENT_DATA`: 44
 
 `CONSISTENT_WITH_ZERO` means no significant PM at the achieved precision; it is not proof of physically zero motion.
 
