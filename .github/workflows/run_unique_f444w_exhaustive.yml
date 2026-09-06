@@ -7,6 +7,8 @@ on:
     paths:
       - '.github/workflows/run_unique_f444w_exhaustive.yml'
       - 'defensible/**'
+      - 'first26/**'
+      - 'forced_astrometry.py'
       - 'data/candidates_unique_new_F444W.csv'
 
 permissions:
