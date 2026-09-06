@@ -1,0 +1,137 @@
+name: Rescue unique F444W PM shards
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rescue_unique_f444w_missing.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pm_rescue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        idx: [7, 8, 16, 17, 18]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run exhaustive DQ-aware PM audit
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m defensible.run_catalog \
+            --catalog data/candidates_unique_new_F444W.csv \
+            --output-root results_unique_f444w_exhaustive \
+            --index ${{ matrix.idx }}
+
+      - name: Upload rescue artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rescue-unique-f444w-pm-${{ matrix.idx }}
+          path: results_unique_f444w_exhaustive/
+          retention-days: 14
+
+  aggregate:
+    needs: pm_rescue
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install aggregation dependency
+        run: pip install 'pandas<3,>=2.2'
+
+      - name: Download 18 completed artifacts from original run
+        uses: actions/download-artifact@v4
+        with:
+          pattern: unique-f444w-pm-*
+          path: downloaded/base
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 34008155502
+
+      - name: Download 5 rescue artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rescue-unique-f444w-pm-*
+          path: downloaded/rescue
+          merge-multiple: true
+
+      - name: Aggregate all 23 candidate summaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          import pandas as pd
+
+          root = Path('downloaded')
+          files = sorted(root.rglob('summary_*.csv'))
+          frames = [pd.read_csv(p) for p in files]
+          out = pd.concat(frames, ignore_index=True)
+          # Rescue rows supersede any base row if duplication ever occurs.
+          out = out.drop_duplicates(subset=['candidate_id'], keep='last')
+          if len(out) != 23 or out['candidate_id'].nunique() != 23:
+              raise SystemExit(f'Expected 23 unique candidates, found {out["candidate_id"].nunique()} from {len(files)} summary files')
+
+          out = out.sort_values('candidate_id').reset_index(drop=True)
+          dest = Path('results_unique_f444w_exhaustive')
+          dest.mkdir(exist_ok=True)
+          out.to_csv(dest / 'ALL23_PM_SUMMARY.csv', index=False)
+
+          counts = out['classification'].fillna('UNKNOWN').value_counts().rename_axis('classification').reset_index(name='n_candidates')
+          counts.to_csv(dest / 'CLASSIFICATION_COUNTS.csv', index=False)
+
+          for cdir in root.rglob('candidate_*'):
+              if not cdir.is_dir():
+                  continue
+              target = dest / cdir.name
+              if target.exists():
+                  shutil.rmtree(target)
+              shutil.copytree(cdir, target)
+
+          lines = [
+              '# Unique F444W candidate proper-motion audit',
+              '',
+              f'Candidates: **{len(out)}**',
+              '',
+              '## Classification counts',
+              '',
+          ]
+          for _, r in counts.iterrows():
+              lines.append(f'- `{r.classification}`: {int(r.n_candidates)}')
+          (dest / 'SUMMARY.md').write_text('\n'.join(lines) + '\n')
+          PY
+
+      - name: Commit final 23-candidate results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results_unique_f444w_exhaustive
+          git commit -m "Save final exhaustive PM audit for unique F444W candidates" || exit 0
+          git pull --rebase origin main
+          git push
