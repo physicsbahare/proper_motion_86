@@ -1,0 +1,10 @@
+{
+  "candidate_id": 2896745,
+  "ra_deg": 149.91930403024975,
+  "dec_deg": 2.476262702526089,
+  "pm_status": "INSUFFICIENT_DATA",
+  "classification": "INSUFFICIENT_DATA",
+  "reason": "ALL_INDEPENDENT_JWST_PAIRS_EXHAUSTED",
+  "n_independent_pairs": 12,
+  "n_measured_pairs": 0
+}

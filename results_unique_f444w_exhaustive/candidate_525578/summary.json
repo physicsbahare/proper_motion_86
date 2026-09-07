@@ -1,0 +1,9 @@
+{
+  "candidate_id": 525578,
+  "ra_deg": 150.3917082628875,
+  "dec_deg": 2.015367673886062,
+  "pm_status": "INSUFFICIENT_DATA",
+  "classification": "INSUFFICIENT_DATA",
+  "reason": "NO_INDEPENDENT_JWST_EPOCH_PAIR",
+  "n_independent_pairs": 0
+}

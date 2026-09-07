@@ -1,0 +1,13 @@
+candidate_id,pair_id,pair_type,filter_early,filter_late,inventory_baseline_days,n_covering_early,n_covering_late,n_astrometric_early,n_astrometric_late,pm_status,stage,reason,attempt_rank
+3106872,F115W_epoch_000__F115W_epoch_001,SAME_FILTER_JWST,F115W,F115W,329.87674062500446,2,2,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,1
+3106872,F444W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F444W,F356W,329.8526325000057,2,1,0,1,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,2
+3106872,F444W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F444W,F200W,329.8218140162062,2,1,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,3
+3106872,F277W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F277W,F356W,329.87674062500446,2,1,0,1,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,4
+3106872,F444W_epoch_000__F115W_epoch_001,CROSS_FILTER_JWST,F444W,F115W,329.8526325000057,2,2,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,5
+3106872,F150W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F150W,F356W,329.8526325000057,2,1,0,1,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,6
+3106872,F277W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F277W,F200W,329.84592214120494,2,1,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,7
+3106872,F115W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F115W,F356W,329.87674062500446,2,1,0,1,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,8
+3106872,F277W_epoch_000__F115W_epoch_001,CROSS_FILTER_JWST,F277W,F115W,329.87674062500446,2,2,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,9
+3106872,F150W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F150W,F200W,329.8218140162062,2,1,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,10
+3106872,F115W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F115W,F200W,329.84592214120494,2,1,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,11
+3106872,F150W_epoch_000__F115W_epoch_001,CROSS_FILTER_JWST,F150W,F115W,329.8526325000057,2,2,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,12

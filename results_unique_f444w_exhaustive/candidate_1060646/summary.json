@@ -1,0 +1,11 @@
+{
+  "candidate_id": 1060646,
+  "ra_deg": 149.9720435663608,
+  "dec_deg": 2.1740792194192085,
+  "pm_status": "INSUFFICIENT_DATA",
+  "classification": "INSUFFICIENT_DATA",
+  "reason": "ALL_INDEPENDENT_JWST_PAIRS_EXHAUSTED",
+  "n_independent_pairs": 24,
+  "n_measured_pairs": 0,
+  "n_distinct_epochs_cached": 11
+}

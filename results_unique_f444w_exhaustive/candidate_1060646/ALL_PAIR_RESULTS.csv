@@ -1,0 +1,25 @@
+candidate_id,pair_id,pair_type,filter_early,filter_late,inventory_baseline_days,n_covering_early,n_covering_late,n_astrometric_early,n_astrometric_late,pm_status,stage,reason,attempt_rank
+1060646,F115W_epoch_000__F115W_epoch_002,SAME_FILTER_JWST,F115W,F115W,761.0299963425932,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,1
+1060646,F115W_epoch_001__F115W_epoch_002,SAME_FILTER_JWST,F115W,F115W,754.987976087963,2,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,2
+1060646,F444W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F444W,F356W,761.0058874768511,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,3
+1060646,F444W_epoch_001__F356W_epoch_000,CROSS_FILTER_JWST,F444W,F356W,754.9638679629643,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,4
+1060646,F444W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F444W,F200W,760.9753171412085,1,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,5
+1060646,F444W_epoch_001__F200W_epoch_000,CROSS_FILTER_JWST,F444W,F200W,754.9332976273217,1,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,6
+1060646,F277W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F277W,F356W,761.0299956018498,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,7
+1060646,F277W_epoch_001__F356W_epoch_000,CROSS_FILTER_JWST,F277W,F356W,754.987976087963,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,8
+1060646,F444W_epoch_000__F115W_epoch_002,CROSS_FILTER_JWST,F444W,F115W,761.0058874768511,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,9
+1060646,F444W_epoch_001__F115W_epoch_002,CROSS_FILTER_JWST,F444W,F115W,754.9638679629643,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,10
+1060646,F150W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F150W,F356W,761.0058882175872,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,11
+1060646,F150W_epoch_001__F356W_epoch_000,CROSS_FILTER_JWST,F150W,F356W,754.9638679629643,2,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,12
+1060646,F277W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F277W,F200W,760.9994252662073,1,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,13
+1060646,F277W_epoch_001__F200W_epoch_000,CROSS_FILTER_JWST,F277W,F200W,754.9574057523205,1,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,14
+1060646,F115W_epoch_000__F356W_epoch_000,CROSS_FILTER_JWST,F115W,F356W,761.0299963425932,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,15
+1060646,F115W_epoch_001__F356W_epoch_000,CROSS_FILTER_JWST,F115W,F356W,754.987976087963,2,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,16
+1060646,F277W_epoch_000__F115W_epoch_002,CROSS_FILTER_JWST,F277W,F115W,761.0299956018498,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,17
+1060646,F277W_epoch_001__F115W_epoch_002,CROSS_FILTER_JWST,F277W,F115W,754.987976087963,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,18
+1060646,F150W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F150W,F200W,760.9753178819446,1,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,19
+1060646,F150W_epoch_001__F200W_epoch_000,CROSS_FILTER_JWST,F150W,F200W,754.9332976273217,2,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,20
+1060646,F115W_epoch_000__F200W_epoch_000,CROSS_FILTER_JWST,F115W,F200W,760.9994260069507,1,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,21
+1060646,F115W_epoch_001__F200W_epoch_000,CROSS_FILTER_JWST,F115W,F200W,754.9574057523205,2,5,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,22
+1060646,F150W_epoch_000__F115W_epoch_002,CROSS_FILTER_JWST,F150W,F115W,761.0058882175872,1,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,23
+1060646,F150W_epoch_001__F115W_epoch_002,CROSS_FILTER_JWST,F150W,F115W,754.9638679629643,2,3,0,0,INSUFFICIENT_DATA,CENTROID_FAIL,target is not securely centroidable in both independent epochs,24

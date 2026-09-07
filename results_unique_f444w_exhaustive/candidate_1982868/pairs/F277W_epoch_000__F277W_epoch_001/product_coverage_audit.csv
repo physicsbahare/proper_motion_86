@@ -1,0 +1,13 @@
+candidate_id,epoch_label,requested_filter,productFilename,dataURI,status,x_full,y_full,mjd,detector,actual_filter
+1982868,early,F277W,jw01727052001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727052001_02101_00001_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,early,F277W,jw01727052001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727052001_02101_00002_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,early,F277W,jw01727052001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727052001_02101_00002_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,early,F277W,jw01727052001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727052001_02101_00001_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,late,F277W,jw01727162001_02101_00001_nrcalong_cal.fits,mast:JWST/product/jw01727162001_02101_00001_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,late,F277W,jw01727162001_02101_00003_nrcblong_cal.fits,mast:JWST/product/jw01727162001_02101_00003_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,late,F277W,jw01727162001_02101_00003_nrcalong_cal.fits,mast:JWST/product/jw01727162001_02101_00003_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,late,F277W,jw01727162001_02101_00001_nrcblong_cal.fits,mast:JWST/product/jw01727162001_02101_00001_nrcblong_cal.fits,COVERED,1305.699523662391,965.0621677749932,60417.68527403935,NRCBLONG,F277W
+1982868,late,F277W,jw01727162001_02101_00002_nrcblong_cal.fits,mast:JWST/product/jw01727162001_02101_00002_nrcblong_cal.fits,COVERED,1302.9931529492042,1060.1753978181823,60417.68925107639,NRCBLONG,F277W
+1982868,late,F277W,jw01727162001_02101_00002_nrcalong_cal.fits,mast:JWST/product/jw01727162001_02101_00002_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,late,F277W,jw01727162001_02101_00004_nrcalong_cal.fits,mast:JWST/product/jw01727162001_02101_00004_nrcalong_cal.fits,OUTSIDE_DETECTOR,,,,,
+1982868,late,F277W,jw01727162001_02101_00004_nrcblong_cal.fits,mast:JWST/product/jw01727162001_02101_00004_nrcblong_cal.fits,OUTSIDE_DETECTOR,,,,,
