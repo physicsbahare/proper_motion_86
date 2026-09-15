@@ -1,0 +1,147 @@
+name: Step3 42-candidate cached exhaustive PM audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run_step3_pm_exhaustive_cached.yml'
+      - 'data/candidates_step3_pm_unchecked_42.csv'
+      - 'defensible/cached_exhaustive_pm.py'
+      - 'defensible/run_cached_catalog.py'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pm_cached:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        idx: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run epoch-cached exhaustive DQ-aware PM audit
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m defensible.run_cached_catalog \
+            --catalog data/candidates_step3_pm_unchecked_42.csv \
+            --output-root results_step3_pm_exhaustive \
+            --index ${{ matrix.idx }}
+
+      - name: Upload candidate audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step3-pm-${{ matrix.idx }}
+          path: results_step3_pm_exhaustive/
+          if-no-files-found: warn
+          retention-days: 30
+
+  aggregate:
+    needs: pm_cached
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install aggregation dependency
+        run: pip install 'pandas<3,>=2.2'
+
+      - name: Download completed candidate artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: step3-pm-*
+          path: downloaded_step3
+          merge-multiple: true
+
+      - name: Aggregate and validate all 42 candidates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('downloaded_step3')
+          files = sorted(root.rglob('summary_*.csv'))
+          if not files:
+              raise SystemExit('No candidate summary files were produced')
+
+          out = pd.concat([pd.read_csv(p) for p in files], ignore_index=True)
+          out = out.drop_duplicates(subset=['candidate_id'], keep='last')
+          n_unique = int(out['candidate_id'].nunique())
+          if len(out) != 42 or n_unique != 42:
+              raise SystemExit(f'Expected 42 unique candidate summaries; found {n_unique} unique rows from {len(files)} files')
+
+          out = out.sort_values('candidate_id').reset_index(drop=True)
+          dest = Path('results_step3_pm_exhaustive')
+          dest.mkdir(exist_ok=True)
+          out.to_csv(dest / 'ALL42_PM_SUMMARY.csv', index=False)
+
+          counts = (out['classification'].fillna('UNKNOWN')
+                    .value_counts()
+                    .rename_axis('classification')
+                    .reset_index(name='n_candidates'))
+          counts.to_csv(dest / 'CLASSIFICATION_COUNTS.csv', index=False)
+
+          status_counts = (out['pm_status'].fillna('UNKNOWN')
+                           .value_counts()
+                           .rename_axis('pm_status')
+                           .reset_index(name='n_candidates'))
+          status_counts.to_csv(dest / 'PM_STATUS_COUNTS.csv', index=False)
+
+          lines = [
+              '# Step3 42-candidate proper-motion audit',
+              '',
+              'Method: epoch-cached exhaustive DQ-aware JWST/NIRCam audit.',
+              '',
+              f'Candidates completed: **{len(out)}/42**',
+              '',
+              '## Classification counts',
+              '',
+          ]
+          for _, row in counts.iterrows():
+              lines.append(f'- `{row.classification}`: {int(row.n_candidates)}')
+          lines += ['', '## PM status counts', '']
+          for _, row in status_counts.iterrows():
+              lines.append(f'- `{row.pm_status}`: {int(row.n_candidates)}')
+          (dest / 'SUMMARY.md').write_text('\n'.join(lines) + '\n')
+          print(out.to_string(index=False))
+          PY
+
+      - name: Commit final 42-candidate summary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results_step3_pm_exhaustive/ALL42_PM_SUMMARY.csv \
+                  results_step3_pm_exhaustive/CLASSIFICATION_COUNTS.csv \
+                  results_step3_pm_exhaustive/PM_STATUS_COUNTS.csv \
+                  results_step3_pm_exhaustive/SUMMARY.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Save final cached exhaustive PM audit for 42 step3 candidates"
+            git pull --rebase origin main
+            git push
+          fi
