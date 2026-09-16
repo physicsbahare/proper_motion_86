@@ -1,0 +1,85 @@
+name: Fix and revalidate Step3 non-insufficient PM classification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix_verify_step3_noninsufficient.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix_and_revalidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Apply conservative systematic-precedence fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/pm86/astrometry.py')
+          s=p.read_text()
+          old='''    elif sig < CONFIG.zero_motion_significance and max_sigma <= CONFIG.max_stationary_sigma_masyr:\n        classification = "CONSISTENT_WITH_ZERO"\n    elif method_disagreement or color_systematic:\n        classification = "AMBIGUOUS_SYSTEMATICS"\n'''
+          new='''    elif method_disagreement or color_systematic:\n        # A flagged centroid/color systematic must take precedence over a nominal\n        # low-significance 2DG result.  Otherwise a systematics-contaminated pair\n        # can be mislabeled CONSISTENT_WITH_ZERO, which is scientifically too strong.\n        classification = "AMBIGUOUS_SYSTEMATICS"\n    elif sig < CONFIG.zero_motion_significance and max_sigma <= CONFIG.max_stationary_sigma_masyr:\n        classification = "CONSISTENT_WITH_ZERO"\n'''
+          if old not in s:
+              raise SystemExit('Expected classification block not found; refusing blind edit')
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Re-run affected candidate 1038406 with unchanged exhaustive DQ-aware method
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          rm -rf verify_1038406
+          python -m defensible.run_cached_catalog --catalog data/candidates_step3_pm_unchecked_42.csv --output-root verify_1038406 --index 20
+      - name: Validate and update aggregate row only
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          new=pd.read_csv('verify_1038406/summary_1038406.csv')
+          if len(new)!=1 or int(new.iloc[0].candidate_id)!=1038406:
+              raise SystemExit('Invalid rerun summary')
+          if new.iloc[0].pm_status!='PM_MEASURED':
+              raise SystemExit('Unexpected PM status change; refusing aggregate update')
+          if new.iloc[0].classification!='AMBIGUOUS_SYSTEMATICS':
+              raise SystemExit(f"Expected conservative AMBIGUOUS_SYSTEMATICS, got {new.iloc[0].classification}")
+          p=Path('results_step3_pm_exhaustive/ALL42_PM_SUMMARY.csv')
+          all42=pd.read_csv(p)
+          if len(all42)!=42 or all42.candidate_id.nunique()!=42:
+              raise SystemExit('Aggregate is not 42 unique candidates')
+          cols=list(all42.columns)
+          for c in cols:
+              if c not in new.columns: new[c]=pd.NA
+          all42=all42[all42.candidate_id!=1038406]
+          all42=pd.concat([all42,new[cols]],ignore_index=True).sort_values('candidate_id')
+          all42.to_csv(p,index=False)
+          counts=(all42.classification.fillna('UNKNOWN').value_counts().rename_axis('classification').reset_index(name='n_candidates'))
+          counts.to_csv('results_step3_pm_exhaustive/CLASSIFICATION_COUNTS.csv',index=False)
+          print(new.to_string(index=False))
+          print(counts.to_string(index=False))
+          PY
+      - name: Commit verified fix and corrected result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pm86/astrometry.py results_step3_pm_exhaustive/ALL42_PM_SUMMARY.csv results_step3_pm_exhaustive/CLASSIFICATION_COUNTS.csv
+          git commit -m "Prioritize PM systematics over zero-motion label"
+          git pull --rebase origin main
+          git push
+      - name: Upload affected candidate verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: step3-verify-1038406
+          path: verify_1038406/
+          retention-days: 30
