@@ -40,12 +40,18 @@ jobs:
           from pathlib import Path
           import pandas as pd
           root=Path('downloaded_step3')
+          missing=[]
+          for i in range(42):
+              fs=sorted((root/f'shard-{i}').rglob('summary_*.csv'))
+              if not fs:
+                  missing.append(i)
+          print('SHARDS_WITHOUT_SUMMARY=', missing, flush=True)
           files=sorted(root.rglob('summary_*.csv'))
           if not files: raise SystemExit('No candidate summary files found')
           out=pd.concat([pd.read_csv(p) for p in files], ignore_index=True)
           out=out.drop_duplicates(subset=['candidate_id'], keep='last')
           if len(out)!=42 or out.candidate_id.nunique()!=42:
-              raise SystemExit(f'Expected 42 unique candidate summaries; found {out.candidate_id.nunique()} from {len(files)} files')
+              raise SystemExit(f'Expected 42 unique candidate summaries; found {out.candidate_id.nunique()} from {len(files)} files; missing shards={missing}')
           out=out.sort_values('candidate_id').reset_index(drop=True)
           dest=Path('results_step3_pm_exhaustive'); dest.mkdir(exist_ok=True)
           out.to_csv(dest/'ALL42_PM_SUMMARY.csv',index=False)
