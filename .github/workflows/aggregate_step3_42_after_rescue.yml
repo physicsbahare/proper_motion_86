@@ -33,8 +33,7 @@ jobs:
       - name: Download rescued shard 21
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download 35036252080 -n "step3-pm-21-rescued" -D downloaded_step3/shard-21
+        run: gh run download 35036252080 -n "step3-pm-21-rescued" -D downloaded_step3/shard-21
       - name: Aggregate and validate exactly 42 candidates
         run: |
           python - <<'PY'
