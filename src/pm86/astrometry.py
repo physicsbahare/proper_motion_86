@@ -346,10 +346,13 @@ def infer_proper_motion(registered: pd.DataFrame, quality: pd.DataFrame, pair_ty
         and not color_systematic
     ):
         classification = "MOVING"
+    elif method_disagreement or color_systematic:
+        # A flagged centroid/color systematic must take precedence over a nominal
+        # low-significance 2DG result.  Otherwise a systematics-contaminated pair
+        # can be mislabeled CONSISTENT_WITH_ZERO, which is scientifically too strong.
+        classification = "AMBIGUOUS_SYSTEMATICS"
     elif sig < CONFIG.zero_motion_significance and max_sigma <= CONFIG.max_stationary_sigma_masyr:
         classification = "CONSISTENT_WITH_ZERO"
-    elif method_disagreement or color_systematic:
-        classification = "AMBIGUOUS_SYSTEMATICS"
     else:
         classification = "AMBIGUOUS"
 
