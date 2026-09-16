@@ -21,19 +21,21 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install 'pandas<3,>=2.2'
-      - name: Download 41 successful original shards
+      - name: Download 40 successful original shards
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p downloaded_step3
           for i in $(seq 0 41); do
-            if [ "$i" = "21" ]; then continue; fi
+            if [ "$i" = "21" ] || [ "$i" = "32" ]; then continue; fi
             gh run download 34968850846 -n "step3-pm-$i" -D "downloaded_step3/shard-$i"
           done
-      - name: Download rescued shard 21
+      - name: Download rescued shards 21 and 32
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh run download 35036252080 -n "step3-rescue-21" -D downloaded_step3/shard-21
+        run: |
+          gh run download 35036252080 -n "step3-rescue-21" -D downloaded_step3/shard-21
+          gh run download 35072152078 -n "step3-rescue-32" -D downloaded_step3/shard-32
       - name: Aggregate and validate exactly 42 candidates
         run: |
           python - <<'PY'
