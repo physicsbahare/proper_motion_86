@@ -1,0 +1,70 @@
+name: Aggregate Step3 42 PM results after rescue
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/aggregate_step3_42_after_rescue.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install 'pandas<3,>=2.2'
+      - name: Download 41 successful original shards
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p downloaded_step3
+          for i in $(seq 0 41); do
+            if [ "$i" = "21" ]; then continue; fi
+            gh run download 34968850846 -n "step3-pm-$i" -D "downloaded_step3/shard-$i"
+          done
+      - name: Download rescued shard 21
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 35036252080 -n "step3-pm-21-rescued" -D downloaded_step3/shard-21
+      - name: Aggregate and validate exactly 42 candidates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root=Path('downloaded_step3')
+          files=sorted(root.rglob('summary_*.csv'))
+          if not files: raise SystemExit('No candidate summary files found')
+          out=pd.concat([pd.read_csv(p) for p in files], ignore_index=True)
+          out=out.drop_duplicates(subset=['candidate_id'], keep='last')
+          if len(out)!=42 or out.candidate_id.nunique()!=42:
+              raise SystemExit(f'Expected 42 unique candidate summaries; found {out.candidate_id.nunique()} from {len(files)} files')
+          out=out.sort_values('candidate_id').reset_index(drop=True)
+          dest=Path('results_step3_pm_exhaustive'); dest.mkdir(exist_ok=True)
+          out.to_csv(dest/'ALL42_PM_SUMMARY.csv',index=False)
+          counts=out.classification.fillna('UNKNOWN').value_counts().rename_axis('classification').reset_index(name='n_candidates')
+          counts.to_csv(dest/'CLASSIFICATION_COUNTS.csv',index=False)
+          sc=out.pm_status.fillna('UNKNOWN').value_counts().rename_axis('pm_status').reset_index(name='n_candidates')
+          sc.to_csv(dest/'PM_STATUS_COUNTS.csv',index=False)
+          lines=['# Step3 42-candidate proper-motion audit','', 'Method: epoch-cached exhaustive DQ-aware JWST/NIRCam audit.','',f'Candidates completed: **{len(out)}/42**','','## Classification counts','']
+          lines += [f'- `{r.classification}`: {int(r.n_candidates)}' for _,r in counts.iterrows()]
+          lines += ['','## PM status counts','']+[f'- `{r.pm_status}`: {int(r.n_candidates)}' for _,r in sc.iterrows()]
+          (dest/'SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          print(out.to_string(index=False))
+          PY
+      - name: Commit final validated summary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results_step3_pm_exhaustive/ALL42_PM_SUMMARY.csv results_step3_pm_exhaustive/CLASSIFICATION_COUNTS.csv results_step3_pm_exhaustive/PM_STATUS_COUNTS.csv results_step3_pm_exhaustive/SUMMARY.md
+          git commit -m "Save final rescued cached exhaustive PM audit for 42 step3 candidates"
+          git pull --rebase origin main
+          git push
