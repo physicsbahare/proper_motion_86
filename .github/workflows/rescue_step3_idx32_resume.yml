@@ -1,0 +1,104 @@
+name: Rescue Step3 PM index 32 from partial epoch cache
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rescue_step3_idx32_resume.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  rescue_32:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Restore partial index-32 cache from original run
+        uses: actions/download-artifact@v4
+        with:
+          name: step3-pm-32
+          path: results_step3_pm_exhaustive
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 34968850846
+
+      - name: Resume candidate 1910402 without repeating completed epochs
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          import defensible.cached_exhaustive_pm as cepm
+
+          original_prepare = cepm._prepare_epoch
+
+          def resume_prepare(candidate_id, ra_deg, dec_deg, epoch, outdir):
+              key = cepm._epoch_key(epoch)
+              edir = Path(outdir) / 'epochs' / key
+              meas_path = edir / 'exposure_measurements.csv'
+              ctrl_path = edir / 'field_controls.csv'
+              cov_path = edir / 'product_coverage_audit.csv'
+              prod_path = edir / 'products.csv'
+
+              # Reuse only fully completed epoch audit tables. Partial epochs are recomputed.
+              if all(p.exists() for p in (meas_path, ctrl_path, cov_path, prod_path)):
+                  meas = pd.read_csv(meas_path)
+                  try:
+                      controls = pd.read_csv(ctrl_path)
+                  except pd.errors.EmptyDataError:
+                      controls = pd.DataFrame()
+                  try:
+                      coverage = pd.read_csv(cov_path)
+                  except pd.errors.EmptyDataError:
+                      coverage = pd.DataFrame()
+                  n_astrom = 0
+                  if not meas.empty and 'astrometrically_usable' in meas.columns:
+                      n_astrom = int(meas['astrometrically_usable'].astype(bool).sum())
+                  print(f'RESUME cache hit candidate={candidate_id} epoch={key}', flush=True)
+                  return {
+                      'epoch_id': key,
+                      'filter': str(epoch['filter']),
+                      'mjd': float(epoch['mjd']),
+                      'n_covering': int(len(coverage)),
+                      'n_astrometric': n_astrom,
+                      'measurements': meas,
+                      'controls': controls,
+                  }
+
+              print(f'RESUME cache miss candidate={candidate_id} epoch={key}', flush=True)
+              return original_prepare(candidate_id, ra_deg, dec_deg, epoch, outdir)
+
+          cepm._prepare_epoch = resume_prepare
+          final = cepm.run_candidate_cached(
+              1910402,
+              150.003821549491,
+              2.31572512761846,
+              Path('results_step3_pm_exhaustive'),
+          )
+          pd.DataFrame([final]).to_csv('results_step3_pm_exhaustive/summary_1910402.csv', index=False)
+          print(final, flush=True)
+          PY
+
+      - name: Upload rescued candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: step3-rescue-32
+          path: results_step3_pm_exhaustive/
+          retention-days: 30
