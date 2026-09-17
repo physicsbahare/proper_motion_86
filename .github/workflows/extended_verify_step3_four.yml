@@ -1,0 +1,76 @@
+name: Extended independent verification of four Step3 PM cases
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/extended_verify_step3_four.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: 423357, index: 10}
+          - {id: 920430, index: 18}
+          - {id: 1038406, index: 20}
+          - {id: 1651050, index: 30}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Fresh exhaustive cached rerun
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          rm -rf extended_verify_${{ matrix.id }}
+          python -m defensible.run_cached_catalog --catalog data/candidates_step3_pm_unchecked_42.csv --output-root extended_verify_${{ matrix.id }} --index ${{ matrix.index }}
+      - name: Build independent diagnostic receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          cid=${{ matrix.id }}
+          root=Path(f'extended_verify_{cid}')/f'candidate_{cid}'
+          rows=[]
+          for f in sorted(root.glob('epochs/*/exposure_measurements.csv')):
+              try: d=pd.read_csv(f)
+              except Exception: continue
+              if d.empty: continue
+              d['epoch_id']=f.parent.name
+              rows.append(d)
+          exp=pd.concat(rows,ignore_index=True) if rows else pd.DataFrame()
+          exp.to_csv(root/'EXTENDED_EXPOSURE_AUDIT.csv',index=False)
+          pairs=pd.read_csv(root/'ALL_PAIR_RESULTS.csv') if (root/'ALL_PAIR_RESULTS.csv').exists() else pd.DataFrame()
+          measured=pairs[pairs.get('pm_status',pd.Series(dtype=str)).eq('PM_MEASURED')].copy() if not pairs.empty else pd.DataFrame()
+          measured.to_csv(root/'EXTENDED_MEASURED_PAIRS.csv',index=False)
+          receipt={'candidate_id':cid,'n_exposure_rows':int(len(exp)),'n_measured_pairs':int(len(measured))}
+          for c in ['astrometrically_usable','centroid_method','filter','snr','target_snr','dq_bad_fraction','source_assoc_sep_arcsec']:
+              if c in exp.columns:
+                  vals=exp[c].dropna().astype(str).value_counts().head(20).to_dict()
+                  receipt[c]=vals
+          if not measured.empty:
+              keep=[c for c in ['pair_id','pair_type','filter_early','filter_late','inventory_baseline_days','classification','evidence_grade','mu_alpha_cosdec_masyr','mu_delta_masyr','sigma_mu_alpha_cosdec_masyr','sigma_mu_delta_masyr','significance_2d','method_disagreement','color_systematic'] if c in measured.columns]
+              receipt['measured_pairs']=measured[keep].replace({np.nan:None}).to_dict('records')
+          (root/'EXTENDED_VERIFICATION.json').write_text(json.dumps(receipt,indent=2,default=str))
+          print(json.dumps(receipt,indent=2,default=str))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extended-step3-${{ matrix.id }}
+          path: extended_verify_${{ matrix.id }}/
+          retention-days: 30
