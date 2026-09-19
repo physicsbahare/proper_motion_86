@@ -2,8 +2,8 @@
   "filter_early": "F277W",
   "filter_late": "F356W",
   "inventory_baseline_days": 763.2637314699095,
-  "inventory_early_mjd": 60044.595302835645,
-  "inventory_late_mjd": 60807.859034305555,
+  "inventory_early_mjd": 60044.59530283565,
+  "inventory_late_mjd": 60807.85903430556,
   "pair_filter_cost": 2550.0,
   "pair_status": "PAIR_FOUND",
   "pair_type": "CROSS_FILTER_JWST"

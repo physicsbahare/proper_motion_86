@@ -15,7 +15,7 @@ The previously completed 282040 run contributes 6 S/N>=3 exposures. At 60 mas, 1
 - `method_comparable_rows`: 11
 - `method_rows_over_tolerance`: 2
 - `method_fraction_within_tolerance`: 0.818
-- `method_sep_p95_mas`: 72.918
+- `method_sep_p95_mas`: 72.921
 - `method_sep_p99_mas`: 81.007
 - `method_sep_max_mas`: 83.029
 - `registration_comparable_rows`: 0
