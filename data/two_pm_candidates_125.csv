@@ -1,0 +1,3 @@
+sample_candidate_id,legacy_candidate_id,status,filter_early,filter_late,baseline_days,mu_alpha_cosdec_masyr,sigma_mu_alpha_cosdec_masyr,mu_delta_masyr,sigma_mu_delta_masyr,significance_2d,notes
+387132,282040,validated_mover,F444W,F410M,727.4425,-22.9,4.1,2.4,5.8,5.60,"125-source ID 387132 crossmatches legacy candidate 282040 at ~0.009 arcsec; PM values are the validated original-86 result."
+1651050,,strong_pm_candidate,F444W,F356W,497.6405,-55.2303,11.5336,16.4082,9.9982,5.0621,"Fresh exhaustive rerun; cross-filter only, no same-filter confirmation. Selected epochs: F444W 4 covering/2 usable CALs; F356W 4 covering/1 usable CAL."
