@@ -109,7 +109,7 @@ def build_local_epsf(sci,err,dq,ref,oversampling=4):
         f"Only {stars.n_stars} valid ePSF reference stars after extraction")
     builder=EPSFBuilder(oversampling=oversampling,fit_shape=(9,9),
                         recentering_boxsize=(7,7),
-                        maxiters=4,fitter_maxiters=100,progress_bar=False)
+                        maxiters=12,center_accuracy=0.01,fitter_maxiters=100,progress_bar=False)
     with warnings.catch_warnings(record=True) as cw:
         warnings.simplefilter("always")
         output=builder(stars)
