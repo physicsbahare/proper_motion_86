@@ -74,6 +74,32 @@ def conditional_pm(original_pm,err_pm,delta_f,baseline_year,distance_pc):
                 residual_gaussian_1d_two_sided_equivalent=z)
 
 
+def parallax_only_fit_2d(mu, err_pm, delta_f, baseline_year):
+    """Weighted best-fitting parallax IF the true PM is forced to zero.
+
+    There are two measured displacement components and one conditional
+    parameter, leaving one formal degree of freedom. This is NOT a
+    standalone astrometric parallax determination.
+    """
+    mu=np.asarray(mu,dtype=float)
+    err=np.asarray(err_pm,dtype=float)
+    unit=np.asarray(delta_f,dtype=float)/baseline_year
+    inv=1.0/(err**2)
+    den=float(np.sum(unit**2*inv))
+    if den<=0:raise ValueError("Degenerate parallax factors")
+    pi_mas=float(np.sum(mu*unit*inv)/den)
+    formal_sigma_pi_mas=float(den**(-0.5))
+    predicted=unit*pi_mas
+    chisq=float(np.sum(((mu-predicted)/err)**2))
+    return dict(assumed_pm_east_masyr=0.,assumed_pm_north_masyr=0.,
+        conditional_best_parallax_mas=pi_mas,
+        conditional_best_distance_pc=float(1000./pi_mas) if pi_mas>0 else np.nan,
+        formal_parallax_sigma_mas=formal_sigma_pi_mas,
+        parallax_only_residual_chi2=chisq,
+        parallax_only_residual_p=float(chi2.sf(chisq,df=1)),
+        condition="ZERO PROPER MOTION imposed, not a parallax measurement")
+
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--epochs",default="data/1651050_astrometric_epoch_manifest.csv")
@@ -105,6 +131,11 @@ def main():
     if not np.isfinite(delta).all():
         raise ValueError("Non-finite JWST differential parallax factor")
     df=pd.DataFrame(records)
+    null_model=parallax_only_fit_2d(mu,err,delta,dt)
+    (out/"ZERO_PM_PARALLAX_ONLY_DIAGNOSTIC.json").write_text(
+        json.dumps(null_model,indent=2))
+    print("Parallax-only (forced zero intrinsic proper motion) diagnostic:",
+          json.dumps(null_model,indent=2),flush=True)
     df.to_csv(out/"jwst_l2_parallax_conditional_pm.csv",index=False)
     rec=filt[["filename","filter","mjd"]].copy()
     rec[["observer_x_au","observer_y_au","observer_z_au"]]=xyz
@@ -138,6 +169,10 @@ def main():
         "proper motion; correlated astrometric systematics are also not in the formal "
         "2-D Gaussian p-values. A 2-D radial statistic must not be called a "
         "one-dimensional Gaussian n-sigma value.",
+        "",
+        "As a diagnostic only, a zero-intrinsic-motion model with one fitted "
+        "parallax parameter can also be tested; the result is NOT a measured "
+        "trigonometric parallax or a distance determination.",
         "",
         "Cross-filter PSF and blending must be assessed independently before "
         "assigning a secure-motion classification.",
