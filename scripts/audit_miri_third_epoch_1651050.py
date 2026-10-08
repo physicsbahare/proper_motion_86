@@ -133,7 +133,7 @@ def main():
         fname=str(row.productFilename);uri=str(row.dataURI)
         # Get the MIRI band from the actual product group rather than
         # applying the NIRCam three-digit filter regex to F1000W/F2100W.
-        obsid=str(row.obsid)
+        obsid=str(row.parent_obsid) if 'parent_obsid' in row.index else str(row.get('obsid', ''))
         if obsid not in OBS:
             receipts.append(dict(filename=fname,obsid=obsid,status="OBS_GROUP_NOT_IDENTIFIED"))
             continue
