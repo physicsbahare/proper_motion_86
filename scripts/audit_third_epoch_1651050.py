@@ -24,7 +24,7 @@ from astropy.io import fits
 from astroquery.mast import Observations
 from stdatamodels import asdf_in_fits
 
-from pm86.archive import mast_download_url, normalise_filter, _open_remote_cal
+from pm86.archive import mast_download_url, _open_remote_cal
 
 CID=1651050
 RA=150.307303724545
@@ -32,6 +32,12 @@ DEC=2.27642841317716
 RELEVANT = {"F444W","F410M","F430M","F356W","F335M","F322W","F277W",
             "F770W","F1000W","F1280W","F1500W","F1800W","F2100W",
             "F160W"}
+def normalize_instrument_filter(value):
+    """JWST MIRI uses four-digit filters (e.g. F1000W, F2100W)."""
+    match=re.search(r"F\d{3,4}[WMN]",str(value).upper())
+    return match.group(0) if match else None
+
+
 RE_FITS=re.compile(r"\.(fits|fit)$",re.IGNORECASE)
 
 
@@ -64,7 +70,7 @@ def list_inventory(radius_arcsec=3.0):
     if "dataRights" in obs:
         rights=obs.dataRights.astype(str).str.upper()
         obs=obs[rights.isin(["PUBLIC","","NAN","NONE"])].copy()
-    obs["filter_norm"]=obs.filters.map(normalise_filter)
+    obs["filter_norm"]=obs.filters.map(normalize_instrument_filter)
     obs["start_mjd"]=pd.to_numeric(obs.t_min,errors="coerce")
     obs["end_mjd"]=pd.to_numeric(obs.t_max,errors="coerce")
     obs["red_relevant"]=obs.filter_norm.isin(RELEVANT)
@@ -110,12 +116,15 @@ def check_hst_wcs(filename,data_uri):
     with fits.open(mast_download_url(data_uri),lazy_load_hdus=True,memmap=False,
                    use_fsspec=True,fsspec_kwargs={"block_size":1024*1024,"cache_type":"readahead"}) as h:
         for i,ext in enumerate(h):
-            if ext.name not in ("SCI","PRIMARY") or ext.data is None:
+            if ext.name not in ("SCI","PRIMARY"):
+                continue
+            nx=int(ext.header.get("NAXIS1",0))
+            ny=int(ext.header.get("NAXIS2",0))
+            if nx<=0 or ny<=0:
                 continue
             try:
                 w=WCS(ext.header)
                 x,y=w.all_world2pix(RA,DEC,0)
-                ny,nx=ext.data.shape[-2:]
                 if np.isfinite([x,y]).all() and 0<=x<nx and 0<=y<ny:
                     return {"status":"COVERS_TARGET","detector":str(h[0].header.get("DETECTOR","")),
                             "mjd":float(h[0].header.get("EXPSTART",np.nan)),
