@@ -1,0 +1,36 @@
+name: JWST-L2 Horizons parallax sensitivity for 387132
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/jwst_l2_parallax_387132.yml'
+      - 'scripts/jwst_parallax_387132.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  jwst-geometry-387132:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+      - name: Check JWST parallax geometry tests
+        run: python -m pytest -q tests/test_jwst_l2_parallax.py
+      - name: Query six JWST observer vectors and calculate conditional shifts
+        run: python -u scripts/jwst_parallax_387132.py --output publication_check/jwst_parallax_387132
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 387132-JWST-L2-parallax-audit
+          path: publication_check/jwst_parallax_387132/
+          retention-days: 90
