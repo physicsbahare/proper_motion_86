@@ -41,7 +41,7 @@ CAL_FILENAME_SUFFIXES=(
 )
 
 
-def isolated_reference_sources(controls,sci,err,dq,tx,ty,min_snr=18.,min_n=4):
+def isolated_reference_sources(controls,sci,err,dq,tx,ty,min_snr=12.,min_n=4):
     """Explicit star-selection flags, includes isolation and DQ apertures.
 
     A high-S/N control is not automatically a PSF star; reject nearby
@@ -61,12 +61,17 @@ def isolated_reference_sources(controls,sci,err,dq,tx,ty,min_snr=18.,min_n=4):
             sep=np.hypot(
                 neighbors["x_local"].to_numpy(float)-x,
                 neighbors["y_local"].to_numpy(float)-y)
-            if np.nanmin(sep)<19:
+            if np.nanmin(sep)<14:
                 continue
         sy=slice(iy-6,iy+7);sx=slice(ix-6,ix+7)
         sub=data[sy,sx];es=err[sy,sx];d=dq[sy,sx]
-        if not (np.isfinite(sub).all() and np.isfinite(es).all() and (es>0).all()
-                and np.count_nonzero((np.asarray(d,dtype=np.uint64)&BAD_DQ)!=0)==0):
+        bad=np.logical_or.reduce((~np.isfinite(sub),~np.isfinite(es),
+                                  es<=0,(np.asarray(d,dtype=np.uint64)&BAD_DQ)!=0))
+        # The core of a PSF reference must be clean; pixels in its wings
+        # may be masked by EPSFBuilder and need not invalidate the star.
+        core_mask=(rr:=np.hypot(np.indices(sub.shape)[1]-6,
+                               np.indices(sub.shape)[0]-6))<=1.6
+        if np.any(bad & core_mask) or np.mean(bad)>.20:
             continue
         yy,xx=np.indices(sub.shape)
         rring=np.hypot(xx-6,yy-6)
@@ -77,10 +82,11 @@ def isolated_reference_sources(controls,sci,err,dq,tx,ty,min_snr=18.,min_n=4):
             continue
         # A basic morphology/isolation screen; not a star/galaxy classifier.
         pix_radius=np.sqrt(np.sum(positive[rring<=3.5]*rring[rring<=3.5]**2)/core)
-        if not (.4<pix_radius<2.6):continue
+        if not (.4<pix_radius<3.2):continue
         rows.append({"x":x,"y":y,"snr":snr,
                      "core_rms_radius_pix":pix_radius,"flux":float(r["flux"])})
     df=pd.DataFrame(rows).sort_values("snr",ascending=False) if rows else pd.DataFrame()
+    print(f"Isolated PSF reference candidates: {len(df)} / {len(controls)} controls; SNR>={min_snr}",flush=True)
     if len(df)<min_n:raise RuntimeError(
       f"Only {len(df)} isolated SNR>{min_snr} reference sources (need {min_n}); "
       "cannot construct a defensible empirical PSF. NO FALLBACK TO GAUSSIAN.")
