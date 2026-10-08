@@ -168,7 +168,7 @@ def main():
       "validated astrometric centroid. MIRI's wider PSF, structured backgrounds,",
       "different wavelengths and detector astrometric systematics need",
       "separate control-star registration and reliable matching.", "",
-      f"Products considered {len(d)}; verified covering CAL products {(d.coverage_status=='COVERS_TARGET').sum() if "coverage_status" in d else 0}.", "",
+      f"Products considered {len(d)}; verified covering CAL products {int(d.coverage_status.eq('COVERS_TARGET').sum()) if 'coverage_status' in d.columns else 0}.", "",
       "Any credible MIRI target detection should be followed with a",
       "PSF-model centroid, per-exposure field-registration null test,",
       "and cross-instrument distortion/color systematic budget, before adding",
