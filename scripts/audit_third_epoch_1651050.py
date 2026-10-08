@@ -217,6 +217,23 @@ def main():
     else:
         visits=pd.DataFrame(columns=["visit_id","first_mjd","last_mjd","n_exposures","instruments","filters"])
     visits.to_csv(root/"POTENTIAL_EPOCHS_NOT_DETECTIONS.csv",index=False)
+    # Prioritize independently timed NIRCam CAL images for subsequent
+    # original-pixel centroid/registration QA. This is a coverage-only list.
+    nircam=good[
+        good["instrument_name"].astype(str).str.upper().str.contains("NIRCAM",na=False)
+        & good["file_type"].eq("JWST_CAL")
+    ].copy()
+    if len(nircam):
+        nircam["same_filter_priority"]=nircam["filter_norm"].isin(["F444W","F356W"])
+        nircam=nircam.sort_values(["same_filter_priority","time_for_group"],ascending=[False,False])
+    nircam.to_csv(root/"NIRCAM_COVERAGE_ONLY_CENTROID_FOLLOWUP.csv",index=False)
+    (root/"NIRCAM_CENTROID_GATE.md").write_text(
+        "# NIRCam follow-up (coverage is not detection)\\n\\n"
+        f"Covering original NIRCam CAL products: {len(nircam)}.\\n\\n"
+        "The CSV is a prioritized candidate exposure list, NOT measured centroids. "
+        "Inspect original SCI/ERR/DQ, robust local reference registration, PSF/ePSF "
+        "fit residuals, and independent visits before any joint JWST-L2 PM/parallax fit.\\n"
+    )
     report=[
         "# Third-epoch audit: candidate 1651050",
         "",
