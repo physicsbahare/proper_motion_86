@@ -1,0 +1,74 @@
+name: Publication PM parallax sensitivity and targeted recheck
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/publication_parallax_validation.yml'
+      - 'scripts/publication_parallax_audit.py'
+      - 'tests/test_publication_parallax.py'
+      - 'docs/PUBLICATION_ASTROMETRY_REVIEW.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference-and-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Check geometry and significance formula
+        run: python -m pytest -q tests/test_publication_parallax.py
+      - name: Audit 387132 reference epoch parallax phase
+        run: python scripts/publication_parallax_audit.py --output publication_check/reference_only
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: publication-reference-parallax-audit
+          path: publication_check/reference_only
+          retention-days: 30
+
+  target-1651050:
+    needs: reference-and-unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Re-run 1651050 on independent JWST CAL epochs
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m defensible.run_cached_catalog \
+            --catalog data/candidates_step3_pm_unchecked_42.csv \
+            --output-root publication_check/fresh_1651050 \
+            --index 30
+      - name: Compute parallax sensitivity with measured epoch MJDs
+        run: |
+          python scripts/publication_parallax_audit.py \
+            --candidate-root publication_check/fresh_1651050/candidate_1651050 \
+            --output publication_check/full
+      - name: Upload independent receipts and scientific audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: publication-1651050-targeted-rerun
+          path: publication_check/
+          retention-days: 30
