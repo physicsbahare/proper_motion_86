@@ -97,6 +97,10 @@ def build_local_epsf(sci,err,dq,ref,oversampling=4):
     bad=~np.isfinite(sci)|~np.isfinite(err)|(err<=0)|((np.asarray(dq,dtype=np.uint64)&BAD_DQ)!=0)
     _,sky,_=sigma_clipped_stats(sci,mask=bad,sigma=3)
     data=np.asarray(sci,dtype=float)-float(sky)
+    # Photutils ePSF fits cannot evaluate NaN values even when those
+    # pixels carry a True mask: replace masked numeric data with zero
+    # but preserve the mask, so masked samples have zero fitting weight.
+    data=np.where(bad,0.0,data)
     nd=NDData(data,mask=bad)
     cat=Table()
     cat["x"]=ref.x.to_numpy(float);cat["y"]=ref.y.to_numpy(float)
