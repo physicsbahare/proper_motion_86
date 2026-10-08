@@ -150,8 +150,26 @@ def main():
         (root/"RESULTS.md").write_text("No FITS products found. No third epoch established.\n")
         raise RuntimeError("No public candidate FITS products")
     join=obs.drop_duplicates("obsid")
-    p=p.merge(join[["obsid","obs_collection","instrument_name","filter_norm",
-                    "start_mjd","end_mjd"]],on="obsid",how="left")
+    # MAST API product-list schemas differ: get_product_list commonly returns
+    # obsID (archive label), sometimes obsid or parent_obsid (numeric key).
+    # Probe the actual keys and fail loudly rather than misassign filters.
+    p.to_csv(root/"UNJOINED_PRODUCT_METADATA.csv",index=False)
+    if "obsid" in p.columns:
+        p["_obsmatch"]=p["obsid"].astype(str)
+        join["_obsmatch"]=join["obsid"].astype(str)
+    elif "parent_obsid" in p.columns:
+        p["_obsmatch"]=p["parent_obsid"].astype(str)
+        join["_obsmatch"]=join["obsid"].astype(str)
+    elif "obsID" in p.columns:
+        p["_obsmatch"]=p["obsID"].astype(str)
+        join["_obsmatch"]=join["obs_id"].astype(str)
+    else:
+        raise RuntimeError(f"MAST product list has no supported association key: {list(p.columns)}")
+    p=p.merge(join[["_obsmatch","obsid","obs_collection","instrument_name","filter_norm",
+                    "start_mjd","end_mjd"]],on="_obsmatch",how="left")
+    if p["obs_collection"].notna().sum()==0:
+        raise RuntimeError(f"Product-to-observation join unsuccessful. Key {p['_obsmatch'].head().tolist()}; "
+                           f"archive key {join['_obsmatch'].head().tolist()}")
     p["file_type"]=[
         product_type(row.productFilename,
           str(row.obs_collection)+"/"+str(row.instrument_name)) for _,row in p.iterrows()
