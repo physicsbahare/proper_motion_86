@@ -17,7 +17,7 @@ def test_reference_star_selection_excludes_close_neighbors_and_bad_dq():
     for x,y in coords:
         yy,xx=np.indices(sci.shape)
         sci+=100*np.exp(-.5*((xx-x)/1.1)**2-.5*((yy-y)/1.1)**2)
-        r.append({"x_local":float(x),"y_local":float(y),"snr":50.})
+        r.append({"x_local":float(x),"y_local":float(y),"snr":50.,"flux":300.})
     # contaminated close sources get rejected, leaving four isolated refs
     out=isolated_reference_sources(pd.DataFrame(r),sci,err,dq,55,10,min_n=4)
     assert len(out)==4
