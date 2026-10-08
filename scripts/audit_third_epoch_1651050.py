@@ -165,6 +165,11 @@ def main():
         join["_obsmatch"]=join["obs_id"].astype(str)
     else:
         raise RuntimeError(f"MAST product list has no supported association key: {list(p.columns)}")
+    # Product tables already contain some similarly named observational fields.
+    # Avoid pandas _x/_y suffixes hiding the authoritative join columns.
+    for field in ("obs_collection","instrument_name","filter_norm","start_mjd","end_mjd","obsid"):
+        if field in p.columns:
+            p=p.drop(columns=[field])
     p=p.merge(join[["_obsmatch","obsid","obs_collection","instrument_name","filter_norm",
                     "start_mjd","end_mjd"]],on="_obsmatch",how="left")
     if p["obs_collection"].notna().sum()==0:
