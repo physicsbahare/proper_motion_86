@@ -1,0 +1,39 @@
+name: Public MAST third-epoch search for 1651050
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/third_epoch_search_1651050.yml'
+      - 'scripts/audit_third_epoch_1651050.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  search-independent-epochs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+          pip install tabulate
+      - name: Search current public MAST archive, verify CAL/HST footprints
+        env:
+          PYTHONPATH: .
+        run: |
+          python -u scripts/audit_third_epoch_1651050.py \
+            --output publication_check/third_epoch_inventory
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 1651050-public-third-epoch-archive-and-WCS-audit
+          path: publication_check/third_epoch_inventory/
+          retention-days: 90
