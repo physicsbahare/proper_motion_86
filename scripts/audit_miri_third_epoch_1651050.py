@@ -135,7 +135,7 @@ def main():
         # applying the NIRCam three-digit filter regex to F1000W/F2100W.
         obsid=str(row.parent_obsid) if 'parent_obsid' in row.index else str(row.get('obsid', ''))
         if obsid not in OBS:
-            receipts.append(dict(filename=fname,obsid=obsid,status="OBS_GROUP_NOT_IDENTIFIED"))
+            receipts.append(dict(filename=fname,obsid=obsid,coverage_status="UNKNOWN",status="OBS_GROUP_NOT_IDENTIFIED"))
             continue
         filt=OBS[obsid]
         print(f"MIRI WCS + original pixels: {obsid} {filt} {fname}",flush=True)
@@ -144,7 +144,7 @@ def main():
                  "independent_MIRI_epoch",filt,pd.DataFrame([row]))
             if not exposures:
                 st=cover[0].get("status","NO_COVERAGE") if cover else "NO_COVERAGE"
-                receipts.append(dict(filename=fname,obsid=obsid,filter=filt,status=st))
+                receipts.append(dict(filename=fname,obsid=obsid,filter=filt,coverage_status=st,status="NO_MEASUREMENT"))
                 continue
             exp=exposures[0]
             # MIRI four-digit filter names are not represented by the repository's
@@ -155,10 +155,10 @@ def main():
             panel=plot_exposure(exp,measurement,root) if measurement["status"]=="FORCED_APERTURE_ONLY" else ""
             receipts.append(dict(filename=fname,obsid=obsid,filter=filt,
                 mjd=float(exp.mjd),detector=str(exp.detector),
-                status="COVERS_TARGET",panel=panel,**measurement))
+                coverage_status="COVERS_TARGET",panel=panel,**measurement))
         except Exception as exc:
             receipts.append(dict(filename=fname,obsid=obsid,filter=filt,
-                                 status="ANALYSIS_ERROR",reason=f"{type(exc).__name__}: {exc}"))
+                                 coverage_status="UNKNOWN",status="ANALYSIS_ERROR",reason=f"{type(exc).__name__}: {exc}"))
         pd.DataFrame(receipts).to_csv(root/"MIRI_ORIGINAL_CAL_COVERAGE_AND_FORCED_SNR.csv",index=False)
     d=pd.DataFrame(receipts)
     r=[
@@ -168,7 +168,7 @@ def main():
       "validated astrometric centroid. MIRI's wider PSF, structured backgrounds,",
       "different wavelengths and detector astrometric systematics need",
       "separate control-star registration and reliable matching.", "",
-      f"Products considered {len(d)}; verified covering CAL products {(d.status=='COVERS_TARGET').sum()}.", "",
+      f"Products considered {len(d)}; verified covering CAL products {(d.coverage_status=='COVERS_TARGET').sum() if "coverage_status" in d else 0}.", "",
       "Any credible MIRI target detection should be followed with a",
       "PSF-model centroid, per-exposure field-registration null test,",
       "and cross-instrument distortion/color systematic budget, before adding",
