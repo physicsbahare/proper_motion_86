@@ -7,7 +7,7 @@ def test_parallax_vectors_have_correct_basis_and_sign():
     assert east == pytest.approx([0,1,0],abs=1e-14)
     assert north == pytest.approx([0,0,1],abs=1e-14)
     got=vectors_to_parallax_factors([[0,1,0],[0,0,1]],0,0)
-    assert got == pytest.approx([[-1,0],[0,-1]],abs=1e-14)
+    assert np.allclose(got, [[-1,0],[0,-1]],atol=1e-14)
 
 def test_conditional_motion_calculation():
     r=conditional_pm(np.array([50.,10.]),np.array([5.,5.]),np.array([.1,-.2]),2.,10.)
