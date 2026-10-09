@@ -90,9 +90,9 @@ def main():
         "A repeated rootname is a duplicate archive/calibration product, not an independent exposure.",
         "Even independent exposures within one visit do not establish independent parallax phases.","",
         "## Per-filter repeatability (NOT astrometry)","",
-        bands.to_markdown(index=False) if len(bands) else "No covering exposures.","",
+        bands.to_string(index=False) if len(bands) else "No covering exposures.","",
         "## Per-root diagnostics", "",
-        roots.to_markdown(index=False) if len(roots) else "None.","",
+        roots.to_string(index=False) if len(roots) else "None.","",
         "Any high forced-aperture S/N with DQ contamination, a Gaussian width at its",
         "hard lower bound, or non-reproduction across dithers remains an artifact suspect.",
         "No third independent registered centroid, intrinsic PM or joint parallax is established."]
