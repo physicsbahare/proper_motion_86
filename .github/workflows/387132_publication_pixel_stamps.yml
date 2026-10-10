@@ -1,0 +1,37 @@
+name: 387132 publication original CAL pixel stamps
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/387132_publication_pixel_stamps.yml'
+      - 'scripts/export_387132_original_cal_stamps.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  six-stage2-original-stamps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+      - name: Export six original CAL source pixels, preserving detector provenance
+        env:
+          PYTHONPATH: .
+        run: python -u scripts/export_387132_original_cal_stamps.py --output publication_check/387132_original_cal_stamps
+      - name: Upload source stamps and exposure metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 387132-six-original-CAL-SCI-ERR-DQ-stamps
+          path: publication_check/387132_original_cal_stamps/
+          retention-days: 90
