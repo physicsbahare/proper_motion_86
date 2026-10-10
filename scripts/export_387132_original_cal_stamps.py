@@ -13,6 +13,7 @@ import pandas as pd
 from pm86.archive import load_covering_cutouts
 
 CID, RA, DEC=387132,150.1513055210011,1.9720770310321503
+REFERENCE=pd.read_csv('data/reference_282040_centroids.csv')
 
 def process(row,outdir):
     filename=str(row.productFilename); filt=str(row["filter"])
@@ -29,6 +30,15 @@ def process(row,outdir):
     img=np.asarray(e.sci[y0:y1,x0:x1],dtype=np.float32)
     err=np.asarray(e.err[y0:y1,x0:x1],dtype=np.float32)
     dq=np.asarray(e.dq[y0:y1,x0:x1],dtype=np.uint32)
+    ref=REFERENCE.loc[REFERENCE.productFilename.eq(filename)]
+    if len(ref)!=1: raise ValueError(f"Missing unique 282040 source reference centroid for {filename}")
+    v=ref.iloc[0]
+    gauss_det=e.gwcs.invert(float(v.ra_gauss),float(v.dec_gauss))
+    com_det=e.gwcs.invert(float(v.ra_com),float(v.dec_com))
+    xg=float(np.asarray(gauss_det[0]).squeeze())-float(e.x0+x0)
+    yg=float(np.asarray(gauss_det[1]).squeeze())-float(e.y0+y0)
+    xc=float(np.asarray(com_det[0]).squeeze())-float(e.x0+x0)
+    yc=float(np.asarray(com_det[1]).squeeze())-float(e.y0+y0)
     stem=filename[:-9] if filename.endswith("_cal.fits") else filename
     path=outdir/"pixel_stamps"/(stem+".npz")
     np.savez_compressed(path,SCI=img,ERR=err,DQ=dq,
@@ -36,6 +46,8 @@ def process(row,outdir):
         full_detector_window_x0=int(e.x0+x0),
         full_detector_window_y0=int(e.y0+y0),
         catalog_x_local=float(tx-x0),catalog_y_local=float(ty-y0),
+        gaussian_x_local=xg,gaussian_y_local=yg,
+        com_x_local=xc,com_y_local=yc,
         filter=str(filt),epoch=str(row.epoch),
         filename=filename,mjd=float(e.mjd),
         ra_deg=float(RA),dec_deg=float(DEC),
