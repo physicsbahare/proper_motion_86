@@ -22,8 +22,8 @@ START = date(2026, 10, 13)
 METHOD_VERSION = "jwst-li-fynbo-covariance-diagnostic-v1"
 CATALOGS = {
     "ali": ("data/candidates_ali_cosmos2025_45.csv", 45),
-    # We intentionally audit the full verified 123-source remaining sample. The exact
-    # 123-source Dave publication subset has NOT been identified in GitHub.
+    # Published Dave sample: 125 sources, of which 387132 and 1651050
+    # already have motion estimates. Here we recheck the other 123.
     "dave123": ("data/candidates_dave_remaining_123.csv", 123),
 }
 
