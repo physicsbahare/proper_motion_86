@@ -221,6 +221,12 @@ def run_candidate_cached(candidate_id: int, ra_deg: float, dec_deg: float, outpu
             "sigma_mu_alpha_cosdec_masyr": best["sigma_mu_alpha_cosdec_masyr"],
             "sigma_mu_delta_masyr": best["sigma_mu_delta_masyr"],
             "significance_2d": best.get("significance_2d", np.nan),
+            "pm_ra_dec_rho": best.get("pm_ra_dec_rho", np.nan),
+            "pm_covariance_status": best.get("pm_covariance_status", "NOT_ESTIMATED"),
+            "mahalanobis_d2": best.get("mahalanobis_d2", np.nan),
+            "mahalanobis_p_two_sided": best.get("mahalanobis_p_two_sided", np.nan),
+            "mahalanobis_gaussian_sigma": best.get("mahalanobis_gaussian_sigma", np.nan),
+            "mahalanobis_calibrated": False,
             "n_independent_pairs": len(pairs), "n_measured_pairs": len(measured),
             "n_distinct_epochs_cached": len(unique_epochs),
         }
