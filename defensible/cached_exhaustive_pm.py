@@ -125,7 +125,7 @@ def _audit_pair_from_cache(candidate_id: int, pair: dict, cache: dict[str, dict]
     qual.to_csv(pdir / "registration_quality.csv", index=False)
     matched.to_csv(pdir / "matched_controls.csv", index=False)
 
-    summary, pairwise = astrometry.infer_proper_motion(reg, qual, pair["pair_type"])
+    summary, pairwise = astrometry.infer_proper_motion(reg, qual, pair["pair_type"], matched)
     pairwise.to_csv(pdir / "pairwise_pm_diagnostics.csv", index=False)
     result.update(stage="PM_FIT", **summary)
     return result
