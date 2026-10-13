@@ -1,8 +1,8 @@
 {
   "filter_early": "F277W",
   "filter_late": "F200W",
-  "inventory_baseline_days": 763.1280027199027,
-  "inventory_early_mjd": 60044.699591620374,
+  "inventory_baseline_days": 763.12800271991,
+  "inventory_early_mjd": 60044.69959162037,
   "inventory_late_mjd": 60807.82759434028,
   "pair_filter_cost": 4129.0,
   "pair_status": "PAIR_FOUND",

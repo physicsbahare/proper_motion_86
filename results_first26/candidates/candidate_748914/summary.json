@@ -30,7 +30,7 @@
   "inventory_early_mjd": 60314.88028188657,
   "inventory_late_mjd": 61011.84559561343,
   "n_astrometric_early": 0,
-  "n_astrometric_late": 0,
+  "n_astrometric_late": 1,
   "n_covering_early": 2,
   "n_covering_late": 4,
   "n_hst_inventory_rows": 30,

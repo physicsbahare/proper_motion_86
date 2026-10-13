@@ -1,8 +1,8 @@
 {
   "filter_early": "F444W",
   "filter_late": "F444W",
-  "inventory_baseline_days": 745.9472357754639,
-  "inventory_early_mjd": 60276.096188379626,
+  "inventory_baseline_days": 745.9472357754566,
+  "inventory_early_mjd": 60276.09618837963,
   "inventory_late_mjd": 61022.04342415509,
   "pair_filter_cost": -928.0,
   "pair_status": "PAIR_FOUND",
