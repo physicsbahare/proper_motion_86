@@ -22,9 +22,9 @@ START = date(2026, 10, 13)
 METHOD_VERSION = "jwst-li-fynbo-covariance-diagnostic-v1"
 CATALOGS = {
     "ali": ("data/candidates_ali_cosmos2025_45.csv", 45),
-    # We intentionally audit the full verified 125-source superset. The exact
+    # We intentionally audit the full verified 123-source remaining sample. The exact
     # 123-source Dave publication subset has NOT been identified in GitHub.
-    "dave125": ("data/candidates_step3_magnitude_cut_strict_125.csv", 125),
+    "dave123": ("data/candidates_dave_remaining_123.csv", 123),
 }
 
 
