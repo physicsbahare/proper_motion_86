@@ -8,6 +8,7 @@ from scipy.spatial import cKDTree
 from scipy.stats import pearsonr
 
 from .config import CONFIG
+from .mahalanobis import mahalanobis_zero_pm, estimate_local_registration_rho
 from .measurement import robust_sigma
 
 
@@ -284,7 +285,7 @@ def _fit_method(reg, east_col, north_col, sigma_e, sigma_n):
     return result, pairs
 
 
-def infer_proper_motion(registered: pd.DataFrame, quality: pd.DataFrame, pair_type: str):
+def infer_proper_motion(registered: pd.DataFrame, quality: pd.DataFrame, pair_type: str, matched_controls: pd.DataFrame | None = None):
     if registered.empty:
         return {"pm_status": "INSUFFICIENT_DATA", "reason": "no registered target positions"}, pd.DataFrame()
 
@@ -370,4 +371,28 @@ def infer_proper_motion(registered: pd.DataFrame, quality: pd.DataFrame, pair_ty
     }
     if result_com is not None:
         summary.update({f"com_{k}": v for k, v in result_com.items()})
+
+    # Li & Fynbo (2026) Eq. 9, adapted to JWST registration residuals.
+    # The Gaia null-distribution scale / thresholds MUST NOT be transferred.
+    rho, cov_status = estimate_local_registration_rho(
+        reg, matched_controls, sigma_e, sigma_n, result_2dg
+    )
+    summary["pm_ra_dec_rho"] = float(rho) if np.isfinite(rho) else np.nan
+    summary["pm_covariance_status"] = cov_status
+    if np.isfinite(rho):
+        summary.update(mahalanobis_zero_pm(
+            result_2dg["mu_alpha_cosdec_masyr"],
+            result_2dg["mu_delta_masyr"],
+            result_2dg["sigma_mu_alpha_cosdec_masyr"],
+            result_2dg["sigma_mu_delta_masyr"],
+            rho,
+        ))
+    else:
+        summary["mahalanobis_d2"] = np.nan
+        summary["mahalanobis_p_two_sided"] = np.nan
+        summary["mahalanobis_gaussian_sigma"] = np.nan
+        summary["mahalanobis_calibrated"] = False
+    # The conservative legacy classification remains unchanged until a
+    # JWST stationary-control null distribution and covariance bootstrap
+    # are validated. Never reinterpret Gaia D²<7.097 as a JWST threshold.
     return summary, pairwise
