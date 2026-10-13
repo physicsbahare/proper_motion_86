@@ -31,7 +31,7 @@
   "n_covering_early": 2,
   "n_covering_late": 3,
   "n_hst_inventory_rows": 86,
-  "n_jwst_inventory_rows": 44,
+  "n_jwst_inventory_rows": 47,
   "n_pair_attempts": 9,
   "pair_filter_cost": -928.0,
   "pair_status": "PAIR_FOUND",
