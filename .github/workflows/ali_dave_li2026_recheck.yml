@@ -1,4 +1,4 @@
-name: Ali45 + Dave125 JWST proper-motion recheck (Li 2026)
+name: Ali45 + Dave123 JWST proper-motion recheck (Li 2026)
 
 on:
   workflow_dispatch:
@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        sample: [ali, dave125]
+        sample: [ali, dave123]
         slot: [0, 1, 2, 3, 4]
     env:
       MPLBACKEND: Agg
@@ -107,7 +107,7 @@ jobs:
           root = Path('results_li2026_recheck')
           for sample, input_path in [
               ('ali', 'data/candidates_ali_cosmos2025_45.csv'),
-              ('dave125', 'data/candidates_step3_magnitude_cut_strict_125.csv'),
+              ('dave123', 'data/candidates_dave_remaining_123.csv'),
           ]:
               cat = pd.read_csv(input_path)
               dst = root / sample
@@ -137,7 +137,7 @@ jobs:
                   ['INSUFFICIENT_DATA','AMBIGUOUS','AMBIGUOUS_SYSTEMATICS','NOT_YET_RECHECKED']))
               lines = [
                   f'# {sample} covariance-aware proper-motion rechecks',
-                  f'Candidate roster: {len(cat)} (DO NOT confuse Dave125 with an unverified 123-source subset).',
+                  f'Candidate roster: {len(cat)} (Dave123 excludes previously measured 387132 and 1651050).',
                   f'First-pass audits performed: {progress}/{len(cat)}.',
                   f'PM moving or consistent-with-zero: {complete}.',
                   f'Unresolved or not rechecked: {unresolved}.',
