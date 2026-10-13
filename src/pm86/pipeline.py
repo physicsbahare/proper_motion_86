@@ -348,7 +348,7 @@ def run_candidate(candidate: dict, output_root: Path) -> dict:
                 quality.to_csv(adir / "registration_quality.csv", index=False)
                 matched.to_csv(adir / "registration_control_residuals.csv", index=False)
 
-                pm, pairwise = infer_proper_motion(registered, quality, pair["pair_type"])
+                pm, pairwise = infer_proper_motion(registered, quality, pair["pair_type"], matched)
                 pairwise.to_csv(adir / "pairwise_pm.csv", index=False)
                 _diagnostic_plot(candidate, cutouts, measurements, registered, adir / "diagnostic.png")
 
