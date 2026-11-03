@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 import numpy as np
+from scipy.ndimage import shift as nd_shift
 
 
 def normalized_psf(psf):
@@ -49,8 +50,8 @@ def inject_at_sky(exposure, ra_deg, dec_deg, psf, flux, *, rng=None,
     if not (np.isfinite(x) and np.isfinite(y)):
         raise ValueError("sky coordinate outside valid WCS")
     ny, nx = exposure.sci.shape
-    # Integer stamp placement is a *prototype only*: its subpixel
-    # quantization makes it unsuitable for a mas-scale null test.
+    # Interpolate a supplied filter-specific native-pixel PSF to the requested
+    # detector subpixel phase. Interpolation errors still require calibration.
     cx, cy = int(np.floor(x + 0.5)), int(np.floor(y + 0.5))
     sy, sx = p.shape
     x0, y0 = cx - sx // 2, cy - sy // 2
@@ -65,7 +66,13 @@ def inject_at_sky(exposure, ra_deg, dec_deg, psf, flux, *, rng=None,
         raise ValueError("PSF stamp overlaps nonfinite pixels")
     sci = np.array(exposure.sci, dtype=float, copy=True)
     err = np.array(exposure.err, dtype=float, copy=True)
-    signal = float(flux) * p
+    phase_x, phase_y = x - cx, y - cy
+    shifted = nd_shift(p, shift=(phase_y, phase_x), order=3,
+                       mode='constant', cval=0.0, prefilter=True)
+    shifted = np.maximum(shifted, 0)
+    if shifted.sum() <= 0:
+        raise ValueError('shifted PSF lost all flux')
+    signal = float(flux) * shifted / shifted.sum()
     sci[y0:y1, x0:x1] += signal
     if poisson_sigma is not None:
         if not np.isfinite(poisson_sigma) or poisson_sigma < 0:
@@ -83,7 +90,8 @@ def inject_at_sky(exposure, ra_deg, dec_deg, psf, flux, *, rng=None,
         "x_cutout": x, "y_cutout": y,
         "subpixel_phase_x": x - cx, "subpixel_phase_y": y - cy,
         "flux_requested": float(flux), "flux_injected": float(signal.sum()),
-        "subpixel_psf_applied": False,
+        "subpixel_psf_applied": True,
+        "psf_interpolation": "scipy.ndimage.shift cubic; requires independent validation",
         "valid_for_mas_astrometry": False,
     }
 
