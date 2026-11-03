@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from scipy.spatial import cKDTree
 
 from .astrometry import _fit_affine, _match_controls
@@ -88,8 +88,8 @@ def summarize_null(residuals: pd.DataFrame) -> dict:
     """Robust central bias and covariance, with an explicit data-sufficiency flag."""
     if residuals.empty or len(residuals) < 7:
         return {"status": "INSUFFICIENT_RESIDUALS", "n": len(residuals)}
-    values = residuals[["east_mas", "north_mas"]].to_numpy(float)
-    values = values[np.isfinite(values).all(axis=1)]
+    finite_residuals = residuals.loc[np.isfinite(residuals[["east_mas", "north_mas"]]).all(axis=1)].copy()
+    values = finite_residuals[["east_mas", "north_mas"]].to_numpy(float)
     if len(values) < 7:
         return {"status": "INSUFFICIENT_FINITE_RESIDUALS", "n": len(values)}
     median = np.median(values, axis=0)
@@ -98,6 +98,7 @@ def summarize_null(residuals: pd.DataFrame) -> dict:
     scale_r = 1.4826 * np.median(np.abs(radial - med_r))
     keep = radial <= med_r + 4.0 * max(scale_r, 1.0)
     clean = values[keep]
+    retained_residuals = finite_residuals.iloc[np.flatnonzero(keep)].copy()
     if len(clean) < 7:
         return {"status": "INSUFFICIENT_AFTER_CLIPPING", "n": len(clean)}
     bias = np.median(clean, axis=0)
@@ -119,13 +120,31 @@ def summarize_null(residuals: pd.DataFrame) -> dict:
         "stationarity_individually_verified": False,
         "control_morphology_verified": False,
     }
+    # Color tests must use the SAME robustly retained controls as the
+    # reported covariance. Also disclose pre-clipping influence explicitly.
     for axis, key in [("east_mas", "east"), ("north_mas", "north")]:
-        sel = residuals[["instrumental_color_proxy", axis]].replace([np.inf, -np.inf], np.nan).dropna()
-        if len(sel) >= 8 and sel.instrumental_color_proxy.std() > 0 and sel[axis].std() > 0:
-            r, p = pearsonr(sel.instrumental_color_proxy, sel[axis])
-            result[f"color_corr_{key}_r"] = float(r)
-            result[f"color_corr_{key}_p"] = float(p)
-    valid_color = residuals["instrumental_color_proxy"].dropna()
+        for label, sample in [("retained", retained_residuals), ("all", finite_residuals)]:
+            sel = sample[["instrumental_color_proxy", axis]].replace([np.inf, -np.inf], np.nan).dropna()
+            if len(sel) >= 8 and sel.instrumental_color_proxy.std() > 0 and sel[axis].std() > 0:
+                r, p = pearsonr(sel.instrumental_color_proxy, sel[axis])
+                rho, rank_p = spearmanr(sel.instrumental_color_proxy, sel[axis])
+                result[f"color_corr_{key}_{label}_n"] = int(len(sel))
+                result[f"color_corr_{key}_{label}_pearson_r"] = float(r)
+                result[f"color_corr_{key}_{label}_pearson_p"] = float(p)
+                result[f"color_corr_{key}_{label}_spearman_rho"] = float(rho)
+                result[f"color_corr_{key}_{label}_spearman_p"] = float(rank_p)
+                # A single extreme control can drive a small-N Pearson test.
+                if len(sel) >= 9:
+                    x = sel.instrumental_color_proxy.to_numpy(float)
+                    y = sel[axis].to_numpy(float)
+                    loo_r = [float(pearsonr(np.delete(x, i), np.delete(y, i)).statistic)
+                             for i in range(len(x))
+                             if np.std(np.delete(x, i)) > 0 and np.std(np.delete(y, i)) > 0]
+                    if loo_r:
+                        result[f"color_corr_{key}_{label}_leave_one_out_pearson_range"] = [
+                            float(min(loo_r)), float(max(loo_r))
+                        ]
+    valid_color = retained_residuals["instrumental_color_proxy"].dropna()
     if len(valid_color):
         result["control_instrumental_color_min"] = float(valid_color.min())
         result["control_instrumental_color_max"] = float(valid_color.max())
