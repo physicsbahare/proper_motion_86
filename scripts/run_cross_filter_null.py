@@ -28,6 +28,7 @@ from pm86.cross_filter_null import (
 )
 from pm86.pipeline import _rank_epoch_pairs
 from pm86.refit_reconciliation import reconcile_frozen_refit
+from pm86.reference_stability import covariance_stability
 from recenter_measurement import measure_exposure_recentered
 from remote_io_patch import install as install_bounded_remote
 
@@ -180,6 +181,7 @@ def run_candidate(cid: int, catalog_row: pd.Series, frozen: pd.Series,
         outcome["null_qc"] = qc
         summary = summarize_null(residuals)
         outcome["null_summary"] = summary
+        outcome["reference_covariance_stability"] = covariance_stability(annotated_residuals)
         if summary.get("status") == "PRELIMINARY_FIELD_CONTROL_NULL":
             outcome["sensitivity"] = conservative_sensitivity(
                 float(frozen.mu_alpha_cosdec_masyr),
