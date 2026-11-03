@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from pm86.cross_filter_null import (
-    conservative_sensitivity, leave_one_out_null, summarize_null,
+    annotate_robust_retention, conservative_sensitivity, leave_one_out_null, summarize_null,
 )
 
 
@@ -83,3 +83,25 @@ def test_color_correlation_uses_retained_controls_and_reports_outlier_leverage()
     assert abs(summary["color_corr_east_retained_pearson_r"]) < 0.7
     assert summary["color_corr_east_all_n"] > summary["color_corr_east_retained_n"]
     assert len(summary["color_corr_east_all_leave_one_out_pearson_range"]) == 2
+
+
+def test_reference_audit_coordinates_and_retention_match_covariance():
+    rng = np.random.default_rng(52)
+    coords = rng.uniform(-8, 8, size=(24, 2))
+    for i in range(1, len(coords)):
+        while np.min(np.linalg.norm(coords[i] - coords[:i], axis=1)) < 0.8:
+            coords[i] = rng.uniform(-8, 8, size=2)
+    early = _controls(coords)
+    late = _controls(coords + np.array([0.02, -0.015]), flux=75.0)
+    null, qc = leave_one_out_null(early, late)
+    assert qc["status"] == "LOO_MEASURED"
+    for col in ("early_east_arcsec", "early_north_arcsec",
+                "late_east_arcsec", "late_north_arcsec",
+                "early_flux_raw", "late_flux_raw"):
+        assert col in null.columns
+        assert np.isfinite(null[col]).all()
+    audit = annotate_robust_retention(null)
+    summary = summarize_null(null)
+    assert audit["retained_for_covariance"].sum() == summary["n"]
+    assert len(audit) == summary["n"] + summary["n_clipped"]
+    assert not audit.empty
