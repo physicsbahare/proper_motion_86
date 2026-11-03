@@ -24,7 +24,7 @@ sys.path.insert(0, str(ROOT / "first26"))
 from pm86.archive import get_pair_products, load_covering_cutouts, query_candidate_inventory
 from pm86.astrometry import infer_proper_motion, register_exposures
 from pm86.cross_filter_null import (
-    conservative_sensitivity, leave_one_out_null, summarize_null,
+    annotate_robust_retention, conservative_sensitivity, leave_one_out_null, summarize_null,
 )
 from pm86.pipeline import _rank_epoch_pairs
 from pm86.refit_reconciliation import reconcile_frozen_refit
@@ -168,7 +168,15 @@ def run_candidate(cid: int, catalog_row: pd.Series, frozen: pd.Series,
             "not_independent_exposure_ensemble": True,
         }
         residuals, qc = leave_one_out_null(controls[a["filename"]], controls[b["filename"]])
-        residuals.to_csv(destination / "leave_one_out_residuals.csv", index=False)
+        annotated_residuals = annotate_robust_retention(residuals)
+        annotated_residuals.to_csv(destination / "leave_one_out_residuals.csv", index=False)
+        outcome["reference_control_audit"] = {
+            "n_controls_exported": int(len(annotated_residuals)),
+            "n_retained_for_covariance": int(annotated_residuals["retained_for_covariance"].sum()),
+            "sky_relative_positions_exported": True,
+            "stationarity_verified": False,
+            "morphology_verified": False,
+        }
         outcome["null_qc"] = qc
         summary = summarize_null(residuals)
         outcome["null_summary"] = summary
