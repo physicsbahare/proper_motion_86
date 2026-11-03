@@ -5,6 +5,7 @@ No MAST data, scientific results, or network are required by these tests.
 import numpy as np
 import pandas as pd
 
+from pm86.reference_stability import covariance_stability
 from pm86.cross_filter_null import (
     annotate_robust_retention, conservative_sensitivity, leave_one_out_null, summarize_null,
 )
@@ -105,3 +106,29 @@ def test_reference_audit_coordinates_and_retention_match_covariance():
     assert audit["retained_for_covariance"].sum() == summary["n"]
     assert len(audit) == summary["n"] + summary["n_clipped"]
     assert not audit.empty
+
+
+def test_reference_covariance_stability_detects_influential_control():
+    rng = np.random.default_rng(47)
+    xy = rng.normal(0, 2, size=(15, 2))
+    xy[-1] = [20.0, -15.0]
+    audit = pd.DataFrame({
+        "east_mas": xy[:, 0], "north_mas": xy[:, 1],
+        "retained_for_covariance": [True] * len(xy),
+        "early_east_arcsec": rng.uniform(-5, 5, len(xy)),
+        "early_north_arcsec": rng.uniform(-5, 5, len(xy)),
+    })
+    result = covariance_stability(audit)
+    assert result["status"] == "DIAGNOSTIC_ONLY"
+    assert result["single_source_sensitive_over_20pct"]
+    assert result["not_a_systematic_uncertainty_estimate"]
+    assert not result["reference_geometry_near_collinear"]
+
+
+def test_reference_covariance_stability_requires_enough_sources():
+    audit = pd.DataFrame({
+        "east_mas": [1.0, 2.0, 3.0],
+        "north_mas": [1.0, 3.0, 2.0],
+        "retained_for_covariance": [True] * 3,
+    })
+    assert covariance_stability(audit)["status"] == "INSUFFICIENT_FOR_JACKKNIFE"
