@@ -59,3 +59,27 @@ def test_conservative_sensitivity_is_not_adopted_significance():
     assert x["conservative_2d_mahalanobis_score"] < x["nominal_2d_quadrature_score"]
     assert x["not_a_gaussian_sigma"]
     assert x["registration_noise_may_be_double_counted"]
+
+
+def test_color_correlation_uses_retained_controls_and_reports_outlier_leverage():
+    rng = np.random.default_rng(42)
+    n = 20
+    color = np.linspace(-1, 1, n)
+    east = rng.normal(0, 3, n)
+    north = rng.normal(0, 3, n)
+    # One control creates a spurious strong color correlation.
+    color[-1] = 4
+    east[-1] = 100
+    north[-1] = 100
+    residuals = pd.DataFrame({
+        "east_mas": east,
+        "north_mas": north,
+        "instrumental_color_proxy": color,
+    })
+    summary = summarize_null(residuals)
+    assert summary["status"] == "PRELIMINARY_FIELD_CONTROL_NULL"
+    assert summary["n_clipped"] >= 1
+    assert summary["color_corr_east_all_pearson_r"] > 0.8
+    assert abs(summary["color_corr_east_retained_pearson_r"]) < 0.7
+    assert summary["color_corr_east_all_n"] > summary["color_corr_east_retained_n"]
+    assert len(summary["color_corr_east_all_leave_one_out_pearson_range"]) == 2
