@@ -10,6 +10,8 @@ on:
       - 'scripts/run_cross_filter_null.py'
       - 'src/pm86/cross_filter_null.py'
       - 'tests/test_cross_filter_null.py'
+      - 'tests/test_refit_reconciliation.py'
+      - 'src/pm86/refit_reconciliation.py'
       - 'docs/DAVE_CROSS_FILTER_SYSTEMATICS.md'
 
 permissions:
@@ -35,7 +37,7 @@ jobs:
           pip install -e .
 
       - name: Synthetic method tests
-        run: pytest -q tests/test_cross_filter_null.py
+        run: pytest -q tests/test_cross_filter_null.py tests/test_refit_reconciliation.py
 
       - name: Measure field-control nulls from public MAST CAL cutouts
         run: |
