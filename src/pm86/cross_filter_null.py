@@ -69,6 +69,11 @@ def leave_one_out_null(early_controls: pd.DataFrame, late_controls: pd.DataFrame
             color = -2.5 * np.log10(lf / ef) if ef > 0 and lf > 0 else np.nan
             records.append({
                 "early_index": int(ei[i]), "late_index": int(li[i]),
+                "early_east_arcsec": float(dst[i, 0]),
+                "early_north_arcsec": float(dst[i, 1]),
+                "late_east_arcsec": float(src[i, 0]),
+                "late_north_arcsec": float(src[i, 1]),
+                "early_flux_raw": ef, "late_flux_raw": lf,
                 "east_mas": float(residual_mas[0]),
                 "north_mas": float(residual_mas[1]),
                 "radius_mas": float(np.hypot(*residual_mas)),
@@ -82,6 +87,32 @@ def leave_one_out_null(early_controls: pd.DataFrame, late_controls: pd.DataFrame
     out = pd.DataFrame(records)
     return out, {**status, "status": "LOO_MEASURED" if len(out) else "LOO_FAILED",
                  "n_cross_filter_matches": int(len(src)), "n_loo_success": len(out)}
+
+
+def annotate_robust_retention(residuals: pd.DataFrame) -> pd.DataFrame:
+    """Mark the exact robust radial-clip population used by summarize_null.
+
+    Keep *all* rows, including rejected controls, so an independent reviewer
+    can inspect their sky-relative positions and determine whether any are
+    foreground stars, blended sources, or problematic centroids. These flags
+    are NOT evidence that retained controls are stationary galaxies.
+    """
+    out = residuals.copy()
+    out["retained_for_covariance"] = False
+    if out.empty:
+        return out
+    vals = out[["east_mas", "north_mas"]].to_numpy(float)
+    finite = np.isfinite(vals).all(axis=1)
+    if not finite.any():
+        return out
+    subset = vals[finite]
+    center = np.median(subset, axis=0)
+    radial = np.linalg.norm(subset - center, axis=1)
+    med_r = np.median(radial)
+    scale_r = 1.4826 * np.median(np.abs(radial - med_r))
+    keep = radial <= med_r + 4.0 * max(scale_r, 1.0)
+    out.loc[out.index[np.flatnonzero(finite)[keep]], "retained_for_covariance"] = True
+    return out
 
 
 def summarize_null(residuals: pd.DataFrame) -> dict:
