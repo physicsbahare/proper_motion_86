@@ -86,3 +86,21 @@ The 2D quadrature nominal scores are likewise not Gaussian z-values.
 
 This response must not claim the requested complete validation has
 already been achieved.
+
+
+### Follow-up validation, 2026-11-03
+
+The original color-correlation diagnostic computed Pearson correlations on **all**
+held-out controls even when the covariance estimate had clipped extreme
+residuals. This is inconsistent and can overstate apparent chromatic evidence,
+especially for 387132 (one source had a very large residual). The branch now
+computes correlations separately on **all** and **retained** controls, reports
+Pearson and Spearman coefficients, and includes leave-one-out Pearson ranges.
+A synthetic regression test injects a high-leverage outlier. The new workflow
+must finish before interpreting updated color results; do not quote the old
+r=0.756 as a validated chromatic detection.
+
+The full scientific validation remains incomplete. The most important
+remaining question is the source/epoch association difference between the
+frozen PM estimates and the independent all-exposure refits. It must be
+resolved before revised candidate PMs or detection classifications are adopted.
