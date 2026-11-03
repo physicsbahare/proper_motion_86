@@ -27,6 +27,7 @@ from pm86.cross_filter_null import (
     conservative_sensitivity, leave_one_out_null, summarize_null,
 )
 from pm86.pipeline import _rank_epoch_pairs
+from pm86.refit_reconciliation import reconcile_frozen_refit
 from recenter_measurement import measure_exposure_recentered
 from remote_io_patch import install as install_bounded_remote
 
@@ -136,6 +137,9 @@ def run_candidate(cid: int, catalog_row: pd.Series, frozen: pd.Series,
                 if not reg.empty:
                     pm, pairwise = infer_proper_motion(reg, qual, "CROSS_FILTER_JWST", matched)
                     dump(destination / "independent_target_refit.json", pm)
+                    reconciliation = reconcile_frozen_refit(frozen.to_dict(), pm, measurements, reg)
+                    dump(destination / "frozen_refit_reconciliation.json", reconciliation)
+                    outcome["refit_reconciliation"] = {k: v for k, v in reconciliation.items() if k != "all_exposure_diagnostics"}
                     pairwise.to_csv(destination / "target_pairwise_diagnostics.csv", index=False)
                     outcome["target_refit"] = pm
             except Exception as exc:
