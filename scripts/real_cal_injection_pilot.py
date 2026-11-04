@@ -23,6 +23,7 @@ from pm86.archive import query_candidate_inventory,get_pair_products,load_coveri
 from pm86.cross_filter_injection import inject_at_sky
 from pm86.injection_trial_summary import summarize_trials
 from pm86.astrometry import register_exposures,infer_proper_motion
+from pm86.config import CONFIG
 from recenter_measurement import measure_exposure_recentered
 from remote_io_patch import install
 from run_cross_filter_null import choose_frozen_pair,EXPECTED_PAIRS
@@ -82,7 +83,7 @@ def clean_site(exposures,control_map,ra,dec):
             return False
         x,y=int(round(x)),int(round(y))
         cut=np.s_[y-7:y+8,x-7:x+8]
-        if np.any(e.dq[cut]!=0) or not np.isfinite(e.sci[cut]).all() or not np.isfinite(e.err[cut]).all():
+        if np.any((e.dq[cut] & CONFIG.astrom_bad_bits)!=0) or not np.isfinite(e.sci[cut]).all() or not np.isfinite(e.err[cut]).all():
             return False
         c=control_map[e.filename]
         if len(c) and np.any(np.hypot(c.x_local-x,c.y_local-y)<16):
@@ -98,7 +99,7 @@ def measure_fake(exposures,psfs,flux,base,mu,moving,first_mjd):
         pos=base.spherical_offsets_by(mu[0]*dt*u.mas,mu[1]*dt*u.mas) if moving else base
         try:
             fake,_=inject_at_sky(e,float(pos.ra.deg),float(pos.dec.deg),
-                                 psfs[e.filename],flux[e.filename],strict=True)
+                                 psfs[e.filename],flux[e.filename],strict=False)
             # Same fixed catalog sky coordinate at both epochs; the motion
             # must be found by centroiding, not provided to the fitter.
             x,y=e.gwcs.invert(float(base.ra.deg),float(base.dec.deg))
@@ -155,7 +156,7 @@ def run(cid,n,out):
                            "PSF":info}
     ref=early[0]
     centers=[]
-    for _ in range(max(1000,120*n)):
+    for _ in range(max(2500,250*n)):
         x=rng.uniform(13,ref.sci.shape[1]-14)
         y=rng.uniform(13,ref.sci.shape[0]-14)
         ra,dec=ref.gwcs(x+ref.x0,y+ref.y0)
@@ -192,6 +193,7 @@ def run(cid,n,out):
             "status":"INJECTION_REAL_CAL_PILOT",
             "scientific_limitations":["Single original exposure pair, not exact multi-exposure paper fit",
                                     "Empirical PSF template not matched to ultracool target SED",
+                                    "Site selection rejects hard astrometric DQ bits; nonfatal DQ bits permitted and recorded as limitation",
                                     "The blank-site injections do not independently calibrate common WCS errors",
                                     "500 trials cannot establish a Gaussian 5-sigma tail"]}
     if np.isfinite(null).all(axis=1).sum()>=2 and np.isfinite(moving).all(axis=1).sum()>=2:
