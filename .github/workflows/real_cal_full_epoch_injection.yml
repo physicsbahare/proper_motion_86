@@ -6,7 +6,7 @@ on:
       trials:
         description: Number of independent sky sites per candidate
         required: false
-        default: '32'
+        default: '128'
   push:
     branches: ['review/cross-filter-systematics-*']
     paths:
@@ -41,7 +41,7 @@ jobs:
           python -u scripts/real_cal_injection_pilot.py \
             --full-epoch \
             --candidate ${{ matrix.candidate }} \
-            --trials ${{ github.event.inputs.trials || '32' }} \
+            --trials ${{ github.event.inputs.trials || '128' }} \
             --out results_real_full_epoch_injection
       - name: Preserve every recovered trial, completeness statistic and failure
         if: always()
