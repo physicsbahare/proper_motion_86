@@ -67,28 +67,38 @@ def psf_from_controls(ex, controls):
               "warning":"unvetted field-source PSF, not an extreme-color ePSF"}
 
 
-def clean_site(exposures,control_map,ra,dec):
+def clean_site(exposures,control_map,ra,dec,counters=None):
+    def reject(name):
+        if counters is not None:
+            counters[name]=counters.get(name,0)+1
+        return False
     for e in exposures:
         try:
             xx,yy=e.gwcs.invert(ra,dec)
             x=float(xx)-e.x0
             y=float(yy)-e.y0
         except Exception:
-            return False
+            return reject("WCS_EXCEPTION")
         if not np.isfinite([x,y]).all():
-            return False
+            return reject("WCS_OUTSIDE")
         if min(x,y)<12 or x>e.sci.shape[1]-13 or y>e.sci.shape[0]-13:
-            return False
+            return reject("OUTSIDE_CUTOUT_OVERLAP")
         if np.hypot(x-(e.x_full-e.x0),y-(e.y_full-e.y0))<18:
-            return False
+            return reject("ORIGINAL_TARGET_OVERLAP")
         x,y=int(round(x)),int(round(y))
         cut=np.s_[y-7:y+8,x-7:x+8]
-        if np.any((e.dq[cut] & CONFIG.astrom_bad_bits)!=0) or not np.isfinite(e.sci[cut]).all() or not np.isfinite(e.err[cut]).all():
-            return False
-        c=control_map[e.filename]
-        if len(c) and np.any(np.hypot(c.x_local-x,c.y_local-y)<16):
-            return False
+        core=np.s_[y-3:y+4,x-3:x+4]
+        # Retain genuine CAL DQ masks during centroiding, and reject only
+        # compromised source cores instead of banning every bad wing pixel.
+        if np.any((e.dq[core] & CONFIG.astrom_bad_bits)!=0):
+            return reject("DQ_BAD_CORE")
+        if not np.isfinite(e.sci[cut]).all() or not np.isfinite(e.err[cut]).all():
+            return reject("INVALID_SCI_OR_ERR")
+        ctrl=control_map[e.filename]
+        if len(ctrl) and np.any(np.hypot(ctrl.x_local-x,ctrl.y_local-y)<16):
+            return reject("NEAR_REAL_REFERENCE")
     return True
+
 
 
 def measure_fake(exposures,psfs,flux,base,mu,moving,first_mjd):
@@ -156,6 +166,7 @@ def run(cid,n,out):
                            "PSF":info}
     ref=early[0]
     centers=[]
+    rejection_counts={}
     for _ in range(max(2500,250*n)):
         x=rng.uniform(13,ref.sci.shape[1]-14)
         y=rng.uniform(13,ref.sci.shape[0]-14)
@@ -163,7 +174,7 @@ def run(cid,n,out):
         ra,dec=float(ra),float(dec)
         if not np.isfinite([ra,dec]).all():
             continue
-        if not clean_site(exposures,cmap,ra,dec):
+        if not clean_site(exposures,cmap,ra,dec,rejection_counts):
             continue
         sky=SkyCoord(ra*u.deg,dec*u.deg)
         if any(sky.separation(s).arcsec<0.7 for s in centers):
@@ -171,8 +182,10 @@ def run(cid,n,out):
         centers.append(sky)
         if len(centers)>=n:
             break
+    (out/"site_selection_diagnostics.json").write_text(
+        json.dumps({"accepted":len(centers),"rejections":rejection_counts},indent=2))
     if len(centers)<5:
-        raise RuntimeError("No adequate clean sites in original CAL overlap")
+        raise RuntimeError("No adequate clean sites in original CAL overlap: "+str(rejection_counts))
     true=np.array([float(frozen.mu_alpha_cosdec_masyr),float(frozen.mu_delta_masyr)])
     trials=[]
     for i,sky in enumerate(centers):
