@@ -38,15 +38,23 @@ def psf_from_controls(ex, controls):
         if min(xx,yy)<20 or xx+20>=sci.shape[1] or yy+20>=sci.shape[0]:
             continue
         p=sci[yy-7:yy+8,xx-7:xx+8]
-        if (not np.isfinite(p).all()) or np.any(dq[yy-7:yy+8,xx-7:xx+8]):
-            continue
         Y,X=np.indices(p.shape)
         r=np.hypot(X-7,Y-7)
-        p=np.maximum(p-np.median(p[r>5]),0)
+        # JWST DQ has nonfatal flags. Reject defective PSF *cores*, but
+        # exclude flagged wings from the empirical template instead of
+        # requiring an impossible all-zero DQ square.
+        mask=(dq[yy-7:yy+8,xx-7:xx+8] & 23)!=0
+        mask=mask | ~np.isfinite(p)
+        if np.any(mask[r<=2.5]) or np.count_nonzero(~mask)<160:
+            continue
+        sky=p[(r>5)&(~mask)]
+        if len(sky)<25:
+            continue
+        p=np.maximum(np.where(mask,0,p-float(np.median(sky))),0)
         if p.sum()<=0:
             continue
         compact=float(p[r<2.5].sum()/p.sum())
-        if compact<0.27 or p[r>5].sum()/p.sum()>0.2:
+        if compact<0.13 or p[r>5].sum()/p.sum()>0.6:
             continue
         p=np.maximum(shift(p,(yy-y,xx-x),order=3,mode="constant"),0)
         if p.sum()>0:
