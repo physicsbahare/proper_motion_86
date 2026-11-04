@@ -79,7 +79,7 @@ def clean_site(exposures,control_map,ra,dec):
         if np.hypot(x-(e.x_full-e.x0),y-(e.y_full-e.y0))<18:
             return False
         x,y=int(round(x)),int(round(y))
-        cut=np.s_[y-10:y+11,x-10:x+11]
+        cut=np.s_[y-7:y+8,x-7:x+8]
         if np.any(e.dq[cut]!=0) or not np.isfinite(e.sci[cut]).all():
             return False
         c=control_map[e.filename]
