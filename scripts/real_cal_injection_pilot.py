@@ -74,13 +74,15 @@ def clean_site(exposures,control_map,ra,dec):
             y=float(yy)-e.y0
         except Exception:
             return False
-        if min(x,y)<25 or x>e.sci.shape[1]-26 or y>e.sci.shape[0]-26:
+        if not np.isfinite([x,y]).all():
+            return False
+        if min(x,y)<12 or x>e.sci.shape[1]-13 or y>e.sci.shape[0]-13:
             return False
         if np.hypot(x-(e.x_full-e.x0),y-(e.y_full-e.y0))<18:
             return False
         x,y=int(round(x)),int(round(y))
         cut=np.s_[y-7:y+8,x-7:x+8]
-        if np.any(e.dq[cut]!=0) or not np.isfinite(e.sci[cut]).all():
+        if np.any(e.dq[cut]!=0) or not np.isfinite(e.sci[cut]).all() or not np.isfinite(e.err[cut]).all():
             return False
         c=control_map[e.filename]
         if len(c) and np.any(np.hypot(c.x_local-x,c.y_local-y)<16):
@@ -154,10 +156,12 @@ def run(cid,n,out):
     ref=early[0]
     centers=[]
     for _ in range(max(1000,120*n)):
-        x=ref.x_full-ref.x0+rng.uniform(-85,85)
-        y=ref.y_full-ref.y0+rng.uniform(-85,85)
+        x=rng.uniform(13,ref.sci.shape[1]-14)
+        y=rng.uniform(13,ref.sci.shape[0]-14)
         ra,dec=ref.gwcs(x+ref.x0,y+ref.y0)
         ra,dec=float(ra),float(dec)
+        if not np.isfinite([ra,dec]).all():
+            continue
         if not clean_site(exposures,cmap,ra,dec):
             continue
         sky=SkyCoord(ra*u.deg,dec*u.deg)
