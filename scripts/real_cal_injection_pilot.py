@@ -87,12 +87,13 @@ def clean_site(exposures,control_map,ra,dec,counters=None):
             return reject("ORIGINAL_TARGET_OVERLAP")
         x,y=int(round(x)),int(round(y))
         cut=np.s_[y-7:y+8,x-7:x+8]
-        core=np.s_[y-3:y+4,x-3:x+4]
-        # Retain genuine CAL DQ masks during centroiding, and reject only
-        # compromised source cores instead of banning every bad wing pixel.
+        core=np.s_[y-1:y+2,x-1:x+2]
+        # In the real CAL images many PSF-wing pixels are flagged/nonfinite.
+        # The production centroid fitter masks those pixels, so disqualify
+        # only the central 3x3 core. Keep all original DQ and ERR arrays.
         if np.any((e.dq[core] & CONFIG.astrom_bad_bits)!=0):
             return reject("DQ_BAD_CORE")
-        if not np.isfinite(e.sci[cut]).all() or not np.isfinite(e.err[cut]).all():
+        if not np.isfinite(e.sci[core]).all() or not np.isfinite(e.err[core]).all():
             return reject("INVALID_SCI_OR_ERR")
         ctrl=control_map[e.filename]
         if len(ctrl) and np.any(np.hypot(ctrl.x_local-x,ctrl.y_local-y)<16):
