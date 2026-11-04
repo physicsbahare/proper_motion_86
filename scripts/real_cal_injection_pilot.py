@@ -26,7 +26,7 @@ from pm86.astrometry import register_exposures,infer_proper_motion
 from pm86.config import CONFIG
 from recenter_measurement import measure_exposure_recentered
 from remote_io_patch import install
-from run_cross_filter_null import choose_frozen_pair,EXPECTED_PAIRS
+from run_cross_filter_null import choose_frozen_pair,EXPECTED_PAIRS,target_is_usable
 
 
 def psf_from_controls(ex, controls):
@@ -134,7 +134,7 @@ def measure_fake(exposures,psfs,flux,base,mu,moving,first_mjd):
         return [np.nan,np.nan],f"PM_FIT_FAILED:{type(err).__name__}"
 
 
-def run(cid,n,out):
+def run(cid,n,out,full_epoch=False):
     rng=np.random.default_rng(20261104+cid)
     catalog=pd.read_csv(ROOT/"data/candidates_step3_magnitude_cut_strict_125.csv").set_index("candidate_id")
     original=pd.read_csv(ROOT/"data/two_pm_candidates_125.csv").set_index("sample_candidate_id")
@@ -148,24 +148,61 @@ def run(cid,n,out):
     pd.DataFrame(a+b).to_csv(out/"coverage.csv",index=False)
     if not early or not late:
         raise RuntimeError("No two-epoch original CAL images")
-    # Representative original exposures, not an independent epoch-average.
-    exposures=[early[0],late[0]]
+    # Full-epoch mode is restricted to exposures in which the original target
+    # actually passed the astrometric detection AND finite-centroid gates.
+    # This avoids giving 1651050 extra F356W exposures that the paper's
+    # target could not use (an artificial completeness advantage).
+    pool=early+late if full_epoch else [early[0],late[0]]
+    original_obs={}
+    all_controls={}
+    accepted=[]
+    for e in pool:
+        obs,control=measure_exposure_recentered(e)
+        original_obs[e.filename]=obs
+        all_controls[e.filename]=control
+        if not full_epoch or target_is_usable(obs):
+            accepted.append(e)
+    exposures=accepted
+    (out/"original_exposure_quality.csv").write_text(
+        pd.DataFrame(list(original_obs.values())).to_csv(index=False))
+    if {e.epoch_label for e in exposures}!={"early","late"}:
+        raise RuntimeError("Not enough originally target-usable exposures for two epochs")
     pmap,fmap,cmap,meta={}, {}, {}, {}
+    psf_templates={}
+    # Construct templates from the original detector frame before injection.
+    # If a dither lacks a usable isolated point source, transfer a template
+    # from the same filter and flag that substitution for science review.
     for e in exposures:
-        obs,controls=measure_exposure_recentered(e)
-        p,info=psf_from_controls(e,controls)
+        try:
+            p,info=psf_from_controls(e,all_controls[e.filename])
+            pmap[e.filename]=p
+            psf_templates.setdefault(e.filter_name,(p,e.filename))
+            meta[e.filename]={"PSF":info,"psf_origin_file":e.filename}
+        except RuntimeError:
+            meta[e.filename]={"psf_own_frame_unavailable":True}
+    for e in exposures:
+        if e.filename not in pmap:
+            if e.filter_name not in psf_templates:
+                raise RuntimeError("NO_EMPIRICAL_PSF_FOR_FILTER:"+e.filter_name)
+            p,source=psf_templates[e.filter_name]
+            pmap[e.filename]=p
+            meta[e.filename]["psf_origin_file"]=source
+            meta[e.filename]["psf_same_filter_transferred"]=True
+        obs=original_obs[e.filename]
         ap=float(obs["clean_flux"])
         if not np.isfinite(ap) or ap<=0:
-            raise RuntimeError(f"Cannot preserve true faint-filter flux: {e.filename}")
-        Y,X=np.indices(p.shape)
-        fraction=float(p[np.hypot(X-7,Y-7)<=3].sum())
-        if fraction<0.5:
+            raise RuntimeError("Cannot preserve target flux: "+e.filename)
+        Y,X=np.indices(pmap[e.filename].shape)
+        fraction=float(pmap[e.filename][np.hypot(X-7,Y-7)<=3].sum())
+        if fraction<0.4:
             raise RuntimeError("Bad empirical PSF aperture correction")
-        pmap[e.filename],fmap[e.filename],cmap[e.filename]=p,ap/fraction,controls
-        meta[e.filename]={"filter":e.filter_name,"SNR":obs.get("astrometric_snr"),
-                           "target_aperture_flux":ap,"injected_total_flux":ap/fraction,
-                           "PSF":info}
-    ref=early[0]
+        fmap[e.filename]=ap/fraction
+        cmap[e.filename]=all_controls[e.filename]
+        meta[e.filename].update({"filter":e.filter_name,
+                                "SNR":obs.get("astrometric_snr"),
+                                "target_aperture_flux":ap,
+                                "injected_total_flux":ap/fraction})
+    ref=next(e for e in exposures if e.epoch_label=="early")
     centers=[]
     rejection_counts={}
     for _ in range(max(2500,250*n)):
@@ -201,11 +238,11 @@ def run(cid,n,out):
     df.to_csv(out/"trials.csv",index=False)
     null=df[df["mode"]=="stationary"][["mu_east","mu_north"]].to_numpy()
     moving=df[df["mode"]=="moving"][["mu_east","mu_north"]].to_numpy()
-    result={"candidate_id":cid,"n_requested":n,"n_clean_sites":len(centers),
+    result={"candidate_id":cid,"n_requested":n,"n_clean_sites":len(centers),"full_epoch_mode":bool(full_epoch),
             "used_exposures":[e.filename for e in exposures],
             "filter_specific_flux_and_psf":meta,
             "status":"INJECTION_REAL_CAL_PILOT",
-            "scientific_limitations":["Single original exposure pair, not exact multi-exposure paper fit",
+            "scientific_limitations":[("Originally target-usable multi-exposure independent refit" if full_epoch else "Single original exposure pair, not exact multi-exposure paper fit"),
                                     "Empirical PSF template not matched to ultracool target SED",
                                     "Site selection rejects hard astrometric DQ bits; nonfatal DQ bits permitted and recorded as limitation",
                                     "The blank-site injections do not independently calibrate common WCS errors",
@@ -226,13 +263,14 @@ if __name__=="__main__":
     p=argparse.ArgumentParser()
     p.add_argument("--candidate",type=int,choices=[387132,1651050],required=True)
     p.add_argument("--trials",type=int,default=20)
+    p.add_argument("--full-epoch",action="store_true")
     p.add_argument("--out",default="results_real_injection")
     a=p.parse_args()
     install()
     dest=Path(a.out)/str(a.candidate)
     dest.mkdir(parents=True,exist_ok=True)
     try:
-        run(a.candidate,a.trials,dest)
+        run(a.candidate,a.trials,dest,a.full_epoch)
     except Exception as exc:
         import traceback
         (dest/"fatal.txt").write_text(traceback.format_exc())
