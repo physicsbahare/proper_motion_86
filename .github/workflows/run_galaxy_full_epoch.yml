@@ -1,4 +1,5 @@
 name: Real JWST full-epoch stationary-galaxy audit
+# Re-run after synthetic 4/4 regression tests passed (2026-11-06).
 on:
   workflow_dispatch:
   push:
