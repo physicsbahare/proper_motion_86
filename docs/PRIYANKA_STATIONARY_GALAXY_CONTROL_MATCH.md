@@ -1,25 +1,45 @@
-# COSMOS2025 source vetting for Priyanka's cross-filter PM question
+# COSMOS2025 control-source vetting for Priyanka's astrometry comment
 
-The physical catalog is on the user's computer at:
+## Ready in the review branch
 
-\`/run/media/bahareh/Seagate Hub/COSMOSWeb_mastercatalog_v1.fits\`
+The 21 original matched field-control records are **committed**, with original measured residuals and sky-relative positions:
 
-This is **not** present on a GitHub runner or in this repository. Do not commit the multi-GB proprietary/local file. The script only reads the FITS.
+- `data/field_controls_priyanka/387132/leave_one_out_residuals.csv` (12 sources, 10 retained for covariance)
+- `data/field_controls_priyanka/1651050/leave_one_out_residuals.csv` (9 sources, 9 retained)
+- Provenance: GitHub Actions original detector-frame audit run [41716345445](https://github.com/physicsbahare/proper_motion_86/actions/runs/41716345445).
 
-1. On the user's Linux computer, \`git checkout review/cross-filter-systematics-20261103\` (or \`git pull\` if already on it).
-2. \`pip install -r requirements.txt\`
-3. Download actual previously measured field-control positions with \`gh run download 41716345445 --repo physicsbahare/proper_motion_86 --name dave-cross-filter-astrometry-audit --dir results_cross_filter_null\` (requires GitHub CLI login); or pass \`--download-controls\` to the script.
-4. Run:
+The catalog is **only on the user's Seagate drive**:
+`/run/media/bahareh/Seagate Hub/COSMOSWeb_mastercatalog_v1.fits`.
+GitHub-hosted CI cannot read that path. The public CDS/TAP backup failed on 2026-11-06 (run 42168384835, remote connection timeouts), so **do not claim the FITS cross-match completed remotely**.
 
-\`\`\`bash
-python scripts/match_stationary_galaxy_controls.py \
-    --catalog "/run/media/bahareh/Seagate Hub/COSMOSWeb_mastercatalog_v1.fits" \
-    --controls-dir results_cross_filter_null \
-    --out results_stationary_galaxy_controls
-\`\`\`
+## On the Linux machine with the catalog mounted
 
-The script converts published local astrometric tangent offsets to sky coordinates using actual candidate RA/Dec, matches to the FITS photometry extension within 0.25 arcsec, and marks whether LePHARE TYPE=0 supports a galaxy interpretation. It reads a zspec only if a recognized column actually exists. It refuses to assume that the LEPHARE extension rows align to photometry unless both have IDs and the IDs match in sampled sections. It exports all 21 preclipping control rows rather than silently selecting only already-robust residuals. Inspect \`cosmos2025_matched_field_controls.csv\` and \`summary.json\`.
+```bash
+git fetch origin
+git switch review/cross-filter-systematics-20261103
+git pull
+python -m pip install numpy pandas scipy astropy
+python scripts/match_stationary_galaxy_controls.py
+```
 
-**DO NOT call photometric classifications or low residuals "confirmed stationary galaxies".** Photometric morphology/SED class is insufficient, spec-z requires an actual credible value and source-specific verification; stationarity then needs an independent multi-epoch fit and careful control/source-color match. This code therefore reports **zero confirmed stationary galaxies by design** and **does not recalculate any PM significance**. The aim is to identify which controls are sufficiently promising for independent spectroscopic and astrometric verification. Use same exposure pair as baseline, then full epoch fit and source bootstrap.
+The default file path already matches the Seagate location, and the checked-in 21 control records are used automatically. Neither GitHub CLI nor any data download is needed.
 
-Known limitations: COSMOS2025 v1 catalog may have different column names and no spectroscopic redshift. If the LePHARE extension row alignment cannot be authenticated, statuses remain UNKNOWN_OR_REJECTED; identify common IDs before accepting TYPE. NIRCam field controls may lie outside the COSMOS2025 footprint or be blended.
+Outputs:
+- `results_stationary_galaxy_controls/cosmos2025_matched_field_controls.csv`
+- `results_stationary_galaxy_controls/summary.json`
+
+The cross-matcher reconstructs each control's actual sky position from measured local tangent offsets, matches within 0.25 arcsec to the COSMOS2025 photometry extension, checks LePHARE TYPE=0 when source IDs prove extension-row alignment, and records any available spectroscopic redshift, blend flags and angular residuals. Every control is preserved, including originally clipped outliers. It **does not overwrite** the paper's PM values.
+
+## How to interpret
+
+- `galaxy_photometric_candidate=True`: supported by available LePHARE classification and uncontaminated blend flag; **not spectroscopically confirmed**.
+- `spectroscopic_redshift_support=True`: a positive spec-z column was found; requires validating its provenance and quality before claiming spectroscopic confirmation.
+- `stationarity_status=NOT_INDEPENDENTLY_CONFIRMED`: no independent, full-epoch stationarity verification has been done. The script deliberately never calls any object confirmed stationary.
+- `catalog_position_match=False`: object not reliably matched within 0.25 arcsec.
+- Distinct star/galaxy classification, filter-specific PSF behavior, intrinsic PM, common registration errors, and centroid quality still require inspection.
+
+The Gaussian significance is **not** recalculated by this catalog crossmatch, and no change is made to the photometric number-density prediction.
+
+## Validation
+
+The synthetic-FITS regression tests passed in [workflow 42169048841](https://github.com/physicsbahare/proper_motion_86/actions/runs/42169048841). This validates the matching logic, **not** the real catalog classifications.
