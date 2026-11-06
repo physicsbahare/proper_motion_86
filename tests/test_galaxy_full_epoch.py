@@ -57,7 +57,7 @@ def test_full_epoch_heldout_null_preserves_actual_dither_count():
     assert abs(summary["target_refit_pm"]["mu_alpha_cosdec_masyr"])>10
 
 
-def test_single_late_frame_is_not_hidden_and_zero-motion_false_tails_not_quoted():
+def test_single_late_frame_is_not_hidden_and_zero_motion_false_tails_not_quoted():
     frames,controls=make_case(late_frames=1)
     outputs=[]
     for galaxy_id in controls["e0"].galaxy_id.values:
