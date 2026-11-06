@@ -202,3 +202,110 @@ def summarize_full_epoch_null(results: list[dict]):
         info["status"]="INSUFFICIENT_FULL_EXPOSURE_GALAXY_NULLS"
     info["warning"]="Only photometric galaxies; small source N. No validated stationarity, chromatic ePSF matching, independent WCS bias separation, frozen-PM reproduction, or calibrated sigma."
     return info
+
+
+
+def _remove_heldout_from_raw(raw_map:dict, galaxy_map:dict, heldout_id):
+    """Remove one *identified* galaxy at detector-source-row precision in EVERY frame."""
+    prepared=[]
+    audit={}
+    for name,controls in raw_map.items():
+        cur=controls.copy()
+        galaxy=galaxy_map[name]
+        hit=galaxy[galaxy.galaxy_id.eq(int(heldout_id))]
+        if len(hit)==1 and not cur.empty:
+            xy=cur[list(XY)].to_numpy(float)
+            refxy=hit.iloc[0][list(XY)].to_numpy(float)
+            sep=np.hypot(*(xy-refxy).T)
+            idx=int(np.argmin(sep))
+            if sep[idx] > 1e-5:
+                raise RuntimeError("Heldout galaxy centroid cannot be uniquely recovered in "+name)
+            cur=cur.drop(cur.index[idx])
+            audit[name]={"excluded_raw_index":idx,"separation_mas":float(sep[idx]*1000)}
+        else:
+            audit[name]={"status":"NOT_DETECTED_IN_THIS_FRAME"}
+        if not cur.empty:prepared.append(cur)
+    return pd.concat(prepared,ignore_index=True),audit
+
+
+def original_registration_galaxy_null(measurements:pd.DataFrame,raw_map:dict,
+                                      galaxy_map:dict,heldout_id=None):
+    """Register with the original ALL-field-source estimator, hold out one galaxy.
+
+    The reference population remains mixed field sources (possibly foreground
+    stars). Only the tested held-out object's residuals are galaxy-vetted.
+    This tests the exact registration SOURCE SELECTION of the independent
+    target fit, but is not a pure stationary galaxy reference frame.
+    """
+    from .astrometry import register_exposures, _match_controls, _fit_affine
+
+    if heldout_id is not None:
+        ctrls,excluded=_remove_heldout_from_raw(raw_map,galaxy_map,heldout_id)
+    else:
+        ctrls=pd.concat([c for c in raw_map.values() if not c.empty],
+                        ignore_index=True)
+        excluded={}
+    try:
+        reg,q,matched=register_exposures(measurements,ctrls)
+    except Exception as exc:
+        return pd.DataFrame(),pd.DataFrame(),pd.DataFrame(),{
+            "status":"REGISTRATION_FAILED","reason":repr(exc),
+            "excluded_galaxy_id":heldout_id}
+    summary={
+        "status":"REGISTERED" if not reg.empty else "NO_REGISTERED_FRAMES",
+        "excluded_galaxy_id":heldout_id,
+        "n_target_usable_exposures":len(measurements),
+        "n_registered_exposures":len(reg),
+        "n_early_registered":int((reg.epoch_label=="early").sum()) if not reg.empty else 0,
+        "n_late_registered":int((reg.epoch_label=="late").sum()) if not reg.empty else 0,
+        "excluded_sources_by_frame":excluded
+    }
+    if reg.empty:return reg,q,pd.DataFrame(),summary
+    reference=str(reg.iloc[0].reference_file)
+    ref_ctrl=ctrls[ctrls.filename.eq(reference)].reset_index(drop=True)
+    if ref_ctrl.empty:raise RuntimeError("No all-field reference controls for registered anchor")
+    source_rows=[]
+    if heldout_id is not None:
+        for _,row in reg.iterrows():
+            name=str(row.filename)
+            target=galaxy_map[name]
+            held=target[target.galaxy_id.eq(int(heldout_id))]
+            if len(held)!=1:continue
+            if name==reference:
+                coef=IDENTITY
+                n_fit=len(ref_ctrl)
+            else:
+                cur=ctrls[ctrls.filename.eq(name)].reset_index(drop=True)
+                a,b=_match_controls(cur,ref_ctrl)
+                coef,good,_,_,_=_fit_affine(cur.iloc[a][list(XY)].to_numpy(float),
+                                          ref_ctrl.iloc[b][list(XY)].to_numpy(float))
+                n_fit=int(good.sum())
+            galaxypos=held.iloc[0]
+            transformed=transform(coef,float(galaxypos[XY[0]]),float(galaxypos[XY[1]]))*1000
+            source_rows.append({
+                "galaxy_id":int(heldout_id),"filename":name,
+                "epoch_label":str(row.epoch_label),"mjd":float(row.mjd),
+                "east_mas":float(transformed[0]),"north_mas":float(transformed[1]),
+                "galaxy_snr":float(galaxypos.snr),"n_original_field_controls":n_fit})
+    if set(reg.epoch_label)=={"early","late"}:
+        try:
+            result,_=infer_proper_motion(reg,q,"CROSS_FILTER_JWST",matched)
+            summary["target_refit_pm"]={
+                k:result.get(k) for k in
+                ("pm_status","classification","mu_alpha_cosdec_masyr",
+                 "mu_delta_masyr","sigma_mu_alpha_cosdec_masyr",
+                 "sigma_mu_delta_masyr","significance_2d","baseline_days",
+                 "centroid_method_disagreement")
+            }
+            summary["not_a_revised_paper_significance"]=True
+        except Exception as exc:
+            summary["target_refit_error"]=repr(exc)
+    sources=pd.DataFrame(source_rows)
+    if heldout_id is not None:
+        summary["heldout_galaxy_null"]=combined_epoch_measurement(sources,reg)
+        summary["galaxy_appears_in_all_original_target_usable_exposures"]=bool(
+            len(reg)==len(measurements) and len(sources)==len(measurements))
+        summary["galaxy_appears_in_all_registered_target_exposures"]=bool(len(sources)==len(reg))
+    summary["reference_frame"]=reference
+    summary["registration_method"]="ORIGINAL_MIXED_FIELD_CONTROLS_WITH_GALAXY_LEFT_OUT"
+    return reg,q,sources,summary
