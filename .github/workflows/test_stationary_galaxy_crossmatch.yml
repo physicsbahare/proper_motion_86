@@ -1,0 +1,22 @@
+name: Test COSMOS2025 field-control crossmatch
+on:
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths:
+      - 'scripts/match_stationary_galaxy_controls.py'
+      - 'tests/test_match_stationary_galaxy_controls.py'
+      - '.github/workflows/test_stationary_galaxy_crossmatch.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas astropy pytest
+      - run: pytest -q tests/test_match_stationary_galaxy_controls.py
