@@ -119,15 +119,32 @@ def vet(catalog, controls, max_sep_arcsec=0.25):
         leph_hdu=find_table(hdul,"lephare")
         lep=leph_hdu.data if leph_hdu is not None else None
         aligned=False
-        if lep is not None and len(lep)==len(phot):
+        join_method="UNVERIFIED"
+        lep_row_for_phot={}
+        if lep is not None:
             phot_id=col(phot,"id","source_id")
             lep_id=col(lep,"id","source_id")
             if phot_id is not None and lep_id is not None:
-                aligned=bool(np.array_equal(phot_id[:min(1000,len(phot))],lep_id[:min(1000,len(lep))]) and
-                             np.array_equal(phot_id[-min(1000,len(phot)):],lep_id[-min(1000,len(lep)):]))
-            else:
-                # same row count alone is NOT proof of aligned row IDs
-                aligned=False
+                # Validate exact row order over ALL rows, not only the first/last sample.
+                if len(lep)==len(phot) and np.array_equal(phot_id,lep_id):
+                    aligned=True
+                    join_method="FULL_ID_ORDER_MATCH"
+                elif len(set(lep_id.tolist()))==len(lep_id):
+                    # For separately ordered tables, match on unique source IDs.
+                    by_id={clean(x):i for i,x in enumerate(lep_id)}
+                    lep_row_for_phot={int(i):by_id[clean(phot_id[i])]
+                                      for i in set(map(int,cosmos_indices))
+                                      if clean(phot_id[i]) in by_id}
+                    join_method="UNIQUE_ID_JOIN"
+            elif (len(lep)==len(phot) and
+                  "PHOTOMETRY" in phot_hdu.name.upper() and
+                  leph_hdu.name.upper()=="LEPHARE"):
+                # COSMOS2025's official catalog tutorial explicitly indexes
+                # the separate PHOTOMETRY and LEPHARE HDUs with the same boolean
+                # row mask; LEPHARE commonly has no source ID column.
+                # Ref: https://cosmos2025.iap.fr/tutorials/catalog_usage_tutorial.html
+                aligned=True
+                join_method="COSMOS2025_OFFICIAL_ROW_ORDER_EQUAL_LENGTH"
         fields={
           "id":("id","source_id"),
           "flag_star":("flag_star",),
@@ -143,18 +160,20 @@ def vet(catalog, controls, max_sep_arcsec=0.25):
             row.update({"matched_phot_hdu":phot_hdu.name,"catalog_match_sep_arcsec":float(s),
                         "catalog_position_match":bool(s<=max_sep_arcsec),
                         "catalog_index":int(original_idx),
-                        "lephare_row_alignment_verified":bool(aligned)})
+                        "lephare_row_alignment_verified":bool(aligned),
+                        "lephare_join_method":join_method})
             for key,aliases in fields.items():
                 cc=find_name(phot.names,*aliases)
                 row[key]=clean(phot[cc][original_idx]) if cc is not None else None
-            if lep is not None and aligned:
+            lep_idx=(int(original_idx) if aligned else lep_row_for_phot.get(int(original_idx)))
+            if lep is not None and lep_idx is not None:
                 typecol=find_name(lep.names,"type","lephare_type")
                 zcol=find_name(lep.names,"zfinal","zpdf_med","zphot")
-                row["lephare_type"]=clean(lep[typecol][original_idx]) if typecol else None
-                row["lephare_zphot"]=clean(lep[zcol][original_idx]) if zcol else None
+                row["lephare_type"]=clean(lep[typecol][lep_idx]) if typecol else None
+                row["lephare_zphot"]=clean(lep[zcol][lep_idx]) if zcol else None
                 zspeclep=find_name(lep.names,"zspec","z_spec","specz","spec_z")
                 if zspeclep is not None and not np.isfinite(num(row["zspec"])):
-                    row["zspec"]=clean(lep[zspeclep][original_idx])
+                    row["zspec"]=clean(lep[zspeclep][lep_idx])
             else:
                 row["lephare_type"]=None;row["lephare_zphot"]=None
             exists=bool(s<=max_sep_arcsec)
