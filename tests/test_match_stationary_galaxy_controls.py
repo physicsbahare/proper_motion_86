@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 from astropy.io import fits
 
-from scripts.match_stationary_galaxy_controls import vet, find_name, name_norm
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+from match_stationary_galaxy_controls import vet, find_name, name_norm
 
 def test_name_matching():
     assert name_norm("Z_SPEC")=="zspec"
