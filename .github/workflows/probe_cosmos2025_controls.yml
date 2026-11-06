@@ -1,0 +1,28 @@
+name: Probe COSMOS2025 galaxy catalog for cross-filter controls
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths:
+      - '.github/workflows/probe_cosmos2025_controls.yml'
+      - 'scripts/probe_cosmos2025_tap.py'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas requests
+      - run: python -u scripts/probe_cosmos2025_tap.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cosmos2025-tap-probe
+          path: results_stationary_galaxy_controls/
+          if-no-files-found: warn
+          retention-days: 20

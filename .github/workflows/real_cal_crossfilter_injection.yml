@@ -1,0 +1,53 @@
+name: Real JWST CAL cross-filter injection and recovery pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      trials:
+        description: Independent sky positions per candidate (stationary + moving)
+        required: false
+        default: '20'
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths:
+      - 'scripts/real_cal_injection_pilot.py'
+      - '.github/workflows/real_cal_crossfilter_injection.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  real_injections:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate: [387132, 1651050]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install project's scientific dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Real JWST CAL injection and recovery
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python -u scripts/real_cal_injection_pilot.py \
+            --candidate ${{ matrix.candidate }} \
+            --trials ${{ github.event.inputs.trials || '20' }} \
+            --out results_real_injection
+      - name: Upload raw trial data, summaries and failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-cal-injections-${{ matrix.candidate }}
+          path: results_real_injection/
+          if-no-files-found: warn
+          retention-days: 30

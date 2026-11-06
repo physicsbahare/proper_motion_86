@@ -1,0 +1,53 @@
+name: Dave full-epoch real CAL injection-recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      trials:
+        description: Number of independent sky sites per candidate
+        required: false
+        default: '128'
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths:
+      - '.github/workflows/real_cal_full_epoch_injection.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  full_epoch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate: [387132, 1651050]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Scientific dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Inject stationary and moving sources into target-usable CAL exposures
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python -u scripts/real_cal_injection_pilot.py \
+            --full-epoch \
+            --candidate ${{ matrix.candidate }} \
+            --trials ${{ github.event.inputs.trials || '128' }} \
+            --out results_real_full_epoch_injection
+      - name: Preserve every recovered trial, completeness statistic and failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-epoch-injections-${{ matrix.candidate }}
+          path: results_real_full_epoch_injection/
+          retention-days: 30
+          if-no-files-found: warn

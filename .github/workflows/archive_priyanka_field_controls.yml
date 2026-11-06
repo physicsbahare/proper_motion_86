@@ -1,0 +1,40 @@
+name: Preserve cross-filter field control coordinates for COSMOS2025 match
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths: ['.github/workflows/archive_priyanka_field_controls.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: review/cross-filter-systematics-20261103
+      - uses: actions/download-artifact@v4
+        with:
+          name: dave-cross-filter-astrometry-audit
+          run-id: 41716345445
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: downloaded_prior_audit
+      - name: Validate exact original measured per-source residuals
+        run: |
+          find downloaded_prior_audit -maxdepth 3 -name leave_one_out_residuals.csv -print
+          for id in 387132 1651050; do
+            test -s "downloaded_prior_audit/$id/leave_one_out_residuals.csv"
+            mkdir -p "data/field_controls_priyanka/$id"
+            cp "downloaded_prior_audit/$id/leave_one_out_residuals.csv" "data/field_controls_priyanka/$id/leave_one_out_residuals.csv"
+          done
+          echo 'Original per-source controls source: run 41716345445' > data/field_controls_priyanka/PROVENANCE.txt
+          wc -l data/field_controls_priyanka/*/leave_one_out_residuals.csv
+      - name: Commit only the small reproducible control CSVs
+        run: |
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git add data/field_controls_priyanka
+          git diff --staged --quiet || git commit -m 'Preserve frozen cross-filter control residual coordinates for local COSMOS2025 vetting'
+          git push origin HEAD:review/cross-filter-systematics-20261103
