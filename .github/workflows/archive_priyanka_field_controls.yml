@@ -1,6 +1,9 @@
 name: Preserve cross-filter field control coordinates for COSMOS2025 match
 on:
   workflow_dispatch:
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths: ['.github/workflows/archive_priyanka_field_controls.yml']
 permissions:
   contents: write
   actions: read
