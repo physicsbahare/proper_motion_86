@@ -187,7 +187,7 @@ def vet(catalog, controls, max_sep_arcsec=0.25):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--catalog",default=DEFAULT_CATALOG)
-    ap.add_argument("--controls-dir",default="results_cross_filter_null")
+    ap.add_argument("--controls-dir",default="data/field_controls_priyanka")
     ap.add_argument("--download-controls",action="store_true")
     ap.add_argument("--out",default="results_stationary_galaxy_controls")
     ap.add_argument("--match-radius-arcsec",type=float,default=0.25)
