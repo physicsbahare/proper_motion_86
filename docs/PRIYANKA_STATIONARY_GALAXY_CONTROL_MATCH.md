@@ -45,3 +45,27 @@ The Gaussian significance is **not** recalculated by this catalog crossmatch, an
 ## Validation
 
 The synthetic-FITS regression tests passed in [workflow 42169048841](https://github.com/physicsbahare/proper_motion_86/actions/runs/42169048841). This validates the matching logic, **not** the real catalog classifications.
+
+
+## Real COSMOS2025 crossmatch and galaxy-only LOO results (2026-11-06)
+
+**Provenance:** User locally ran `scripts/match_stationary_galaxy_controls.py` on their 784,016-row COSMOS2025 master catalog, then `scripts/evaluate_galaxy_only_controls.py`. The two corresponding JSON/CSV result sets were provided in the research conversation. The original FITS remains on the user's machine, and neither the original candidate PMs nor their significances have been modified.
+
+- Photometry positions matched at 0.25 arcsec: 19/21 controls, 10/12 near 387132, 9/9 near 1651050.
+- LePHARE row-order alignment: `COSMOS2025_OFFICIAL_ROW_ORDER_EQUAL_LENGTH`; both HDUs have 784,016 rows.
+- LePHARE TYPE=0 photometric galaxy candidates: 9 near 387132 and 8 near 1651050. Neither field has spectroscopically confirmed stationary sources from this check.
+- Galaxy-only leave-one-out affine registration, original representative detector exposure pair, all 9/8 successfully fitted:
+
+| Diagnostic | 387132 (F444W/F410M) | 1651050 (F444W/F356W) |
+| --- | ---: | ---: |
+| Galaxy candidate controls | 9 | 8 |
+| Galaxy-only median east/north residual (mas) | -0.247 / +3.072 | +6.196 / +0.231 |
+| Galaxy-only east/north scatter (mas) | 10.141 / 10.911 | 12.927 / 13.618 |
+| Original mixed-control scatter (mas) | 9.979 / 10.849 | 15.580 / 12.233 |
+| Galaxy-only covariance (mas²) | [[102.837,-2.709],[-2.709,119.056]] | [[167.098,72.352],[72.352,185.446]] |
+
+**Interpretation:** Excluding likely non-galaxies does **not** radically change the observed reference scatter. This is reassuring about the *selection sensitivity* of the pair-level residuals, not evidence of a validated chromatic systematic or confirmed motion significance. Small N and shared registration remain limiting; F356W target 1651050's instrumental color is outside the reference color range.
+
+**Source-level warnings:** LePHARE `zfinal=-99` occurs for galaxy-labeled control COSMOS2025 ID 333691 near 387132 and is **not** a physical redshift. One of the 387132 leave-one-out registrations uses only six fitting galaxies after clipping; residual covariance may be source sensitive. The 1651050 galaxy control matched to COSMOS2025 ID 726167 at 0.1236 arcsec, less secure than the other controls (mostly <0.04 arcsec), and merits visual verification. No independent morphology, robust spectral redshift, all-epoch stationary fit, or color-matched ePSF validation has yet been performed.
+
+**Decision:** The current data support a statement that *nearby photometrically selected galaxy controls show roughly 10–14 mas positional scatter per coordinate across the relevant filter pairs*. It would be inaccurate to claim these values are an additional, independently measured PSF bias, to add the entire covariance to existing registration errors, or to quote new 5σ detection values. The 128-position real CAL injection-recovery results are a separate serious quality check, especially for 1651050. Manuscript PM measurements remain frozen until full-epoch validation.
