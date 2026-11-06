@@ -28,7 +28,7 @@ Outputs:
 - `results_stationary_galaxy_controls/cosmos2025_matched_field_controls.csv`
 - `results_stationary_galaxy_controls/summary.json`
 
-The cross-matcher reconstructs each control's actual sky position from measured local tangent offsets, matches within 0.25 arcsec to the COSMOS2025 photometry extension, checks LePHARE TYPE=0 when source IDs prove extension-row alignment, and records any available spectroscopic redshift, blend flags and angular residuals. Every control is preserved, including originally clipped outliers. It **does not overwrite** the paper's PM values.
+The cross-matcher reconstructs each control's actual sky position from measured local tangent offsets, matches within 0.25 arcsec to the COSMOS2025 photometry extension, checks LePHARE TYPE=0 using the official COSMOS2025 same-row-order convention when the full extension lengths agree (otherwise a unique shared-ID join when possible), and records any available spectroscopic redshift, blend flags and angular residuals. Every control is preserved, including originally clipped outliers. It **does not overwrite** the paper's PM values.
 
 ## How to interpret
 
@@ -38,7 +38,7 @@ The cross-matcher reconstructs each control's actual sky position from measured 
 - `catalog_position_match=False`: object not reliably matched within 0.25 arcsec.
 - Distinct star/galaxy classification, filter-specific PSF behavior, intrinsic PM, common registration errors, and centroid quality still require inspection.
 
-The Gaussian significance is **not** recalculated by this catalog crossmatch, and no change is made to the photometric number-density prediction.
+The first user run matched 19/21 controls to the photometric table but classified none because the initial script refused to read the ID-less LePHARE extension. The revised script uses the catalog's documented row-order convention, and reports its join method and LePHARE rows explicitly. The real FITS crossmatch requires a new run after pulling the fix. Do not infer the galaxy count until that run completes.\n\nThe Gaussian significance is **not** recalculated by this catalog crossmatch, and no change is made to the photometric number-density prediction.
 
 ## Validation
 
