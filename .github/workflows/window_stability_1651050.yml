@@ -1,0 +1,49 @@
+name: 1651050 F356W independent Gaussian window stability
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/window_stability_1651050.yml'
+      - 'scripts/check_1651050_gaussian_window.py'
+      - 'tests/test_f356w_window_robustness.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sensitivity-from-existing-jwst-pixels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+      - name: Unit tests
+        run: python -m pytest -q tests/test_f356w_window_robustness.py
+      - name: Download existing original CAL pixel artifact (no new MAST query)
+        uses: actions/download-artifact@v4
+        with:
+          name: 1651050-F356W-CAL-visual-review
+          run-id: 37769062034
+          github-token: ${{ github.token }}
+          path: input_cal_qa
+      - name: Independent SCI ERR DQ masked 2D Gaussian fits
+        run: |
+          python scripts/check_1651050_gaussian_window.py \
+            --input input_cal_qa/pixel_stamps \
+            --output publication_check/window_robustness
+      - name: Upload sensitivity receipts and plot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-F356W-Gaussian-window-sensitivity
+          path: publication_check/window_robustness/
+          retention-days: 90

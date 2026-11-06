@@ -1,0 +1,43 @@
+name: 1651050 empirical JWST NIRCam ePSF comparison
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/epsf_1651050.yml'
+      - 'scripts/epsf_1651050_original_cal.py'
+      - 'tests/test_epsf_1651050.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  empirical-psf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+      - name: Unit tests for PSF star selection and quality gates
+        run: python -m pytest -q tests/test_epsf_1651050.py
+      - name: Fetch three accepted JWST Stage-2 CAL exposures and build empirical ePSFs
+        env:
+          PYTHONPATH: .
+        run: |
+          python -u scripts/epsf_1651050_original_cal.py \
+            --input data/1651050_astrometric_epoch_manifest.csv \
+            --out publication_check/epsf_1651050
+      - name: Upload PSFs, original pixel panels, comparison and star lists
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-empirical-F356W-F444W-ePSF-review
+          path: publication_check/epsf_1651050/
+          retention-days: 90

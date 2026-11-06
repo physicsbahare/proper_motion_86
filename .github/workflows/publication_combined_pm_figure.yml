@@ -1,0 +1,64 @@
+name: Publication combined proper-motion figure (two candidates)
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/publication_combined_pm_figure.yml'
+      - 'scripts/publication_combined_pm_figure.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  make-figure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+      - name: Download 387132 original six CAL stamp artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: 387132-six-original-CAL-SCI-ERR-DQ-stamps
+          run-id: 38024999956
+          github-token: ${{ github.token }}
+          path: publication_inputs/387132/stamps
+      - name: Download 1651050 CAL pixel and centroid artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: 1651050-F356W-CAL-visual-review
+          run-id: 37769062034
+          github-token: ${{ github.token }}
+          path: publication_inputs/1651050/stamps
+      - name: Download 387132 true JWST L2 ephemeris and conditional motion
+        uses: actions/download-artifact@v4
+        with:
+          name: 387132-JWST-L2-parallax-audit
+          run-id: 37772665878
+          github-token: ${{ github.token }}
+          path: publication_inputs/387132/parallax
+      - name: Download 1651050 true JWST L2 ephemeris and conditional motion
+        uses: actions/download-artifact@v4
+        with:
+          name: 1651050-JWST-L2-parallax-vectors-and-conditional-motion
+          run-id: 37771840466
+          github-token: ${{ github.token }}
+          path: publication_inputs/1651050/parallax
+      - name: Check provenance and render one publication figure
+        run: |
+          python scripts/publication_combined_pm_figure.py --input publication_inputs --output publication_check/combined_pm_figure
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Dave-publication-two-candidate-PM-combined-figure
+          path: publication_check/combined_pm_figure/
+          retention-days: 90

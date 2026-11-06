@@ -1,0 +1,46 @@
+name: 1651050 F356W original pixel visual review
+
+on:
+  push:
+    branches: [publication-pm-parallax-audit-20261008]
+    paths:
+      - '.github/workflows/visual_review_1651050.yml'
+      - 'scripts/inspect_1651050_f356w.py'
+      - 'data/1651050_targeted_review_products.csv'
+      - 'tests/test_f356w_review.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-six-original-cal-exposures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install astrometry dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Validate cutout and centroid reporting logic
+        run: python -m pytest -q tests/test_f356w_review.py
+      - name: Create original SCI ERR DQ visual panels and checklists
+        env:
+          PYTHONPATH: .
+        run: |
+          python -u scripts/inspect_1651050_f356w.py \
+            --input data/1651050_targeted_review_products.csv \
+            --output publication_check/centroid_visual
+      - name: Upload inspection panels, original cutouts and reviewer form
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-F356W-CAL-visual-review
+          path: publication_check/centroid_visual/
+          retention-days: 90
