@@ -139,3 +139,12 @@ The previously written section 7 was an incomplete live-job checkpoint. The **fi
 - **Gate:** Hold any fresh injection campaign until a truly validated source-color/PSF model is available. Reusing the old compact-source empirical stamp would NOT eliminate the known color-dependent systematic. Keep original `main` and manuscript results unchanged.
 
 **Recommended description of 1651050 today:** candidate with observed cross-filter two-epoch positional displacement and additional suggestive, registered same-filter F356W weak-frame signal; not a newly confirmed independent high-significance intrinsic-proper-motion brown dwarf. A third independent and suitable epoch would be most decisive.
+
+
+## 11. 1651050 physical STPSF color/neighbor *real-data* step completed (8 November)
+
+Detailed new report: [LIU2026_1651050_STPSF_COLOR_NEIGHBOR_20261108.md](LIU2026_1651050_STPSF_COLOR_NEIGHBOR_20261108.md). Successful [STPSF workflow 42490151272](https://github.com/physicsbahare/proper_motion_86/actions/runs/42490151272), artifact **13621172168**, 12 new source-color/instrument-position-specific physical PSF models with **STPSF 2.2.0** and 24 distinct target/neighbor/background/holdout fit trials.
+
+With a *hypothetical* 900 K blackbody PSF, an explicitly modeled bright neighbor ~12.1 detector px away, and a planar background, the registered four-frame late F356W centroid is (+1.97,+5.04) mas from its one previously accepted forced-Gaussian coordinate. Using **only the three originally rejected F356W detector frames**, the shared-position fit is (+2.78,+6.66) mas; 1.8 mas 2D change. Hypothetical blackbody 500–5700 K changes the within-model all-frame centroid by <0.3 mas per axis. All per-frame **signed** source-model amplitudes across 24 fits were positive; **none** of these fits alone calibrate independent target detection or PM significance.
+
+Neighbor+plane reduces the 900-K four-frame weighted raw pixel χ² from 11948 (target only) to 7518 (two-source); the model fits the neighbor rather than proving astrophysical target motion. STPSF detector subpixel interpolation and actual molecular SED remain unvalidated. This step is **completed as a sensitivity test**, but early F444W source-color PSF, spectroscopically vetted reference PSFs and intrinsic-PM/parallax split are open. Do not update the manuscript, merge code, or rerun injection merely to increase sigma.
