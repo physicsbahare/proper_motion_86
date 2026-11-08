@@ -1,0 +1,44 @@
+name: 1651050 early F444W STPSF source and independent field controls
+
+on:
+  push:
+    branches:
+      - 'plan/liu2026-minimal-astrometry-followups-20261108'
+    paths:
+      - '.github/workflows/audit_1651050_f444w_controls.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  early_psf_controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install astrometry and physical PSF dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+          python -m pip install "stpsf>=2.2,<3" "synphot>=1.6,<2"
+      - name: Syntax and source model self check
+        run: |
+          python -m py_compile scripts/audit_1651050_f444w_psf_controls.py
+          python -u scripts/audit_1651050_f444w_psf_controls.py --self-test
+      - name: Compare F444W and F356W source centroids with independent local compact controls
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python -u scripts/audit_1651050_f444w_psf_controls.py --out results_1651050_f444w_controls
+      - name: Preserve raw numeric results and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-F444W-STPSF-independent-field-control-audit
+          path: results_1651050_f444w_controls/
+          retention-days: 30
+          if-no-files-found: warn
