@@ -1,6 +1,6 @@
 # Minimal follow-ups inspired by Liu et al. (2026): two Dave proper-motion candidates
 
-**Status:** planning only, 2026-11-08. No new science tests have been run on this branch and no manuscript values were changed.  
+**Status:** execution started 2026-11-08. New bounded real-CAL centroid-window diagnostics and paired-site analysis of previous injection artifacts are documented in [LIU2026_START_RESULTS_20261108.md](LIU2026_START_RESULTS_20261108.md). No manuscript values have been changed.  
 **Base branch:** `review/cross-filter-systematics-20261103`.  
 **Science scope:** *only* COSMOS2025 IDs **387132** (F444W/F410M) and **1651050** (F444W/F356W).  
 **Reference:** Liu et al. (2026), *The cold substellar frontier in JWST Extragalactic surveys*, arXiv:2611.08346v1, especially Sections 3.1, 3.2.1–3.2.3. Their 50-F444W-exposure / five-epoch parallax solution **is not directly transplantable** to these two two-epoch, cross-filter candidates.
@@ -26,7 +26,7 @@ Original frozen PM vector (east,north): **387132 (-22.900,+2.400)** mas/yr; **16
 ## 2. Small, genuinely incremental future work — in priority order
 
 ### P0. Reconcile and preserve the **existing** full-epoch results (documentation, not a new test)
-- [ ] Inspect the **existing** `run 41814514100` `trials.csv`, `result.json`, `original_exposure_quality.csv`, `site_selection_diagnostics.json` artifacts; save a short **one-page verified comparison** with counts, selection failures, null and moving-recovery bias, and exposure names for both targets. Logs already verify 32-site runs (see above). **Do not call a rerun 'new evidence'**.
+- [x] Inspect the **existing** `run 41814514100` `trials.csv`, `result.json`, `original_exposure_quality.csv`, `site_selection_diagnostics.json` artifacts; save a short **one-page verified comparison** with counts, selection failures, null and moving-recovery bias, and exposure names for both targets. Logs already verify 32-site runs (see above). **Do not call a rerun 'new evidence'**.
 - [ ] Reconcile frozen paper estimator versus current independent refit: exact CAL filenames, accepted/rejected exposures, centroid mode, association, DQ masking, registration and epoch weights; explain any mismatch without changing either stored measurement. Reuse `scripts/run_cross_filter_null.py`, `src/pm86/refit_reconciliation.py`, `src/pm86/galaxy_full_epoch.py` and the published diagnostics.
 - [ ] **1651050 only:** inspect the single retained late `jw05893016008_05101_00001_nrcblong_cal.fits` F356W detection, along with the *rejection reasons* for its other covering exposures, SCI/ERR/DQ, nearby neighbors, and 2D Gaussian vs center-of-mass vs available ePSF centroids. Reuse existing PR #1 pixel panels first.
 
