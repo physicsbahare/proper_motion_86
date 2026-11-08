@@ -1,0 +1,44 @@
+name: 1651050 spectral STPSF + neighbor sensitivity on public real CAL
+
+on:
+  push:
+    branches:
+      - 'plan/liu2026-minimal-astrometry-followups-20261108'
+    paths:
+      - '.github/workflows/audit_1651050_stpsf_neighbor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stpsf_f356w:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Scientific dependencies and STScI physical PSF tools
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+          python -m pip install "stpsf>=2.2,<3" "synphot>=1.6,<2"
+          python -c "import stpsf,synphot; print('STPSF:',stpsf.__version__,'Synphot:',synphot.__version__)"
+      - name: Local interpolation and solver regression
+        run: python -u scripts/audit_1651050_stpsf_neighbor.py --self-test
+      - name: Spectrally weighted physical F356W STPSF and modeled neighbor on 4 detector CAL frames
+        env:
+          PYTHONUNBUFFERED: '1'
+          MPLBACKEND: 'Agg'
+        run: python -u scripts/audit_1651050_stpsf_neighbor.py --out results_1651050_stpsf_pilot
+      - name: Archive scientific result or full failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-STPSF-spectral-neighbor-sensitivity
+          path: results_1651050_stpsf_pilot/
+          retention-days: 30
+          if-no-files-found: warn
