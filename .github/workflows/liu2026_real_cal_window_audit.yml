@@ -1,0 +1,44 @@
+name: Liu2026 bounded real-CAL centroid-window audit
+
+on:
+  push:
+    branches:
+      - 'plan/liu2026-minimal-astrometry-followups-20261108'
+    paths:
+      - '.github/workflows/liu2026_real_cal_window_audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate: [387132, 1651050]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Scientific dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          pip install -e .
+      - name: Run original-CAL target centroid-window sensitivity (no paper changes)
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python -u scripts/liu2026_real_cal_window_audit.py --candidate ${{ matrix.candidate }} --out results_liu2026_window_audit
+      - name: Upload raw per-exposure diagnostics including any failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liu2026-target-centroid-window-${{ matrix.candidate }}
+          path: results_liu2026_window_audit/
+          retention-days: 30
+          if-no-files-found: warn
