@@ -105,3 +105,14 @@ These are **rechecks of archived pixel stamps with source coordinates derived fr
 5. Data needed for the next *physical-PSF* stage: an appropriate target spectral prior or uncertainty-bracketed SED, verified NIRCam F356W/F444W PSF and detector sampling at each source position, and independent control-source/neighbor-residual model. Original CAL images are public at MAST; **user-local FITS are not required for this completed stage**.
 
 **Conclusion:** a promising common faint-source position across the late F356W CAL frames was found, including after local field registration and removal of the previously accepted exposure, but **three individual late astrometric centroids were not independently validated or recovered**. The evidence is stronger than "all three rejected frames contain no information", but not strong enough to change the published astrometry.
+
+
+## New result 3: physically simulated STPSF + neighbor sensitivity (COMPLETED)
+
+[STPSF run 42490151272](https://github.com/physicsbahare/proper_motion_86/actions/runs/42490151272) **success**; independent real-CAL artifact **13621172168**. All 24 fits over 3 hypothetical blackbody source spectra (500,900,5700 K), target-only versus explicit neighboring bright source, flat versus planar background, and four-frame versus original-accepted-frame-excluded cases converged. The source-model amplitudes were positive in each included frame, conditional on a source coordinate anchored to the only accepted F356W detection. The strongest neighboring peak lies 12.10 detector pixels away.
+
+At 900 K with explicit neighbor and planar background, the **all-F356W** registered centroid is offset by **(+1.97,+5.04) mas** from the accepted original F356W coordinate; the **three rejected frames alone** give **(+2.78,+6.66) mas**, just ~1.8 mas farther. At fixed target+neighbor+planar background, changing the hypothetical source SED from 500 K to 5700 K moves the all-frame centroid by only 0.27 mas east and 0.25 mas north. This is a bounded **within-model sensitivity**, not a verified color calibration or astrometric systematic error. The bright neighbor substantially alters the pixel χ²; its identity and PSF residuals have not been externally validated.
+
+**Full scientific report:** [LIU2026_1651050_STPSF_COLOR_NEIGHBOR_20261108.md](LIU2026_1651050_STPSF_COLOR_NEIGHBOR_20261108.md).
+
+**Current status:** the *requested physical-PSF and neighbor-model sensitivity step is done*. The PSF accuracy, original cross-filter F444W astrometry and parallax split remain unvalidated. Do not call the three originally rejected exposures independently confirmed, do not modify `main` or manuscript PM and do not rerun injection with unvalidated PSFs.
