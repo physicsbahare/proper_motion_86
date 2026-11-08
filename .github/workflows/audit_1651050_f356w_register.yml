@@ -1,0 +1,41 @@
+name: 1651050 F356W same-filter local registration feasibility
+
+on:
+  push:
+    branches:
+      - 'plan/liu2026-minimal-astrometry-followups-20261108'
+    paths:
+      - '.github/workflows/audit_1651050_f356w_register.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  same_filter_registration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install scientific dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+      - name: Test masked shared-centroid fit
+        run: python -u scripts/audit_1651050_f356w_joint.py --self-test
+      - name: Same-filter local-control registration on 4 real F356W CAL detector images
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python -u scripts/audit_1651050_f356w_register.py --out results_1651050_f356w_registered
+      - name: Archive per-exposure registration and joint centroid sensitivity
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-F356W-same-filter-registration-feasibility
+          path: results_1651050_f356w_registered/
+          if-no-files-found: warn
+          retention-days: 30
