@@ -1,0 +1,41 @@
+name: 1651050 original-F444W detector leave-one-out proper-motion sensitivity
+
+on:
+  push:
+    branches:
+      - 'plan/liu2026-minimal-astrometry-followups-20261108'
+    paths:
+      - '.github/workflows/audit_1651050_f444w_loo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  f444w_loo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install real JWST astrometry dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+      - name: Check leave-one-exposure-out script syntax
+        run: python -m py_compile scripts/audit_1651050_f444w_frame_loo.py
+      - name: Original target and field registration with individual F444W exposure omissions
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python -u scripts/audit_1651050_f444w_frame_loo.py --out results_1651050_f444w_frame_dropout
+      - name: Preserve alternative fit details and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-original-F444W-detector-LOO-robustness
+          path: results_1651050_f444w_frame_dropout/
+          retention-days: 30
+          if-no-files-found: warn
