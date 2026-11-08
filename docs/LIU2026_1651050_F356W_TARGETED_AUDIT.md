@@ -36,3 +36,25 @@ Source: [existing cross-filter original-CAL run 41605446965](https://github.com/
 5. Two independent epochs cannot independently separate parallax and proper motion; no claim of measured parallax or five-sigma intrinsic PM.
 
 **Status:** run submitted; no new real-CAL joint-fit measurements are asserted before the workflow completes and artifacts are inspected.
+
+
+## New result 1: four-CAL *unregistered* shared-centroid feasibility (COMPLETED 8 November)
+
+[GitHub Actions 42486214684](https://github.com/physicsbahare/proper_motion_86/actions/runs/42486214684) **success** with self-test success and raw artifact **13619821892**, `1651050-f356w-original-cal-joint-feasibility`. I downloaded and read the raw `summary.json`, `joint_loo_width_summary.csv` and `conditional_per_frame_amplitudes.csv`, and inspected the SCI/ERR/DQ panels. This is an **additional diagnostic**, not validation of previously rejected centroids.
+
+- Four original F356W CAL frames all enter a **fixed common-position analytic Gaussian fit** with detector DQ/ERR masks. All four individually show *positive, conditional fitted amplitudes* at the **jointly selected location** for widths 0.8–1.3 pixels. Do **not** interpret the conditional amplitude SNR as an independent detection probability because the common location was chosen from the accepted frame and fit to the same data. All three originally rejected frames **remain rejected**.
+- Relative to the *original accepted F356W forced-Gaussian sky coordinate*, the all-four fit moves by (east,north) **(+3.08,+8.88) mas at width 0.8**, **(+0.11,+12.53) mas at width 1.05**, and **(-2.58,+16.25) mas at width 1.3**. These shifts are model-dependent astrometric *sensitivity*, not error bars.
+- Repeating the joint fit **without the sole accepted F356W frame**, the three originally rejected images return offsets **(+3.98,+11.36)**, **(+0.36,+16.78)**, and **(-3.30,+21.92) mas** for the same width sequence. The optimization converges without hitting the imposed ±160-mas coordinate bounds. This shows possible *shared-location information* in those weak frames, **not three separately validated centroids**, and does not calibrate field registration.
+- There is a nearby much brighter source in the original frames, and the source stamps exhibit nonuniform noise/flags, so a constant-background circular Gaussian may be biased. The image with original catalog-center DO_NOT_USE remains unsuitable without independent DQ checks.
+- Joint residual χ² across the four frames is **1242–1327**, with model width; these are *raw* weighted pixel χ² values, not a reliable goodness-of-fit probability given correlated CAL noise/neighbor residuals and simplified PSFs.
+
+**Interim decision:** A catastrophic total nondetection in the three rejected frames is **not** established, but equally **no independent rescue** has been demonstrated. Before any claim, the same-filter CAL field registration must be tested (the above fit used initial per-exposure archive gWCS only).
+
+## New result 2: same-filter field registration initiated
+
+- Code: `scripts/audit_1651050_f356w_register.py`; workflow `.github/workflows/audit_1651050_f356w_register.yml`.
+- [Run 42487059542](https://github.com/physicsbahare/proper_motion_86/actions/runs/42487059542).
+- Each F356W original exposure is locally affine-registered to the accepted F356W exposure **using independently detected, high-S/N field sources, with the candidate excluded**. The analysis saves the number of matched field references, robust registration scatter, and fixed-Gaussian joint-centroid shifts **before and after registration** and **with/without the original accepted frame**, for widths 0.8, 1.05, 1.3 pixels.
+- This directly tests whether the apparent agreement of rejected frames is merely uncorrected WCS alignment (a potential important systematic).
+- **Gate:** no color-aware PSF or new injection until reference registration, source association, and PSF/background sensitivity have been checked. A good numerical fit alone cannot promote a DQ-rejected frame.
+- No new observations are fabricated; no journal PM, error bars, parallax, or source classification has been changed.
