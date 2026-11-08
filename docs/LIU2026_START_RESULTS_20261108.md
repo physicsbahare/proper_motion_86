@@ -105,3 +105,22 @@ Independently inspected artifact 13218202106 from [run 41605446965](https://gith
 - The archived original-versus-refit provenance reconciliation remains marked UNRESOLVED. We identified a plausible source of method sensitivity for 1651050, **not a proven cause of the PM discrepancy**.
 
 **Scientific priority:** vet the only late F356W forced-centroid association/PSF and DQ conditions; do not silently include rejected frames or claim high-sigma intrinsic PM. No published classification or numerical result was changed.
+
+
+## 9. COMPLETED result from both original-CAL fit-window workflow jobs (8 November 2026)
+
+The [workflow run 42444259609](https://github.com/physicsbahare/proper_motion_86/actions/runs/42444259609) is now **completed: success**, both target jobs **success**, with archived per-exposure output artifacts:
+- 387132: `liu2026-target-centroid-window-387132` (artifact 13602946807)
+- 1651050: `liu2026-target-centroid-window-1651050` (artifact 13603012339)
+
+The previously written section 7 was an incomplete live-job checkpoint. The **final 1651050 detector-centroid result** from `1651050/window_centroids.csv` and `summary.json` is:
+
+- 4/4 F444W early frames remain usable with originally adopted `catalog_position_2dg` centroids. For each, Gaussian fits succeed at half-window sizes **4, 5 and 7 pixels** but **fail at 9 pixels**, meaning a test of 4 through 9 pixels is **NOT globally stable** for this candidate.
+- Among the four covering late F356W CAL frames, only **one** original **forced_gaussian** frame is usable at all (S/N **5.053**). Three other F356W frames fail the original accepted-centroid quality gate.
+- On the sole usable late F356W CAL, the new, separately refitted centroid succeeds **only** at half-window sizes **4 and 5 pixels** and **fails at 7 and 9**. The two successful re-fits agree closely **with each other** (east span 0.00456 mas; north span 0.00533 mas), but are **offset from the original accepted forced Gaussian centroid** by about **(-1.95, -6.32) mas**, or **6.61 mas 2D**. Do not misinterpret the tiny between-window span as evidence of no cross-method centroid bias; the originally adopted *forced* estimator differs and two larger-window attempts do not converge.
+- For that late F356W, the default center-of-mass versus accepted Gaussian detector offset is approximately **137.39 mas**, computed with the audit's fixed approximate 63 mas/pixel scale. Center-of-mass is not a validated alternative PSF estimator: this size is a *warning flag about sensitivity*, not a measured systematic correction.
+- **387132 comparison**: 4 early F444W + 2 late F410M target centroids all accepted with `catalog_position_2dg`; all six succeed at **all four** window sizes (4,5,7,9). Largest within-exposure Gaussian span 0.01556 mas east / 0.01384 mas north. These are internal re-fit stability values, not absolute astrometric accuracies.
+
+**Bottom line:** 387132's chosen Gaussian centroids show better test-window stability on every original accepted detector CAL. 1651050's sole faint cross-filter late-epoch centroid shows *limited convergence* and a cross-method difference from its accepted forced-fit coordinate. Coupled to existing full-epoch injection false positives (3/24 recovered stationary fakes at or above observed PM amplitude), the 1651050 displacement remains **not yet robustly attributable to intrinsic proper motion**; parallax versus motion cannot be separated using only two independent epochs.
+
+**Do not** infer formal covariance, updated PM significance, a certified ePSF correction, or a revised paper/source classification from this test. No original paper numbers were changed.
