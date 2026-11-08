@@ -1,0 +1,42 @@
+name: 1651050 F356W real-CAL rejected-frame and joint-centroid feasibility
+
+on:
+  push:
+    branches:
+      - 'plan/liu2026-minimal-astrometry-followups-20261108'
+    paths:
+      - '.github/workflows/audit_1651050_f356w_joint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  f356w_feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install scientific dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+      - name: Synthetic self test of masked shared-centroid fit
+        run: python -u scripts/audit_1651050_f356w_joint.py --self-test
+      - name: Original four F356W CAL real-data feasibility check
+        env:
+          PYTHONUNBUFFERED: '1'
+          MPLBACKEND: 'Agg'
+        run: python -u scripts/audit_1651050_f356w_joint.py --out results_1651050_f356w_joint
+      - name: Archive raw DQ maps, full fit results and explicit failure text
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1651050-f356w-original-cal-joint-feasibility
+          path: results_1651050_f356w_joint/
+          if-no-files-found: warn
+          retention-days: 30
