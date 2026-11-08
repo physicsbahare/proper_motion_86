@@ -63,3 +63,34 @@ Per candidate the new diagnostic:
 - No local FITS is needed for the above. User-local COSMOS2025 images/cat become relevant **only** if needing to inspect additional local mosaics or new locally held astrometric control data not in public MAST or committed catalog summaries.
 
 **Do not automatically merge or modify** paper values, confirmed-object counts, or number-density forecasts.
+
+## 6. Additional NEW paired-site analysis of EXISTING real-CAL injection data (8 Nov)
+
+I downloaded and inspected the actual full-epoch ZIP artifacts (not just workflow logs). At each trial ID, I paired its recovered **moving** fake with its recovered **stationary** fake from the **same sky location**. The residual diagnostic is:
+
+`(recovered moving PM - recovered stationary PM) - known injected PM`
+
+This can cancel some site-specific bias without claiming that the pipeline's full cross-filter or WCS errors have disappeared. Only sites where **both** trials were recovered enter the summary.
+
+| Metric | 387132 | 1651050 |
+| --- | ---: | ---: |
+| Both stationary + moving recovered at the same site | **30/32** | **23/32** |
+| Paired residual mean, east/north (mas/yr) | (-0.14, -1.13) | (+1.16, -9.93) |
+| Paired residual coordinate standard deviations (mas/yr) | (4.69, 3.76) | (37.37, 28.55) |
+| **Paired residual 2D amplitude median (mas/yr)** | **2.34** | **25.61** |
+| Paired residual amplitude 90th percentile (mas/yr) | 4.05 | 51.52 |
+| Paired residual amplitude 95th percentile (mas/yr) | 12.30 | 67.64 |
+
+**Interpretation:** The injection pipeline recovers the *difference* between known moving and stationary fakes much more consistently for 387132 than for 1651050. This makes the 1651050 single-late-exposure/cross-filter sensitivity concern more concrete. **Not a new independent observed PM measurement**; same small injected-site sample, recovery conditioning, template PSF and noise limitations remain. Do not treat the numbers as statistical significance or convert to Gaussian sigma.
+
+**Reproduction:** `scripts/summarize_paired_injection_artifact.py --candidate 387132 --artifact-zip github-actions-artifact-13314054065.zip` and `--candidate 1651050 --artifact-zip github-actions-artifact-13314805087.zip`. The ZIP files are existing [run 41814514100](https://github.com/physicsbahare/proper_motion_86/actions/runs/41814514100) downloads; their CSVs are not asserted to live on `main`.
+
+## 7. New original-CAL fitting-window audit: verified partial result
+
+Workflow [run 42444259609](https://github.com/physicsbahare/proper_motion_86/actions/runs/42444259609).
+
+**387132 job completed successfully** (artifact `liu2026-target-centroid-window-387132`, ID 13602946807). All **six** usable original CAL exposures passed the 2D Gaussian fit at four tested window half-sizes (4,5,7,9 pixels). The within-exposure Gaussian centroid span across the tested windows was **at most 0.0156 mas east and 0.0139 mas north** (the maxima occur on one early F444W frame). These tiny differences are **numerical stability of this particular target-anchored Gaussian fit**, NOT astrometric error bars, independent registration, or independent validation of the real PSF. The center-of-mass centroids were much more window/background sensitive and could differ from the adopted Gaussian centroids by **several to ~83 mas** in the per-frame comparison. COM is not a validated substitute for the chosen Gaussian fit.
+
+**1651050:** the separate real-CAL fitting-window job was still being processed when this partial checkpoint was written. No new centroid-window result is claimed for it here. The previous original-pixel audit remains applicable: only one late F356W CAL target has an accepted forced Gaussian centroid, while other covering exposures fail that astrometric gate.
+
+No manuscript tables, significance thresholds, or source classifications have been changed.
