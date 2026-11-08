@@ -94,3 +94,14 @@ Workflow [run 42444259609](https://github.com/physicsbahare/proper_motion_86/act
 **1651050:** the separate real-CAL fitting-window job was still being processed when this partial checkpoint was written. No new centroid-window result is claimed for it here. The previous original-pixel audit remains applicable: only one late F356W CAL target has an accepted forced Gaussian centroid, while other covering exposures fail that astrometric gate.
 
 No manuscript tables, significance thresholds, or source classifications have been changed.
+
+
+## 8. Verified archived original-refit provenance (8 November)
+
+Independently inspected artifact 13218202106 from [run 41605446965](https://github.com/physicsbahare/proper_motion_86/actions/runs/41605446965), including both frozen_refit_reconciliation.json files and full per-exposure diagnostics.
+
+- **387132:** Four accepted F444W frames plus two accepted F410M frames ALL use catalog_position_2dg centroiding. The independent-minus-frozen PM difference is **(+2.91696, -0.34358) mas/yr** (east,north). The fitted baseline differs by just +0.0000157 day, so the baseline is not the explanation.
+- **1651050:** Four accepted early F444W frames use catalog_position_2dg, but the **ONLY accepted late F356W frame** (jw05893016008_05101_00001_nrcblong_cal.fits) uses **forced_gaussian**, S/N 5.053. This is a filter change AND centroid-estimator change between epochs. The independent-minus-frozen PM difference is **(-6.51065, +0.74229) mas/yr**; the baseline changes by only -0.000390 day. The other three F356W covering frames fail the accepted finite-centroid gate despite diagnostic target S/N **2.255, 5.086, 3.220**, respectively; S/N alone is not an astrometric centroid.
+- The archived original-versus-refit provenance reconciliation remains marked UNRESOLVED. We identified a plausible source of method sensitivity for 1651050, **not a proven cause of the PM discrepancy**.
+
+**Scientific priority:** vet the only late F356W forced-centroid association/PSF and DQ conditions; do not silently include rejected frames or claim high-sigma intrinsic PM. No published classification or numerical result was changed.
