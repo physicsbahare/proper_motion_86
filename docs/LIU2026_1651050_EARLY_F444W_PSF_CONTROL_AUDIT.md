@@ -41,3 +41,25 @@ The F356W physical two-source sensitivity is documented in [LIU2026_1651050_STPS
 A tightly bounded **original pipeline leave-one-early-exposure-out test** is therefore necessary *before* interpreting apparent physical-PSF astrometry, particularly for F444W `...00004`. New script `scripts/audit_1651050_f444w_frame_loo.py` and [workflow run 42492250731](https://github.com/physicsbahare/proper_motion_86/actions/runs/42492250731) repeat full-CAL original `measure_exposure_recentered` + local control `register_exposures` + `infer_proper_motion` with all 4 early+1 late accepted, each early image omitted in turn, and both originally accepted early exposures with bad 3×3 target DQ pixels omitted together. The test explicitly preserves original registered controls and source quality; no STPSF centroid is used as publication substitute.
 
 **Interim scientific status:** a stable *within-physical-PSF-model* F356W position does not settle the more consequential early F444W original-estimator discrepancy. Do NOT interpret `~1 mas/yr` raw fixed-Gaussian/STPSF difference as the whole astrometric systematic, promote 1651050 to a confirmed intrinsic PM object or modify frozen tables.
+
+
+## Completed source-exposure leave-one-out check on original PM estimator
+
+[Run 42492250731](https://github.com/physicsbahare/proper_motion_86/actions/runs/42492250731) **SUCCESS**, archived actual output **artifact 13622077969** `1651050-original-F444W-detector-LOO-robustness`. I inspected its `summary.json`, `original_estimator_f444w_leaveout_summary.csv`, and original-target DQ core quality. The analysis uses actual Stage-2 CAL detector images and the original code's `measure_exposure_recentered` + local-control `register_exposures` + `infer_proper_motion`; no new STPSF centroid has been substituted for the original PM.
+
+| Scenario | Accepted F444W early frames | East PM (mas/yr) | North PM (mas/yr) | Nominal original-pipeline 2D score | Internal class |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Original independent refit, all four early | 4 | **-61.74095** | **+17.15049** | 4.3377 | AMBIGUOUS |
+| Drop `...00004` (5 hardbad core pixels) | 3 | **-55.40382** | **+17.79839** | 4.8554 | AMBIGUOUS |
+| Drop `...00003` (0 hardbad core pixels) | 3 | **-62.98206** | **+17.93729** | 4.0461 | AMBIGUOUS |
+| Drop `...00001` (4 hardbad core pixels) | 3 | **-61.91000** | **+16.03356** | 3.7903 | AMBIGUOUS |
+| Drop `...00002` (0 hardbad core pixels) | 3 | **-64.37397** | **+18.07865** | 4.1053 | AMBIGUOUS |
+| Drop both early F444W `...00004` and `...00001`, retain clean `...00003` + `...00002` | **2** | **-55.230296** | **+16.408212** | 5.0621 | MOVING |
+
+All cases keep the **one originally accepted** late F356W CAL. The last *two-clean-early plus one-late* refit reproduces the frozen pair **(-55.2303,+16.4082) mas/yr** to about **0.00002 mas/yr** in each component; the original frozen baseline differs from refitted baseline by only ~0.00039 day. Such exceptionally close numerical agreement strongly suggests the earlier frozen pipeline derived its result using these cleaner F444W CAL exposures or an equivalent rejection. **It does not by itself certify historical exposure provenance**, which would require the exact archived original run's selected-exposure list and code/parameters.
+
+**Important robust finding:** even with each individual originally accepted early F444W detector exposure excluded in turn, the source's measured **apparent two-epoch displacement retains the same east-negative/north-positive direction**. The east PM across LOO cases ranges -64.37 to -55.40 mas/yr; north +16.03 to +18.08 mas/yr. The result is not driven solely by the F444W `...00004` exposure whose unvalidated new STPSF center diverged by ~0.65 detector pixel from the original estimator.
+
+**Still not confirmed intrinsic PM:** The model-based 5.062 original-pipeline score for the two-clean-frame case is **not** calibrated using enough independent ultra-red matched stationary sources or reliable across-filter PSFs. Field-control small N and the existing 3/24 recovered stationary injected false-motion diagnostic remain pertinent. JWST parallax can mimic some or all of the two-epoch apparent displacement under different assumed distances. The physically modeled F356W PSF and F444W compact-control fit exercises did not deliver independently certified ~mas absolute PSF errors.
+
+**Decision:** Save these real-data sensitivity results and optionally present the **stable observed displacement and original-astrometry numerical reconciliation** to collaborators, while NOT updating `main`, the paper table, 5-sigma label or source classification without additional independent evidence.
