@@ -58,3 +58,50 @@ Source: [existing cross-filter original-CAL run 41605446965](https://github.com/
 - This directly tests whether the apparent agreement of rejected frames is merely uncorrected WCS alignment (a potential important systematic).
 - **Gate:** no color-aware PSF or new injection until reference registration, source association, and PSF/background sensitivity have been checked. A good numerical fit alone cannot promote a DQ-rejected frame.
 - No new observations are fabricated; no journal PM, error bars, parallax, or source classification has been changed.
+
+
+## New result 2: same-filter registration test COMPLETED (8 November 2026)
+
+[GitHub Actions run 42487059542](https://github.com/physicsbahare/proper_motion_86/actions/runs/42487059542): **success**, and raw artifact **13620167168** (`1651050-F356W-same-filter-registration-feasibility`). I independently inspected the actual archived `summary.json`, `registered_vs_raw_summary.csv`, `per_frame_registration_quality.json` and `registered_vs_raw_per_frame_amplitudes.csv`.
+
+### Same-band reference field quality
+
+Local affine registration targets the originally accepted F356W exposure. Excluding the science target, the **reference** has 13 locally detected field sources; the three other detector images have **11, 8, 11** matched and retained controls, respectively. Per-axis robust residual scatter of field-source matches:
+
+- Rejected `...05101_00002`: east **4.03 mas**, north **7.96 mas** (11 matched/used);
+- Rejected `...05101_00001`: east **5.95 mas**, north **5.12 mas** (8 matched/used);
+- Rejected `...03101_00001`: east **4.72 mas**, north **6.56 mas** (11 matched/used).
+
+These values are *empirical same-filter registration residuals* from only 8–11 field matches, **not an error bar on the source centroid**, a stationarity-certified galaxy null, or a cross-filter calibration. The source itself was excluded from frame registration.
+
+### Location agreement and PSF-width dependence, relative to accepted F356W centroid
+
+| Fixed Gaussian width (pixels) | Original four-frame WCS east/north (mas) | Registered four-frame east/north (mas) | Registered three rejected frames alone east/north (mas) |
+| ---: | --- | --- | --- |
+| 0.80 | (+3.08,+8.88) | **(+2.94,+8.64)** | **(+3.87,+11.03)** |
+| 1.05 | (+0.11,+12.53) | **(+0.30,+10.67)** | **(+0.62,+14.64)** |
+| 1.30 | (-2.58,+16.25) | **(-2.40,+13.95)** | **(-3.14,+19.50)** |
+
+The fixed shared-position model converged in all these checks **without the source hitting the ±160 mas center-position bounds**. In this model, the rejection of the sole original accepted image does **not** erase the tentative cross-image common location. The within-F356W local affine registration changes the best-fitting location by a few mas rather than introducing a catastrophic disagreement.
+
+However: this **does not constitute three validated independent source detections**. Every fit is seeded near the original accepted position and assumes a fixed circular Gaussian, nonnegative target amplitudes and local constant backgrounds. Faint close neighbors/background, CAL correlated noise, DQ flags, selection conditioned on a shared position, and uncertain PSF can bias location and detection evidence. The original weak-frame quality decisions remain in force.
+
+### DQ-sensitive rejected frame
+
+I also re-inspected the archived original SCI/ERR/DQ pixel arrays (artifact **11545878714**, run 37769062034) at the new full-four-frame width 1.05 modeled source coordinate:
+- Rejected F356W `...05101_00002`: **DO_NOT_USE bit 1 at the modeled target center**, and **3/9** pixels in the central 3x3 contain astrometric hard-bad DQ flags. This exposure is particularly unsuitable for rescue, regardless of its positive conditional flux.
+- Rejected `...05101_00001`: modeled center has DQ=0 and **0/9** bad 3x3 core pixels; nonetheless its independently attempted forced fit had S/N 2.996 and one Gaussian width hit the 0.55-pix lower bound.
+- Rejected `...03101_00001`: modeled center has DQ=0 and **0/9** bad 3x3 core pixels; its independently attempted forced fit S/N was 3.860 (<4).
+- The single already accepted `...16008_05101_00001` also had a central 3x3 bad flag within one pixel despite a clean modeled center, highlighting the need for rigorous PSF validation.
+
+These are **rechecks of archived pixel stamps with source coordinates derived from the unregistered common Gaussian model**; they are not proof that a same-filter re-registration unflags pixels or that noise/scene PSF are controlled.
+
+## Current scientific decision / stop gate
+
+1. **P0 complete:** all four F356W original CAL images, the rejected-frame reason, and real weighted-pixel comparisons were checked. All original rejection labels remain unchanged.
+2. **P1 partial but scientifically informative:** a fixed-position, same-filter control-registered joint fitting experiment is feasible with 8–11 local references per rejected frame. Its shifts are small, stable within the *specified simple Gaussian family*, including when the accepted frame is excluded. This motivates **a single bounded physical F356W PSF / neighbor-background validation**, but **does not itself certify the late centroid** or chromatic F444W/F356W PM.
+3. **No P2 injection rerun yet:** at present there is no **independently validated color/SED-weighted PSF for this ultra-red target**, which the pre-specified P2 gate explicitly requires. Repeating artificial-source injections with the old unvalidated field-source stamps would not resolve the systematic and would risk overconfidence.
+4. **Do not change paper values or call 1651050 a confirmed high-significance intrinsic mover.** Separating proper motion from JWST parallax still requires another independent epoch (or an externally validated distance).
+5. Data needed for the next *physical-PSF* stage: an appropriate target spectral prior or uncertainty-bracketed SED, verified NIRCam F356W/F444W PSF and detector sampling at each source position, and independent control-source/neighbor-residual model. Original CAL images are public at MAST; **user-local FITS are not required for this completed stage**.
+
+**Conclusion:** a promising common faint-source position across the late F356W CAL frames was found, including after local field registration and removal of the previously accepted exposure, but **three individual late astrometric centroids were not independently validated or recovered**. The evidence is stronger than "all three rejected frames contain no information", but not strong enough to change the published astrometry.
