@@ -1,0 +1,45 @@
+name: Real JWST full-epoch stationary-galaxy audit
+# Re-run after synthetic 4/4 regression tests passed (2026-11-06).
+on:
+  workflow_dispatch:
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths:
+      - '.github/workflows/run_galaxy_full_epoch.yml'
+permissions:
+  contents: read
+jobs:
+  galaxy_full_epoch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate: [387132, 1651050]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install existing published audit dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Check synthetic full-epoch source null regression tests
+        run: pytest -q tests/test_galaxy_full_epoch.py
+      - name: Load real MAST CALs and measure full-epoch galaxy-only astrometry
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python -u scripts/run_full_epoch_galaxy_null.py \
+            --candidate ${{ matrix.candidate }} \
+            --out results_galaxy_full_epoch
+      - name: Save all source-level diagnostics even if MAST or astrometry fails
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: galaxy-full-epoch-${{ matrix.candidate }}
+          path: results_galaxy_full_epoch/
+          if-no-files-found: warn
+          retention-days: 30

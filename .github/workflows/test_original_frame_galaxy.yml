@@ -1,0 +1,24 @@
+name: Validate original-frame held-out galaxy astrometry
+on:
+  push:
+    branches: ['review/cross-filter-systematics-*']
+    paths:
+      - 'tests/test_galaxy_original_frame_full_epoch.py'
+      - '.github/workflows/test_original_frame_galaxy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          pip install -r requirements.txt
+          pip install -e .
+      - run: pytest -q tests/test_galaxy_original_frame_full_epoch.py

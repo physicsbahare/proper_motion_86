@@ -1,0 +1,57 @@
+name: Dave cross-filter astrometric systematics audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'review/cross-filter-systematics-*'
+    paths:
+      - '.github/workflows/dave_cross_filter_null.yml'
+      - 'scripts/run_cross_filter_null.py'
+      - 'src/pm86/cross_filter_null.py'
+      - 'tests/test_cross_filter_null.py'
+      - 'src/pm86/cross_filter_injection.py'
+      - 'tests/test_cross_filter_injection.py'
+      - 'src/pm86/injection_trial_summary.py'
+      - 'tests/test_injection_trial_summary.py'
+      - 'tests/test_refit_reconciliation.py'
+      - 'src/pm86/refit_reconciliation.py'
+      - 'docs/DAVE_CROSS_FILTER_SYSTEMATICS.md'
+
+permissions:
+  contents: read
+
+jobs:
+  null_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install exactly the project's scientific dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Synthetic method tests
+        run: pytest -q tests/test_cross_filter_null.py tests/test_refit_reconciliation.py tests/test_cross_filter_injection.py tests/test_injection_trial_summary.py
+
+      - name: Measure field-control nulls from public MAST CAL cutouts
+        run: |
+          python -u scripts/run_cross_filter_null.py --out results_cross_filter_null
+
+      - name: Upload full diagnostics even when MAST access fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dave-cross-filter-astrometry-audit
+          path: results_cross_filter_null/
+          if-no-files-found: warn
+          retention-days: 30
